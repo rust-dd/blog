@@ -422,6 +422,8 @@ dependencies = [
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "serde",
+ "serde_json",
  "surrealdb",
  "thiserror",
  "tokio",

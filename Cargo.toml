@@ -22,6 +22,8 @@ tracing = { version = "0.1", optional = true }
 http = "1"
 surrealdb = "1.5.4"
 chrono = "0.4.38"
+serde = "1.0.204"
+serde_json = "1.0.122"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
