@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use leptos::{server, ServerFnError};
+use leptos::{logging::log, server, ServerFnError};
 use serde::{Deserialize, Serialize};
 use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, sql::Thing, Surreal};
 
@@ -24,11 +24,12 @@ pub struct Post {
     pub tags: Vec<Cow<'static, str>>,
     pub author: Author,
     pub read_time: usize,
+    pub total_views: usize,
     pub created_at: Cow<'static, str>,
     pub updated_at: Cow<'static, str>,
 }
 
-#[server(endpoint = "/")]
+#[server(endpoint = "/posts")]
 pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
     let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
     db.signin(Root {
@@ -51,4 +52,28 @@ pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
     let posts = query?.take::<Vec<Post>>(0)?;
 
     Ok(posts)
+}
+
+#[server(endpoint = "/post")]
+pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
+    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
+    db.signin(Root {
+        username: "root",
+        password: "root",
+    })
+    .await?;
+
+    // Select a specific namespace / database
+    db.use_ns("rustblog").use_db("rustblog").await?;
+
+    let query = format!("SELECT *, author.* from post:{0}", id);
+    let query = db.query(&query).await;
+
+    if let Err(e) = query {
+        return Err(ServerFnError::from(e));
+    }
+
+    let post = query?.take::<Vec<Post>>(0)?;
+
+    Ok(post.first().unwrap().clone())
 }
