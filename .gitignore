@@ -13,3 +13,4 @@ end2end/playwright-report/
 playwright/.cache/
 
 *.db
+style/output.css
