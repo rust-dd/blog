@@ -1,4 +1,7 @@
-DEFINE TABLE author SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE author TYPE NORMAL SCHEMAFULL
+    PERMISSIONS 
+        FOR select FULL
+        FOR create, update, delete NONE;
 
 DEFINE FIELD id ON author TYPE record<author> ASSERT $value != NONE;
 DEFINE FIELD name ON author TYPE string ASSERT $value != NONE;

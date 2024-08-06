@@ -1,4 +1,7 @@
-DEFINE TABLE post SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE post TYPE NORMAL SCHEMAFULL 
+    PERMISSIONS 
+        FOR select FULL
+        FOR create, update, delete NONE;
 
 DEFINE FIELD id ON post TYPE record<post> ASSERT $value != NONE;
 DEFINE FIELD title ON post TYPE string ASSERT $value != NONE;
