@@ -21,6 +21,7 @@ thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
 surrealdb = "1.5.4"
+chrono = "0.4.38"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
