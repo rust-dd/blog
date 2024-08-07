@@ -33,11 +33,11 @@ pub fn Component() -> impl IntoView {
                                     {format!("{} min read", post.read_time)}
                                 </div>
                             </div>
-                            <div class="text-muted-foreground mb-4">
+                            <div class="mb-4 text-muted-foreground">
                                 <span>{"by "}</span>
-                                <span class="font-semibold ml-1">{post.author.name.clone()}</span>
+                                <span class="ml-1 font-semibold">{post.author.name.clone()}</span>
                             </div>
-                            <div class="prose prose-xl text-white" inner_html=html_output />
+                            <div class="text-white prose" inner_html=html_output />
                         </article>
                     }
                 })}

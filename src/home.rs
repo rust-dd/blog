@@ -41,13 +41,13 @@ pub fn Component() -> impl IntoView {
                                             {format!("{} min read", post.read_time)}
                                         </div>
                                     </div>
-                                    <p class="text-muted-foreground mb-2">
+                                    <p class="mb-2 text-muted-foreground">
                                         {&post.summary.to_string()}
                                     </p>
-                                    <div class="flex items-center justify-between text-sm text-muted-foreground">
+                                    <div class="flex justify-between items-center text-sm text-muted-foreground">
                                         <span>
                                             {"by "}
-                                            <span class="font-semibold ml-1">
+                                            <span class="ml-1 font-semibold">
                                                 {&post.author.name.to_string()}
                                             </span>
                                         </span>
