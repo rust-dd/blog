@@ -31,7 +31,7 @@ pub fn App() -> impl IntoView {
                     view! { <ErrorTemplate outside_errors /> }.into_view()
                 }>
                     <Routes>
-                        <Route path="" view=home::Component />
+                        <Route path="" view=home::Component ssr=SsrMode::Async />
                         <Route path="/post/:id" view=post::Component ssr=SsrMode::Async />
                     </Routes>
                 </Router>

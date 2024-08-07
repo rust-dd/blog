@@ -15,6 +15,23 @@ pub struct Author {
     pub github: Option<Cow<'static, str>>,
 }
 
+impl Default for Author {
+    fn default() -> Self {
+        Self {
+            id: Thing {
+                tb: "author".to_string(),
+                id: "0".to_string().into(),
+            },
+            name: Cow::Borrowed(""),
+            email: Cow::Borrowed(""),
+            bio: None,
+            linkedin: None,
+            twitter: None,
+            github: None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Post {
     pub id: Thing,
@@ -27,6 +44,26 @@ pub struct Post {
     pub total_views: usize,
     pub created_at: Cow<'static, str>,
     pub updated_at: Cow<'static, str>,
+}
+
+impl Default for Post {
+    fn default() -> Self {
+        Self {
+            id: Thing {
+                tb: "post".to_string(),
+                id: "0".to_string().into(),
+            },
+            title: Cow::Borrowed(""),
+            summary: Cow::Borrowed(""),
+            body: Cow::Borrowed(""),
+            tags: vec![],
+            author: Author::default(),
+            read_time: 0,
+            total_views: 0,
+            created_at: Cow::Borrowed(""),
+            updated_at: Cow::Borrowed(""),
+        }
+    }
 }
 
 #[server(endpoint = "/posts")]

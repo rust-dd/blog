@@ -51,7 +51,7 @@ pub fn Component() -> impl IntoView {
                                                 {&post.author.name.to_string()}
                                             </span>
                                         </span>
-                                    // <span>{format!("{} views", post.total_views)}</span>
+                                        <span>{format!("{} views", post.total_views)}</span>
                                     </div>
                                 </article>
                             }
