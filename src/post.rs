@@ -37,7 +37,10 @@ pub fn Component() -> impl IntoView {
                                 <span>{"by "}</span>
                                 <span class="ml-1 font-semibold">{post.author.name.clone()}</span>
                             </div>
-                            <div class="text-white prose" inner_html=html_output />
+                            <div
+                                class="prose prose-h1:text-white prose-h2:text-white prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                inner_html=html_output
+                            />
                         </article>
                     }
                 })}
