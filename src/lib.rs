@@ -18,7 +18,7 @@ pub fn hydrate() {
 pub mod ssr {
     use axum::extract::FromRef;
     use leptos::LeptosOptions;
-    use surrealdb::{engine::remote::ws::Client, Surreal};
+    use surrealdb::{engine::remote::http::Client, Surreal};
 
     #[derive(FromRef, Debug, Clone)]
     pub struct AppState {

@@ -6,7 +6,6 @@ use crate::posts::select_post;
 
 #[component]
 pub fn Component() -> impl IntoView {
-    // Creates a reactive value to update the button
     let params = use_params_map();
     let id = move || params.with(|params| params.get("id").cloned().unwrap_or_default());
     let post = create_blocking_resource(
@@ -26,19 +25,32 @@ pub fn Component() -> impl IntoView {
                     let mut html_output = String::new();
                     html::push_html(&mut html_output, parser);
                     view! {
-                        <article class="p-6 rounded-lg shadow-sm transition-transform duration-300 bg-card">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-2xl font-semibold">{post.title.clone()}</h2>
-                                <div class="text-sm text-muted-foreground">
-                                    {format!("{} min read", post.read_time)}
+                        <article class="rounded-lg shadow-sm transition-transform duration-300 bg-card">
+                            <div class="flex flex-col gap-4">
+                                <p class="text-4xl font-semibold">{post.title.clone()}</p>
+                                <div class="flex gap-3 justify-start items-center text-sm text-muted-foreground">
+                                    <p
+                                        on:click=move |e| {
+                                            e.stop_propagation();
+                                            if let Some(github) = &post.author.github {
+                                                let _ = window()
+                                                    .open_with_url_and_target(&github, "_blank");
+                                            }
+                                        }
+                                        class="cursor-pointer hover:underline"
+                                    >
+                                        {"by "}
+                                        <span class="ml-1 font-semibold">
+                                            {&post.author.name.to_string()}
+                                        </span>
+                                    </p>
+                                    <p>{post.created_at}</p>
+                                    <p>{format!("{} min read", post.read_time)}</p>
+                                    <p>{format!("{} views", post.total_views)}</p>
                                 </div>
                             </div>
-                            <div class="mb-4 text-muted-foreground">
-                                <span>{"by "}</span>
-                                <span class="ml-1 font-semibold">{post.author.name.clone()}</span>
-                            </div>
                             <div
-                                class="prose prose-h1:text-white prose-h2:text-white prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                class="my-6 prose prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
                                 inner_html=html_output
                             />
                         </article>
