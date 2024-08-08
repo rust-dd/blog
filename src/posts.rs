@@ -1,8 +1,14 @@
 use std::borrow::Cow;
 
-use leptos::{logging::log, server, ServerFnError};
+use super::AppState;
+use axum::{
+    body::Body,
+    extract::{Path, Request, State},
+    response::{IntoResponse, Response},
+};
+use leptos::{server, LeptosOptions, ServerFnError};
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, sql::Thing, Surreal};
+use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Author {
@@ -66,20 +72,8 @@ impl Default for Post {
     }
 }
 
-#[server(endpoint = "/posts")]
-pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
-    db.signin(Root {
-        username: "root",
-        password: "root",
-    })
-    .await?;
-
-    // Select a specific namespace / database
-    db.use_ns("rustblog").use_db("rustblog").await?;
-
+pub async fn select_posts(State(db): State<Surreal<Client>>) -> Result<Vec<Post>, ServerFnError> {
     let query = format!("SELECT *, author.* from post LIMIT 20 START {0};", offset);
-
     let query = db.query(&query).await;
 
     if let Err(e) = query {
@@ -91,18 +85,12 @@ pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
     Ok(posts)
 }
 
-#[server(endpoint = "/post")]
-pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
-    db.signin(Root {
-        username: "root",
-        password: "root",
-    })
-    .await?;
-
-    // Select a specific namespace / database
-    db.use_ns("rustblog").use_db("rustblog").await?;
-
+pub async fn select_post(
+    Path(id): Path<String>,
+    State(db): State<Surreal<Client>>,
+    State(options): State<LeptosOptions>,
+    req: Request<Body>,
+) -> Response {
     let query = format!("SELECT *, author.* from post:{0}", id);
     let query = db.query(&query).await;
 
@@ -111,6 +99,7 @@ pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
     }
 
     let post = query?.take::<Vec<Post>>(0)?;
-
-    Ok(post.first().unwrap().clone())
+    let post = post.first().unwrap().clone();
+    let handler = leptos_axum::render_app_async(options, Post);
+    handler(req).await.into_response()
 }
