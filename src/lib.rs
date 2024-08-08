@@ -14,12 +14,15 @@ pub fn hydrate() {
     leptos::mount_to_body(App);
 }
 
-use leptos::LeptosOptions;
-use surrealdb::{engine::remote::ws::Client, Surreal};
-use axum::extract::FromRef;
+#[cfg(feature = "ssr")]
+pub mod ssr {
+    use axum::extract::FromRef;
+    use leptos::LeptosOptions;
+    use surrealdb::{engine::remote::ws::Client, Surreal};
 
-#[derive(FromRef, Debug, Clone)]
-pub struct AppState {
-    pub leptos_options: LeptosOptions,
-    pub db: Surreal<Client>,
+    #[derive(FromRef, Debug, Clone)]
+    pub struct AppState {
+        pub db: Surreal<Client>,
+        pub leptos_options: LeptosOptions,
+    }
 }

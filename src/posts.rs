@@ -1,14 +1,8 @@
 use std::borrow::Cow;
 
-use super::AppState;
-use axum::{
-    body::Body,
-    extract::{Path, Request, State},
-    response::{IntoResponse, Response},
-};
-use leptos::{server, LeptosOptions, ServerFnError};
+use leptos::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
+use surrealdb::sql::Thing;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Author {
@@ -72,8 +66,14 @@ impl Default for Post {
     }
 }
 
-pub async fn select_posts(State(db): State<Surreal<Client>>) -> Result<Vec<Post>, ServerFnError> {
-    let query = format!("SELECT *, author.* from post LIMIT 20 START {0};", offset);
+#[server(endpoint = "/posts")]
+pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
+    use crate::ssr::AppState;
+    use leptos::expect_context;
+
+    let AppState { db, .. } = expect_context::<AppState>();
+
+    let query = format!("SELECT *, author.* from post;");
     let query = db.query(&query).await;
 
     if let Err(e) = query {
@@ -85,12 +85,13 @@ pub async fn select_posts(State(db): State<Surreal<Client>>) -> Result<Vec<Post>
     Ok(posts)
 }
 
-pub async fn select_post(
-    Path(id): Path<String>,
-    State(db): State<Surreal<Client>>,
-    State(options): State<LeptosOptions>,
-    req: Request<Body>,
-) -> Response {
+#[server(endpoint = "/post")]
+pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
+    use crate::ssr::AppState;
+    use leptos::expect_context;
+
+    let AppState { db, .. } = expect_context::<AppState>();
+
     let query = format!("SELECT *, author.* from post:{0}", id);
     let query = db.query(&query).await;
 
@@ -99,7 +100,6 @@ pub async fn select_post(
     }
 
     let post = query?.take::<Vec<Post>>(0)?;
-    let post = post.first().unwrap().clone();
-    let handler = leptos_axum::render_app_async(options, Post);
-    handler(req).await.into_response()
+
+    Ok(post.first().unwrap().clone())
 }

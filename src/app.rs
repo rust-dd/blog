@@ -9,7 +9,6 @@ use leptos_router::*;
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-    // let navigate = use_navigate();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
@@ -18,9 +17,10 @@ pub fn App() -> impl IntoView {
         <Title text="Welcome to Leptos" />
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
-                // on:click=move |_| navigate("/", Default::default())
                 <div class="container mx-auto max-w-5xl">
-                    <h1 class="text-3xl font-bold">blog</h1>
+                    <a href="/" class="text-3xl font-bold">
+                        blog
+                    </a>
                 </div>
             </header>
             <main class="container flex overflow-auto flex-col gap-8 py-12 px-4 mx-auto mt-24 max-w-5xl md:px-0">
