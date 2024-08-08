@@ -69,6 +69,7 @@ impl Default for Post {
 #[server(endpoint = "/posts")]
 pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
     use crate::ssr::AppState;
+    use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
@@ -80,7 +81,15 @@ pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
         return Err(ServerFnError::from(e));
     }
 
-    let posts = query?.take::<Vec<Post>>(0)?;
+    let mut posts = query?.take::<Vec<Post>>(0)?;
+    posts.iter_mut().for_each(|post| {
+        let date_time = DateTime::parse_from_rfc3339(&post.created_at)
+            .unwrap()
+            .with_timezone(&Utc);
+        let naive_date = date_time.date_naive();
+        let formatted_date = naive_date.format("%b %-d").to_string();
+        post.created_at = formatted_date.into();
+    });
 
     Ok(posts)
 }
@@ -88,6 +97,7 @@ pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
 #[server(endpoint = "/post")]
 pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
+    use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
@@ -100,6 +110,29 @@ pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
     }
 
     let post = query?.take::<Vec<Post>>(0)?;
+    let mut post = post.first().unwrap().clone();
 
-    Ok(post.first().unwrap().clone())
+    let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
+    let naive_date = date_time.date_naive();
+    let formatted_date = naive_date.format("%b %-d").to_string();
+    post.created_at = formatted_date.into();
+
+    Ok(post)
+}
+
+#[server(endpoint = "/increment_views")]
+pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
+    use crate::ssr::AppState;
+    use leptos::expect_context;
+
+    let AppState { db, .. } = expect_context::<AppState>();
+
+    let query = format!("UPDATE post:{0} SET total_views = total_views + 1;", id);
+    let query = db.query(&query).await;
+
+    if let Err(e) = query {
+        return Err(ServerFnError::from(e));
+    }
+
+    Ok(())
 }

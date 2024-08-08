@@ -1,7 +1,7 @@
 use leptos::*;
 use leptos_router::use_navigate;
 
-use crate::posts::select_posts;
+use crate::posts::{increment_views, select_posts};
 
 /// Renders the home page of your application.
 #[component]
@@ -11,6 +11,12 @@ pub fn Component() -> impl IntoView {
         || (),
         move |_| async move { select_posts().await.unwrap_or_default() },
     );
+    let increment_view = create_action(move |id: &String| {
+        let id = id.clone();
+        async move {
+            let _ = increment_views(id.to_string()).await;
+        }
+    });
 
     view! {
         <Suspense fallback=move || {
@@ -26,31 +32,43 @@ pub fn Component() -> impl IntoView {
                             let navigate = navigate.clone();
                             view! {
                                 <article
-                                    on:click=move |_| navigate(
-                                        &format!("/post/{}", post.id.id),
-                                        Default::default(),
-                                    )
+                                    on:click=move |_| {
+                                        increment_view.dispatch(post.id.id.to_string());
+                                        navigate(
+                                            &format!("/post/{}", post.id.id),
+                                            Default::default(),
+                                        )
+                                    }
                                     class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >
-                                    <div class="flex justify-between items-center mb-4">
-                                        <h2 class="text-xl font-semibold">
+                                    <div class="flex gap-8 justify-between items-center mb-4">
+                                        <p class="text-3xl font-semibold">
                                             {&post.title.to_string()}
-                                        </h2>
-                                        <div class="text-sm text-muted-foreground">
-                                            {format!("{} min read", post.read_time)}
-                                        </div>
+                                        </p>
+
                                     </div>
                                     <p class="mb-2 text-muted-foreground">
                                         {&post.summary.to_string()}
                                     </p>
-                                    <div class="flex justify-between items-center text-sm text-muted-foreground">
-                                        <span>
+                                    <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
+                                        <p>{format!("{} min read", post.read_time)}</p>
+                                        <p>{format!("{} views", post.total_views)}</p>
+                                        <p>{post.created_at}</p>
+                                        <p
+                                            on:click=move |e| {
+                                                e.stop_propagation();
+                                                if let Some(github) = &post.author.github {
+                                                    let _ = window()
+                                                        .open_with_url_and_target(&github, "_blank");
+                                                }
+                                            }
+                                            class="cursor-pointer hover:underline"
+                                        >
                                             {"by "}
                                             <span class="ml-1 font-semibold">
                                                 {&post.author.name.to_string()}
                                             </span>
-                                        </span>
-                                        <span>{format!("{} views", post.total_views)}</span>
+                                        </p>
                                     </div>
                                 </article>
                             }

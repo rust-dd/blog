@@ -12,9 +12,7 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
-
-        // sets the document title
-        <Title text="Welcome to Leptos" />
+        <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                 <div class="container mx-auto max-w-5xl">
@@ -23,8 +21,7 @@ pub fn App() -> impl IntoView {
                     </a>
                 </div>
             </header>
-            <main class="container flex overflow-auto flex-col gap-8 py-12 px-4 mx-auto mt-24 max-w-5xl md:px-0">
-                // content for this welcome page
+            <main class="container flex overflow-auto flex-col gap-8 py-12 px-4 mx-auto mt-16 max-w-5xl md:px-0">
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
                     outside_errors.insert_with_default_key(AppError::NotFound);
