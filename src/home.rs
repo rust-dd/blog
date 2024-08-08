@@ -7,10 +7,9 @@ use crate::posts::select_posts;
 #[component]
 pub fn Component() -> impl IntoView {
     let navigate = use_navigate();
-    let (offset, _set_offset) = create_signal::<usize>(0);
     let posts = create_blocking_resource(
-        move || offset.get(),
-        move |offset| async move { select_posts(offset).await.unwrap_or_default() },
+        || (),
+        move |_| async move { select_posts().await.unwrap_or_default() },
     );
 
     view! {

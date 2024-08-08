@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
-use leptos::{logging::log, server, ServerFnError};
+use leptos::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, sql::Thing, Surreal};
+use surrealdb::sql::Thing;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Author {
@@ -67,19 +67,13 @@ impl Default for Post {
 }
 
 #[server(endpoint = "/posts")]
-pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
-    db.signin(Root {
-        username: "root",
-        password: "root",
-    })
-    .await?;
+pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
+    use crate::ssr::AppState;
+    use leptos::expect_context;
 
-    // Select a specific namespace / database
-    db.use_ns("rustblog").use_db("rustblog").await?;
+    let AppState { db, .. } = expect_context::<AppState>();
 
-    let query = format!("SELECT *, author.* from post LIMIT 20 START {0};", offset);
-
+    let query = format!("SELECT *, author.* from post;");
     let query = db.query(&query).await;
 
     if let Err(e) = query {
@@ -93,15 +87,10 @@ pub async fn select_posts(offset: usize) -> Result<Vec<Post>, ServerFnError> {
 
 #[server(endpoint = "/post")]
 pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
-    db.signin(Root {
-        username: "root",
-        password: "root",
-    })
-    .await?;
+    use crate::ssr::AppState;
+    use leptos::expect_context;
 
-    // Select a specific namespace / database
-    db.use_ns("rustblog").use_db("rustblog").await?;
+    let AppState { db, .. } = expect_context::<AppState>();
 
     let query = format!("SELECT *, author.* from post:{0}", id);
     let query = db.query(&query).await;
