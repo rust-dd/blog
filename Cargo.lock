@@ -437,6 +437,7 @@ dependencies = [
  "leptos_router",
  "pulldown-cmark",
  "serde",
+ "serde-wasm-bindgen",
  "serde_json",
  "surrealdb",
  "thiserror",

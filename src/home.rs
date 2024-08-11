@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_router::use_navigate;
+use leptos_router::*;
 
 use crate::posts::{increment_views, select_posts};
 
@@ -35,9 +35,13 @@ pub fn Component() -> impl IntoView {
                                     on:click=move |_| {
                                         increment_view.dispatch(post.id.id.to_string());
                                         navigate(
-                                            &format!("/post/{}", post.id.id),
+                                            &format!(
+                                                "/post/{}-{}",
+                                                post.slug.as_ref().map_or("", |v| v),
+                                                post.id.id.to_string(),
+                                            ),
                                             Default::default(),
-                                        )
+                                        );
                                     }
                                     class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >

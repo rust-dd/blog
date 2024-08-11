@@ -42,6 +42,7 @@ pub struct Post {
     pub author: Author,
     pub read_time: usize,
     pub total_views: usize,
+    pub slug: Option<Cow<'static, str>>,
     pub created_at: Cow<'static, str>,
     pub updated_at: Cow<'static, str>,
 }
@@ -60,6 +61,7 @@ impl Default for Post {
             author: Author::default(),
             read_time: 0,
             total_views: 0,
+            slug: None,
             created_at: Cow::Borrowed(""),
             updated_at: Cow::Borrowed(""),
         }

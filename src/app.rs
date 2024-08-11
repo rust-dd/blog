@@ -29,7 +29,7 @@ pub fn App() -> impl IntoView {
                 }>
                     <Routes>
                         <Route path="" view=home::Component ssr=SsrMode::Async />
-                        <Route path="/post/:id" view=post::Component ssr=SsrMode::Async />
+                        <Route path="/post/:slug" view=post::Component ssr=SsrMode::Async />
                     </Routes>
                 </Router>
             </main>

@@ -7,7 +7,18 @@ use crate::posts::select_post;
 #[component]
 pub fn Component() -> impl IntoView {
     let params = use_params_map();
-    let id = move || params.with(|params| params.get("id").cloned().unwrap_or_default());
+    let id = move || {
+        params.with(|params| {
+            params
+                .get("slug")
+                .cloned()
+                .unwrap_or_default()
+                .split('-')
+                .last()
+                .unwrap_or_default()
+                .to_string()
+        })
+    };
     let post = create_blocking_resource(
         || (),
         move |_| async move { select_post(id()).await.unwrap() },
@@ -50,7 +61,7 @@ pub fn Component() -> impl IntoView {
                                 </div>
                             </div>
                             <div
-                                class="my-6 prose prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                class="my-6 prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
                                 inner_html=html_output
                             />
                         </article>
