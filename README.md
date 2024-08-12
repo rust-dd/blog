@@ -10,6 +10,14 @@ First, run the following script to set up your Surreal database:
 
 ```bash
 ./db.sh
+```
+
+```
+cargo install surrealdb-migrations
+
+```
+surrealdb-migrations apply
+```
 
 Next, compile the CSS using TailwindCSS. This command will watch for changes in your CSS files and recompile them automatically:
 
