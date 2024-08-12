@@ -1,32 +1,41 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use std::env;
+
     use axum::Router;
     use blog::app::App;
     use blog::fileserv::file_and_error_handler;
     use blog::ssr::AppState;
+    use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use surrealdb::{engine::remote::http::Http, opt::auth::Root, Surreal};
 
-    // Setting get_configuration(None) means we'll be using cargo-leptos's env values
-    // For deployment these variables are:
-    // <https://github.com/leptos-rs/start-axum#executing-a-server-on-a-remote-machine-without-the-toolchain>
-    // Alternately a file can be specified such as Some("Cargo.toml")
-    // The file would need to be included with the executable when moved to deployment
+    let env_result = dotenv();
+    if env_result.is_err() {
+        logging::warn!("There is no corresponding .env file");
+    }
+
     let conf = get_configuration(None).await.unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
-    let db = Surreal::new::<Http>("127.0.0.1:8000").await.unwrap();
+    let host = env::var("SURREAL_HOST").unwrap_or_else(|_| "127.0.0.1:8000".to_string());
+    let username = env::var("SURREAL_ROOT_USER").unwrap_or_else(|_| "root".to_string());
+    let password = env::var("SURREAL_ROOT_PASS").unwrap_or_else(|_| "root".to_string());
+    let ns = env::var("SURREAL_NS").unwrap_or_else(|_| "rustblog".to_string());
+    let db_name = env::var("SURREAL_DB").unwrap_or_else(|_| "root".to_string());
+
+    let db = Surreal::new::<Http>(host).await.unwrap();
     db.signin(Root {
-        username: "root",
-        password: "root",
+        username: username.as_str(),
+        password: password.as_str(),
     })
     .await
     .unwrap();
-    db.use_ns("rustblog").use_db("rustblog").await.unwrap();
+    db.use_ns(ns).use_db(db_name).await.unwrap();
     let app_state = AppState { db, leptos_options };
 
     // build our application with a route
