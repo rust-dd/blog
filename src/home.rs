@@ -3,7 +3,6 @@ use leptos_router::*;
 
 use crate::posts::{increment_views, select_posts};
 
-/// Renders the home page of your application.
 #[component]
 pub fn Component() -> impl IntoView {
     let navigate = use_navigate();
@@ -19,9 +18,7 @@ pub fn Component() -> impl IntoView {
     });
 
     view! {
-        <Suspense fallback=move || {
-            view! { <p>"Loading..."</p> }
-        }>
+        <Suspense fallback=|| ()>
             {
                 let navigate = navigate.clone();
                 view! {

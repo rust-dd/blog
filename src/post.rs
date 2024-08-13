@@ -19,17 +19,16 @@ pub fn Component() -> impl IntoView {
                 .to_string()
         })
     };
+
     let post = create_blocking_resource(
         || (),
         move |_| async move { select_post(id()).await.unwrap() },
     );
 
     view! {
-        <Suspense fallback=move || {
-            view! { <p>"Loading..."</p> }
-        }>
-            {post
-                .with(|post| {
+        <Suspense fallback=|| ()>
+            {move || {
+                post.with(|post| {
                     let post = post.clone().unwrap_or_default();
                     let markdown_input = post.body.to_string();
                     let parser = Parser::new(&markdown_input);
@@ -66,7 +65,8 @@ pub fn Component() -> impl IntoView {
                             />
                         </article>
                     }
-                })}
+                })
+            }}
         </Suspense>
     }
 }
