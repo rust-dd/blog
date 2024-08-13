@@ -3,7 +3,7 @@ FROM rustlang/rust:nightly-alpine as builder
 
 # Install required packages
 RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev binaryen
+    apk add --no-cache bash curl npm libc-dev binaryen clang
 
 # Install SASS globally
 RUN npm install -g tailwindcss
@@ -32,11 +32,8 @@ FROM rustlang/rust:nightly-alpine as runner
 
 WORKDIR /app
 
-# Add the rustfmt component in the runtime stage
-RUN rustup component add rustfmt
-
 # Copy the server binary and site content from the builder stage
-COPY --from=builder /work/target/release/tryrust /app/
+COPY --from=builder /work/target/release/blog /app/
 COPY --from=builder /work/target/site /app/site
 COPY --from=builder /work/Cargo.toml /app/
 
@@ -48,4 +45,4 @@ EXPOSE 8080
 
 
 # Run the server
-CMD ["/app/tryrust"]
+CMD ["/app/blog"]

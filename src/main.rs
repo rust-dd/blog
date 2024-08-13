@@ -38,8 +38,6 @@ async fn main() {
     db.use_ns(ns).use_db(db_name).await.unwrap();
 
     let app_state = AppState { db, leptos_options };
-
-    // build our application with a route
     let app = Router::new()
         .leptos_routes_with_context(
             &app_state,
