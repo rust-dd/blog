@@ -34,8 +34,8 @@ jobs:
         username: ${{ secrets.SURREAL_USERNAME }}
         password: ${{ secrets.SURREAL_PASSWORD }}
 
-    # - name: Deploy to DigitalOcean
-    #   uses: digitalocean/app_action@v1 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
-    #   with:
-    #     app_name: blog
-    #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: Deploy to DigitalOcean
+      uses: digitalocean/app_action@v1 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
+      with:
+        app_name: blog
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}

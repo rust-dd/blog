@@ -10,7 +10,7 @@ async fn main() {
     use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use surrealdb::{engine::remote::http::Http, opt::auth::Root, Surreal};
+    use surrealdb::{engine::remote::http::{Http, Https}, opt::auth::Root, Surreal};
 
     let env_result = dotenv();
     if env_result.is_err() {
@@ -22,13 +22,20 @@ async fn main() {
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
+    let protocol = env::var("SURREAL_PROTOCOL").unwrap_or_else(|_| "http".to_string());
     let host = env::var("SURREAL_HOST").unwrap_or_else(|_| "127.0.0.1:8000".to_string());
     let username = env::var("SURREAL_ROOT_USER").unwrap_or_else(|_| "root".to_string());
     let password = env::var("SURREAL_ROOT_PASS").unwrap_or_else(|_| "root".to_string());
     let ns = env::var("SURREAL_NS").unwrap_or_else(|_| "rustblog".to_string());
-    let db_name = env::var("SURREAL_DB").unwrap_or_else(|_| "root".to_string());
+    let db_name = env::var("SURREAL_DB").unwrap_or_else(|_| "rustblog".to_string());
 
-    let db = Surreal::new::<Http>(host).await.unwrap();
+
+    let db = if protocol == "http" {
+        Surreal::new::<Http>(host).await.unwrap()
+    } else {
+        Surreal::new::<Https>(host).await.unwrap()
+    };
+    
     db.signin(Root {
         username: &username,
         password: &password,

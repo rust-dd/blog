@@ -1,5 +1,7 @@
 # Blog
 
+![example workflow](https://github.com/rust-dd/blog/actions/workflows/rust.yml/badge.svg)
+
 A blog engine written in Rust, powered by SurrealDB. This project is responsible for the [https://rust-dd.com](https://rust-dd.com) blog.
 
 ## Running the Project
