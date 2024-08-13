@@ -12,10 +12,11 @@ First, run the following script to set up your Surreal database:
 ./db.sh
 ```
 
-```
+```bash
 cargo install surrealdb-migrations
-
 ```
+
+```bash
 surrealdb-migrations apply
 ```
 
@@ -31,4 +32,20 @@ Finally, run the Leptos development server. This will watch for changes in your 
 
 ```bash
 cargo leptos watch
+```
+
+# Deployment
+
+We provide a Dockerfile that allows you to start the blog engine, connecting to an external SurrealDB. The connection details must be defined in the environment variables.
+
+For containerizing the application, build the Docker image with the following command:
+
+```bash
+docker build . -t blog
+```
+
+Once the image is built, run it with:
+
+```bash
+docker run --env-file .env -p 8080:8080 blog
 ```

@@ -1,0 +1,41 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@nightly
+    
+    - name: Version
+      run: cargo --version --verbose
+
+    - name: Build
+      run: cargo build --verbose
+    
+    - name: Run tests
+      run: cargo test --verbose
+
+    - name: Apply migrations
+      uses: Odonno/surrealdb-migrations-action@v0.2.0
+      with:
+        address: ${{ secrets.SURREAL_ADDRESS }}
+        ns: ${{ secrets.SURREAL_NS }}
+        db: ${{ secrets.SURREAL_DB }}
+        username: ${{ secrets.SURREAL_USERNAME }}
+        password: ${{ secrets.SURREAL_PASSWORD }}
+
+    # - name: Deploy to DigitalOcean
+    #   uses: digitalocean/app_action@v1 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
+    #   with:
+    #     app_name: blog
+    #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
