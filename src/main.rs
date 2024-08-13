@@ -30,12 +30,13 @@ async fn main() {
 
     let db = Surreal::new::<Http>(host).await.unwrap();
     db.signin(Root {
-        username: username.as_str(),
-        password: password.as_str(),
+        username: &username,
+        password: &password,
     })
     .await
     .unwrap();
     db.use_ns(ns).use_db(db_name).await.unwrap();
+
     let app_state = AppState { db, leptos_options };
 
     // build our application with a route
