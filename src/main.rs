@@ -22,11 +22,11 @@ async fn main() {
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
-    let host = env::var("SURREAL_HOST").unwrap_or_else(|_| "127.0.0.1:8000".to_string());
-    let username = env::var("SURREAL_ROOT_USER").unwrap_or_else(|_| "root".to_string());
-    let password = env::var("SURREAL_ROOT_PASS").unwrap_or_else(|_| "root".to_string());
-    let ns = env::var("SURREAL_NS").unwrap_or_else(|_| "rustblog".to_string());
-    let db_name = env::var("SURREAL_DB").unwrap_or_else(|_| "root".to_string());
+    let host = env::var("SURREAL_HOST").unwrap_or("127.0.0.1:8000".to_string());
+    let username = env::var("SURREAL_ROOT_USER").unwrap_or("root".to_string());
+    let password = env::var("SURREAL_ROOT_PASS").unwrap_or("root".to_string());
+    let ns = env::var("SURREAL_NS").unwrap_or("rustblog".to_string());
+    let db_name = env::var("SURREAL_DB").unwrap_or("root".to_string());
 
     let db = Surreal::new::<Http>(host).await.unwrap();
     db.signin(Root {
