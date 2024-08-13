@@ -16,7 +16,7 @@ leptos_router = { version = "0.6" }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.4", optional = true }
 tower-http = { version = "0.5", features = ["fs"], optional = true }
-wasm-bindgen = "=0.2.93"
+wasm-bindgen = "=0.2.92"
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
@@ -27,6 +27,7 @@ serde_json = "1.0.122"
 pulldown-cmark = "0.11.0"
 serde-wasm-bindgen = "0.6.5"
 dotenvy = "0.15.7"
+surrealdb-migrations = "1.5.0"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]

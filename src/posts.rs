@@ -18,10 +18,7 @@ pub struct Author {
 impl Default for Author {
     fn default() -> Self {
         Self {
-            id: Thing {
-                tb: "author".to_string(),
-                id: "0".to_string().into(),
-            },
+            id: Thing::from(("author", "0")),
             name: Cow::Borrowed(""),
             email: Cow::Borrowed(""),
             bio: None,
@@ -50,10 +47,7 @@ pub struct Post {
 impl Default for Post {
     fn default() -> Self {
         Self {
-            id: Thing {
-                tb: "post".to_string(),
-                id: "0".to_string().into(),
-            },
+            id: Thing::from(("post", "0")),
             title: Cow::Borrowed(""),
             summary: Cow::Borrowed(""),
             body: Cow::Borrowed(""),
