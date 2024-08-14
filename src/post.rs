@@ -35,8 +35,8 @@ pub fn Component() -> impl IntoView {
                     let mut html_output = String::new();
                     html::push_html(&mut html_output, parser);
                     view! {
-                        <article class="rounded-lg shadow-sm transition-transform duration-300 bg-card">
-                            <div class="flex flex-col gap-4">
+                        <article>
+                            <div class="flex max-w-3xl mx-auto flex-col gap-4">
                                 <p class="text-4xl font-semibold">{post.title.clone()}</p>
                                 <div class="flex gap-3 justify-start items-center text-sm text-muted-foreground">
                                     <p
@@ -60,7 +60,7 @@ pub fn Component() -> impl IntoView {
                                 </div>
                             </div>
                             <div
-                                class="my-6 prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                class="my-6 prose max-w-3xl mx-auto prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
                                 inner_html=html_output
                             />
                         </article>
