@@ -70,7 +70,7 @@ pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
 
     let AppState { db, .. } = expect_context::<AppState>();
 
-    let query = format!("SELECT *, author.* from post;");
+    let query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
     let query = db.query(&query).await;
 
     if let Err(e) = query {
