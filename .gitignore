@@ -15,3 +15,5 @@ playwright/.cache/
 
 *.db
 style/output.css
+
+.zed/

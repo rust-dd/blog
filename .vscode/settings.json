@@ -16,6 +16,13 @@
     "strings": true
   },
   "css.validate": false,
-  "rust-analyzer.cargo.features": ["ssr"],
-  "rust-analyzer.rustfmt.overrideCommand": ["leptosfmt", "--stdin", "--rustfmt"]
+  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.rustfmt.overrideCommand": [
+    "leptosfmt",
+    "--stdin",
+    "--rustfmt",
+    "-c",
+    "${workspaceFolder}/leptosfmt.toml"
+  ],
+  "rust-analyzer.check.extraArgs": ["--target-dir", "${workspaceFolder}/target/check"]
 }
