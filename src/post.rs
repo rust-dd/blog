@@ -7,22 +7,10 @@ use crate::posts::select_post;
 #[component]
 pub fn Component() -> impl IntoView {
     let params = use_params_map();
-    let id = move || {
-        params.with(|params| {
-            params
-                .get("slug")
-                .cloned()
-                .unwrap_or_default()
-                .split('-')
-                .last()
-                .unwrap_or_default()
-                .to_string()
-        })
-    };
-
+    let slug = move || params.with(|params| params.get("slug").cloned().unwrap_or_default());
     let post = create_blocking_resource(
         || (),
-        move |_| async move { select_post(id()).await.unwrap() },
+        move |_| async move { select_post(slug()).await.unwrap() },
     );
 
     view! {

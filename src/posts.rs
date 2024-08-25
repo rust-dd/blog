@@ -91,14 +91,14 @@ pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
 }
 
 #[server(endpoint = "/post")]
-pub async fn select_post(id: String) -> Result<Post, ServerFnError> {
+pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
     use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
-    let query = format!("SELECT *, author.* from post:{0}", id);
+    let query = format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#);
     let query = db.query(&query).await;
 
     if let Err(e) = query {

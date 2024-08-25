@@ -32,11 +32,7 @@ pub fn Component() -> impl IntoView {
                                     on:click=move |_| {
                                         increment_view.dispatch(post.id.id.to_string());
                                         navigate(
-                                            &format!(
-                                                "/post/{}-{}",
-                                                post.slug.as_ref().map_or("", |v| v),
-                                                post.id.id.to_string(),
-                                            ),
+                                            &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
                                             Default::default(),
                                         );
                                     }
