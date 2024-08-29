@@ -16,13 +16,15 @@ pub fn Component() -> impl IntoView {
 
     view! {
         <Suspense fallback=|| ()>
+            <Title text=post.get().unwrap_or_default().title.to_string() />
+            <Meta name="description" content=post.get().unwrap_or_default().summary.to_string() />
             {post
                 .get()
                 .unwrap_or_default()
                 .tags
                 .into_iter()
                 .map(|tag| {
-                    view! { <Meta name=tag.to_string() content=tag.to_string() /> }
+                    view! { <Meta name="keywords" content=tag.to_string() /> }
                 })
                 .collect::<Vec<_>>()}
             {move || {
