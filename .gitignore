@@ -17,3 +17,4 @@ playwright/.cache/
 style/output.css
 
 .zed/
+*.env

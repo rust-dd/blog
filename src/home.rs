@@ -1,14 +1,19 @@
 use leptos::*;
 use leptos_router::*;
 
-use crate::posts::{increment_views, select_posts};
+use crate::api::{increment_views, select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
     let navigate = use_navigate();
-    let posts = create_blocking_resource(
+    let selected_tags = create_rw_signal(Vec::<String>::new());
+    let tags = create_blocking_resource(
         || (),
-        move |_| async move { select_posts().await.unwrap_or_default() },
+        move |_| async move { select_tags().await.unwrap_or_default() },
+    );
+    let posts = create_blocking_resource(
+        move || selected_tags.get(),
+        move |selected_tags| async move { select_posts(selected_tags).await.unwrap_or_default() },
     );
     let increment_view = create_action(move |id: &String| {
         let id = id.clone();
@@ -22,6 +27,63 @@ pub fn Component() -> impl IntoView {
             {
                 let navigate = navigate.clone();
                 view! {
+                    <div class="flex flex-wrap flex-row text-xs gap-1 px-4">
+                        <button
+                            on:click=move |_| selected_tags.update(|prev| prev.clear())
+                            class="bg-primary text-white px-2 py-1 rounded-lg transition-all duration-500 cursor-pointer"
+                            class=("underline", move || selected_tags.get().is_empty())
+                        >
+                            {"All"}
+                        </button>
+                        <For
+                            each=move || tags.get().unwrap_or_default()
+                            key=|tag| tag.clone()
+                            children=move |tag| {
+                                view! {
+                                    <button
+                                        on:click={
+                                            let tag = tag.clone();
+                                            move |_| {
+                                                selected_tags
+                                                    .update(|prev| {
+                                                        if prev.contains(&tag) {
+                                                            *prev = prev
+                                                                .clone()
+                                                                .into_iter()
+                                                                .filter(|v| v != &tag)
+                                                                .collect::<Vec<_>>();
+                                                        } else {
+                                                            *prev = prev
+                                                                .clone()
+                                                                .into_iter()
+                                                                .chain(std::iter::once(tag.clone()))
+                                                                .collect();
+                                                        }
+                                                    });
+                                            }
+                                        }
+                                        class="px-2 py-1 rounded-lg transition-all duration-500 cursor-pointer hover:bg-white hover:text-black"
+                                        class=(
+                                            "bg-white",
+                                            {
+                                                let tag = tag.clone();
+                                                move || selected_tags.get().contains(&tag)
+                                            },
+                                        )
+                                        class=(
+                                            "text-black",
+                                            {
+                                                let tag = tag.clone();
+                                                move || selected_tags.get().contains(&tag)
+                                            },
+                                        )
+                                    >
+                                        {tag}
+                                    </button>
+                                }
+                            }
+                        />
+                    </div>
                     <For
                         each=move || posts.get().unwrap_or_default()
                         key=|post| post.id.id.to_string()

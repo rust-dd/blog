@@ -10,7 +10,11 @@ async fn main() {
     use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use surrealdb::{engine::remote::http::{Http, Https}, opt::auth::Root, Surreal};
+    use surrealdb::{
+        engine::remote::http::{Http, Https},
+        opt::auth::Root,
+        Surreal,
+    };
 
     let env_result = dotenv();
     if env_result.is_err() {
@@ -29,13 +33,12 @@ async fn main() {
     let ns = env::var("SURREAL_NS").unwrap_or("rustblog".to_string());
     let db_name = env::var("SURREAL_DB").unwrap_or("rustblog".to_string());
 
-
     let db = if protocol == "http" {
         Surreal::new::<Http>(host).await.unwrap()
     } else {
         Surreal::new::<Https>(host).await.unwrap()
     };
-    
+
     db.signin(Root {
         username: &username,
         password: &password,

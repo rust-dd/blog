@@ -1,10 +1,10 @@
+pub mod api;
 pub mod app;
 pub mod error_template;
 #[cfg(feature = "ssr")]
 pub mod fileserv;
 pub mod home;
 pub mod post;
-pub mod posts;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]

@@ -63,14 +63,26 @@ impl Default for Post {
 }
 
 #[server(endpoint = "/posts")]
-pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
+pub async fn select_posts(
+    #[server(default)] tags: Vec<String>,
+) -> Result<Vec<Post>, ServerFnError> {
     use crate::ssr::AppState;
     use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
+    let mut query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
+    if !tags.is_empty() {
+        let tags = tags
+            .iter()
+            .map(|tag| format!(r#""{}""#, tag))
+            .collect::<Vec<_>>();
+        query = format!(
+            "SELECT *, author.* from post WHERE tags CONTAINSANY [{0}] ORDER BY created_at DESC;",
+            tags.join(", ")
+        );
+    }
 
-    let query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
     let query = db.query(&query).await;
 
     if let Err(e) = query {
@@ -88,6 +100,36 @@ pub async fn select_posts() -> Result<Vec<Post>, ServerFnError> {
     });
 
     Ok(posts)
+}
+
+#[server(endpoint = "/tags")]
+pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
+    use crate::ssr::AppState;
+    use leptos::expect_context;
+
+    let AppState { db, .. } = expect_context::<AppState>();
+
+    let query = format!("SELECT tags from post;");
+    let query = db.query(&query).await;
+
+    if let Err(e) = query {
+        return Err(ServerFnError::from(e));
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct Tags {
+        tags: Vec<String>,
+    }
+    let tags = query?.take::<Vec<Tags>>(0)?;
+    let mut tags = tags.iter().flat_map(|t| t.tags.clone()).collect::<Vec<_>>();
+    tags.sort();
+    let tags = tags
+        .into_iter()
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    Ok(tags)
 }
 
 #[server(endpoint = "/post")]

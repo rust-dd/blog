@@ -1,8 +1,9 @@
 use leptos::*;
+use leptos_meta::*;
 use leptos_router::*;
 use pulldown_cmark::{html, Parser};
 
-use crate::posts::select_post;
+use crate::api::select_post;
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -15,6 +16,15 @@ pub fn Component() -> impl IntoView {
 
     view! {
         <Suspense fallback=|| ()>
+            {post
+                .get()
+                .unwrap_or_default()
+                .tags
+                .into_iter()
+                .map(|tag| {
+                    view! { <Meta name=tag.to_string() content=tag.to_string() /> }
+                })
+                .collect::<Vec<_>>()}
             {move || {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
@@ -51,6 +61,7 @@ pub fn Component() -> impl IntoView {
                                 class="my-6 prose max-w-3xl mx-auto prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
                                 inner_html=html_output
                             />
+
                         </article>
                     }
                 })
