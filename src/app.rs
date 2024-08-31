@@ -10,8 +10,14 @@ pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
+    create_effect(move |_| {
+        let js_code = "hljs.highlightAll();";
+        js_sys::eval(js_code).expect("Error highlighting code");
+    });
+
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
+        <Stylesheet href="/github-dark.min.css" />
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
@@ -28,7 +34,7 @@ pub fn App() -> impl IntoView {
                     view! { <ErrorTemplate outside_errors /> }.into_view()
                 }>
                     <Routes>
-                        <Route path="" view=home::Component />
+                        <Route path="" view=home::Component ssr=SsrMode::Async />
                         <Route path="/post/:slug" view=post::Component ssr=SsrMode::Async />
                     </Routes>
                 </Router>
@@ -41,5 +47,6 @@ pub fn App() -> impl IntoView {
                 </p>
             </footer>
         </div>
+        <script src="/highlight.min.js"></script>
     }
 }

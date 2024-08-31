@@ -1,7 +1,6 @@
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use pulldown_cmark::{html, Parser};
 
 use crate::api::select_post;
 
@@ -30,13 +29,9 @@ pub fn Component() -> impl IntoView {
             {move || {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
-                    let markdown_input = post.body.to_string();
-                    let parser = Parser::new(&markdown_input);
-                    let mut html_output = String::new();
-                    html::push_html(&mut html_output, parser);
                     view! {
                         <article>
-                            <div class="flex max-w-3xl mx-auto flex-col gap-4">
+                            <div class="flex flex-col gap-4 mx-auto max-w-3xl">
                                 <p class="text-4xl font-semibold">{post.title.clone()}</p>
                                 <div class="flex gap-3 justify-start items-center text-sm text-muted-foreground">
                                     <p
@@ -60,10 +55,9 @@ pub fn Component() -> impl IntoView {
                                 </div>
                             </div>
                             <div
-                                class="my-6 prose max-w-3xl mx-auto prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
-                                inner_html=html_output
+                                class="my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                inner_html=markdown::to_html(&post.body.to_string())
                             />
-
                         </article>
                     }
                 })

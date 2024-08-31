@@ -1,11 +1,9 @@
 use leptos::*;
-use leptos_router::*;
 
 use crate::api::{increment_views, select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
-    let navigate = use_navigate();
     let selected_tags = create_rw_signal(Vec::<String>::new());
     let tags = create_blocking_resource(
         || (),
@@ -25,12 +23,11 @@ pub fn Component() -> impl IntoView {
     view! {
         <Suspense fallback=|| ()>
             {
-                let navigate = navigate.clone();
                 view! {
-                    <div class="flex flex-wrap flex-row text-xs gap-1 px-4">
+                    <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                         <button
                             on:click=move |_| selected_tags.update(|prev| prev.clear())
-                            class="bg-primary text-white px-2 py-1 rounded-lg transition-all duration-500 cursor-pointer"
+                            class="py-1 px-2 text-white rounded-lg transition-all duration-500 cursor-pointer bg-primary"
                             class=("underline", move || selected_tags.get().is_empty())
                         >
                             {"All"}
@@ -62,7 +59,7 @@ pub fn Component() -> impl IntoView {
                                                     });
                                             }
                                         }
-                                        class="px-2 py-1 rounded-lg transition-all duration-500 cursor-pointer hover:bg-white hover:text-black"
+                                        class="py-1 px-2 rounded-lg transition-all duration-500 cursor-pointer hover:text-black hover:bg-white"
                                         class=(
                                             "bg-white",
                                             {
@@ -88,15 +85,15 @@ pub fn Component() -> impl IntoView {
                         each=move || posts.get().unwrap_or_default()
                         key=|post| post.id.id.to_string()
                         children=move |post| {
-                            let navigate = navigate.clone();
                             view! {
                                 <article
                                     on:click=move |_| {
                                         increment_view.dispatch(post.id.id.to_string());
-                                        navigate(
-                                            &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
-                                            Default::default(),
-                                        );
+                                        let _ = window()
+                                            .open_with_url_and_target(
+                                                &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
+                                                "_self",
+                                            );
                                     }
                                     class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >
