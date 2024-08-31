@@ -17,6 +17,13 @@ pub fn Component() -> impl IntoView {
         <Suspense fallback=|| ()>
             <Title text=post.get().unwrap_or_default().title.to_string() />
             <Meta name="description" content=post.get().unwrap_or_default().summary.to_string() />
+            <Meta property="og:title" content=post.get().unwrap_or_default().title.to_string() />
+            <Meta
+                property="og:description"
+                content=post.get().unwrap_or_default().summary.to_string()
+            />
+            <Meta property="og:type" content="article" />
+            <Meta property="og:url" content=format!("https://rust-dd.com/post/{}", slug()) />
             {post
                 .get()
                 .unwrap_or_default()
