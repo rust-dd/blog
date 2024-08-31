@@ -16,12 +16,20 @@ pub fn Component() -> impl IntoView {
     view! {
         <Suspense fallback=|| ()>
             <Title text=post.get().unwrap_or_default().title.to_string() />
-            <Meta name="description" content=post.get().unwrap_or_default().summary.to_string() />
-            <Meta property="og:title" content=post.get().unwrap_or_default().title.to_string() />
-            <Meta
-                property="og:description"
-                content=post.get().unwrap_or_default().summary.to_string()
-            />
+            <Show when=move || post.get().is_some() fallback=|| view! { <></> }>
+                <Meta
+                    name="description"
+                    content=post.get().unwrap_or_default().summary.to_string()
+                />
+                <Meta
+                    property="og:title"
+                    content=post.get().unwrap_or_default().title.to_string()
+                />
+                <Meta
+                    property="og:description"
+                    content=post.get().unwrap_or_default().summary.to_string()
+                />
+            </Show>
             <Meta property="og:type" content="article" />
             <Meta property="og:url" content=format!("https://rust-dd.com/post/{}", slug()) />
             <Meta property="og:image" content="https://static.rust-dd.com/rust-dd.png" />
