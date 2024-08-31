@@ -24,6 +24,7 @@ pub fn Component() -> impl IntoView {
             />
             <Meta property="og:type" content="article" />
             <Meta property="og:url" content=format!("https://rust-dd.com/post/{}", slug()) />
+            <Meta property="og:image" content="https://static.rust-dd.com/rust-dd.png" />
             {post
                 .get()
                 .unwrap_or_default()
