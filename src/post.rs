@@ -1,14 +1,14 @@
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::*;
+use leptos_router::hooks::use_params_map;
 
 use crate::api::select_post;
 
 #[component]
 pub fn Component() -> impl IntoView {
     let params = use_params_map();
-    let slug = move || params.with(|params| params.get("slug").cloned().unwrap_or_default());
-    let post = create_blocking_resource(
+    let slug = move || params.with(|params| params.get("slug").clone().unwrap_or_default());
+    let post = Resource::new_blocking(
         || (),
         move |_| async move { select_post(slug()).await.unwrap() },
     );
@@ -51,9 +51,7 @@ pub fn Component() -> impl IntoView {
                                         class="cursor-pointer hover:underline"
                                     >
                                         {"by "}
-                                        <span class="ml-1 font-semibold">
-                                            {&post.author.name.to_string()}
-                                        </span>
+                                        <span class="ml-1 font-semibold">{post.author.name}</span>
                                     </p>
                                     <p>{post.created_at}</p>
                                     <p>{format!("{} min read", post.read_time)}</p>
@@ -62,7 +60,7 @@ pub fn Component() -> impl IntoView {
                             </div>
                             <div
                                 class="my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
-                                inner_html=post.body
+                                inner_html=post.body.to_string()
                             />
                         </article>
                     }

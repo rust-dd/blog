@@ -1,21 +1,20 @@
-use leptos::*;
-use leptos_router::use_navigate;
+use leptos::prelude::*;
+use leptos_router::components::A;
 
 use crate::api::{increment_views, select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
-    let navigate = use_navigate();
-    let selected_tags = create_rw_signal(Vec::<String>::new());
-    let tags = create_blocking_resource(
+    let selected_tags = RwSignal::new(Vec::<String>::new());
+    let tags = Resource::new_blocking(
         || (),
         move |_| async move { select_tags().await.unwrap_or_default() },
     );
-    let posts = create_blocking_resource(
+    let posts = Resource::new_blocking(
         move || selected_tags.get(),
         move |selected_tags| async move { select_posts(selected_tags).await.unwrap_or_default() },
     );
-    let increment_view = create_action(move |id: &String| {
+    let increment_view = Action::new(move |id: &String| {
         let id = id.clone();
         async move {
             let _ = increment_views(id.to_string()).await;
@@ -25,7 +24,6 @@ pub fn Component() -> impl IntoView {
     view! {
         <Suspense fallback=|| ()>
             {
-                let navigate = navigate.clone();
                 view! {
                     <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                         <button
@@ -78,7 +76,7 @@ pub fn Component() -> impl IntoView {
                                             },
                                         )
                                     >
-                                        {tag}
+                                        {tag.to_string()}
                                     </button>
                                 }
                             }
@@ -88,48 +86,42 @@ pub fn Component() -> impl IntoView {
                         each=move || posts.get().unwrap_or_default()
                         key=|post| post.id.id.to_string()
                         children=move |post| {
-                            let navigate = navigate.clone();
                             view! {
-                                <article
+                                <A
+                                    href=format!("/post/{}", post.slug.as_ref().map_or("", |v| v))
                                     on:click=move |_| {
                                         #[cfg(not(debug_assertions))]
                                         increment_view.dispatch(post.id.id.to_string());
-                                        navigate(
-                                            &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
-                                            Default::default(),
-                                        );
                                     }
-                                    class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >
-                                    <div class="flex gap-8 justify-between items-center mb-4">
-                                        <p class="text-3xl font-semibold">
-                                            {&post.title.to_string()}
+                                    <article class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card">
+                                        <div class="flex gap-8 justify-between items-center mb-4">
+                                            <p class="text-3xl font-semibold">
+                                                {post.title.to_string()}
+                                            </p>
+                                        </div>
+                                        <p class="mb-2 text-muted-foreground">
+                                            {post.summary.to_string()}
                                         </p>
-
-                                    </div>
-                                    <p class="mb-2 text-muted-foreground">
-                                        {&post.summary.to_string()}
-                                    </p>
-                                    <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
-                                        <p>{format!("{} min read", post.read_time)}</p>
-                                        <p>{format!("{} views", post.total_views)}</p>
-                                        <p>{post.created_at}</p>
-                                        <p
-                                            on:click=move |e| {
-                                                e.stop_propagation();
-                                                if let Some(github) = &post.author.github {
-                                                    let _ = window().open_with_url_and_target(github, "_blank");
+                                        <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
+                                            <p>{format!("{} min read", post.read_time)}</p>
+                                            <p>{format!("{} views", post.total_views)}</p>
+                                            <p>{post.created_at}</p>
+                                            <p
+                                                on:click=move |e| {
+                                                    e.stop_propagation();
+                                                    if let Some(github) = &post.author.github {
+                                                        let _ = window().open_with_url_and_target(github, "_blank");
+                                                    }
                                                 }
-                                            }
-                                            class="cursor-pointer hover:underline"
-                                        >
-                                            {"by "}
-                                            <span class="ml-1 font-semibold">
-                                                {&post.author.name.to_string()}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </article>
+                                                class="cursor-pointer hover:underline"
+                                            >
+                                                {"by "}
+                                                <span class="ml-1 font-semibold">{post.author.name}</span>
+                                            </p>
+                                        </div>
+                                    </article>
+                                </A>
                             }
                         }
                     />

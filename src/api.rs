@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use leptos::{server, ServerFnError};
+use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
@@ -68,7 +68,6 @@ pub async fn select_posts(
 ) -> Result<Vec<Post>, ServerFnError> {
     use crate::ssr::AppState;
     use chrono::{DateTime, Utc};
-    use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
     let mut query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
@@ -105,7 +104,6 @@ pub async fn select_posts(
 #[server(endpoint = "/tags")]
 pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
     use crate::ssr::AppState;
-    use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
@@ -137,7 +135,6 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
     use cached::proc_macro::cached;
     use chrono::{DateTime, Utc};
-    use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
@@ -257,7 +254,6 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
 #[server(endpoint = "/increment_views")]
 pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
     use crate::ssr::AppState;
-    use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 

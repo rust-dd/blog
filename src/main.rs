@@ -1,27 +1,32 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use std::env;
-
     use axum::Router;
-    use blog::app::App;
-    use blog::fileserv::file_and_error_handler;
+    use blog::app::{shell, App};
     use blog::ssr::AppState;
     use dotenvy::dotenv;
-    use leptos::*;
+    use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
+    use std::env;
     use surrealdb::{
         engine::remote::http::{Http, Https},
         opt::auth::Root,
         Surreal,
     };
+    use tower_http::compression::CompressionLayer;
+
+    tracing_subscriber::fmt()
+        .with_file(true)
+        .with_line_number(true)
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     let env_result = dotenv();
     if env_result.is_err() {
-        logging::warn!("There is no corresponding .env file");
+        tracing::info!("There is no corresponding .env file");
     }
 
-    let conf = get_configuration(None).await.unwrap();
+    let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
@@ -47,7 +52,11 @@ async fn main() {
     .unwrap();
     db.use_ns(ns).use_db(db_name).await.unwrap();
 
-    let app_state = AppState { db, leptos_options };
+    let app_state = AppState {
+        db,
+        leptos_options: leptos_options.clone(),
+    };
+
     let app = Router::new()
         .leptos_routes_with_context(
             &app_state,
@@ -56,13 +65,17 @@ async fn main() {
                 let app_state = app_state.clone();
                 move || provide_context(app_state.clone())
             },
-            App,
+            {
+                let leptos_options = leptos_options.clone();
+                move || shell(leptos_options.clone())
+            },
         )
-        .fallback(file_and_error_handler)
-        .with_state(app_state);
+        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
+        .with_state(app_state)
+        .layer(CompressionLayer::new());
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    logging::log!("listening on http://{}", &addr);
+    tracing::info!("listening on http://{}", &addr);
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
