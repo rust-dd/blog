@@ -1,15 +1,19 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use std::env;
-
-    use axum::Router;
+    use axum::extract::State;
+    use axum::response::Response;
+    use axum::{routing::get, Router};
+    use blog::api::{process_markdown, Post};
     use blog::app::App;
     use blog::fileserv::file_and_error_handler;
     use blog::ssr::AppState;
+    use chrono::{DateTime, Utc};
     use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
+    use std::env;
+    use surrealdb::engine::remote::http::Client;
     use surrealdb::{
         engine::remote::http::{Http, Https},
         opt::auth::Root,
@@ -47,6 +51,79 @@ async fn main() {
     .unwrap();
     db.use_ns(ns).use_db(db_name).await.unwrap();
 
+    async fn generate_rss(db: Surreal<Client>) -> Result<String, ServerFnError> {
+        use rss::{ChannelBuilder, Item};
+        use std::sync::Arc;
+        use tokio::sync::Mutex;
+
+        let query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
+        let query = db.query(&query).await;
+        let mut posts = query?.take::<Vec<Post>>(0)?;
+        posts.iter_mut().for_each(|post| {
+            let date_time = DateTime::parse_from_rfc3339(&post.created_at)
+                .unwrap()
+                .with_timezone(&Utc);
+            let naive_date = date_time.date_naive();
+            let formatted_date = naive_date.format("%b %-d").to_string();
+            post.created_at = formatted_date.into();
+        });
+        let posts = Arc::new(Mutex::new(posts));
+        let mut handles = vec![];
+
+        for _ in 0..posts.lock().await.len() {
+            let posts_clone = Arc::clone(&posts);
+            let handle = tokio::spawn(async move {
+                let mut posts = posts_clone.lock().await;
+                if let Some(post) = posts.iter_mut().next() {
+                    post.body = process_markdown(post.body.to_string())
+                        .await
+                        .unwrap()
+                        .into();
+                }
+            });
+
+            handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.await.unwrap();
+        }
+
+        let channel = ChannelBuilder::default()
+            .title("Rust-DD")
+            .link("https://rust-dd.com")
+            .description("Tech Diaries - The Official Rust-DD Developer Blog")
+            .items(
+                posts
+                    .lock()
+                    .await
+                    .clone()
+                    .into_iter()
+                    .map(|post| {
+                        let mut item = Item::default();
+                        item.set_author(post.author.name.to_string());
+                        item.set_title(post.title.to_string());
+                        item.set_description(post.body.to_string());
+                        item.set_link(format!("https://rust-dd.com/post/{}", post.slug.unwrap()));
+                        item.set_pub_date(post.created_at.to_string());
+                        item
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .build();
+
+        Ok(channel.to_string())
+    }
+
+    async fn rss_handler(State(state): State<AppState>) -> Response<String> {
+        let AppState { db, .. } = state;
+        let rss = generate_rss(db).await.unwrap();
+        Response::builder()
+            .header("Content-Type", "application/xml")
+            .body(rss)
+            .unwrap()
+    }
+
     let app_state = AppState { db, leptos_options };
     let app = Router::new()
         .leptos_routes_with_context(
@@ -58,6 +135,7 @@ async fn main() {
             },
             App,
         )
+        .route("/rss.xml", get(rss_handler))
         .fallback(file_and_error_handler)
         .with_state(app_state);
 

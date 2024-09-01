@@ -1,3 +1,5 @@
+#![feature(async_closure)]
+
 pub mod api;
 pub mod app;
 pub mod error_template;

@@ -135,7 +135,6 @@ pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
 #[server(endpoint = "/post")]
 pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
-    use cached::proc_macro::cached;
     use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
@@ -155,101 +154,10 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     let naive_date = date_time.date_naive();
     let formatted_date = naive_date.format("%b %-d").to_string();
     post.created_at = formatted_date.into();
-
-    #[cached]
-    fn process_markdown(markdown: String) -> Result<String, ServerFnError> {
-        use pulldown_cmark::{html::push_html, Options, Parser};
-        use regex::Regex;
-        use syntect::easy::HighlightLines;
-        use syntect::highlighting::ThemeSet;
-        use syntect::html::styled_line_to_highlighted_html;
-        use syntect::html::IncludeBackground;
-        use syntect::parsing::SyntaxSet;
-
-        let ps = SyntaxSet::load_defaults_newlines();
-        let ts = ThemeSet::load_defaults();
-        let theme = &ts.themes["base16-eighties.dark"];
-
-        let re_code = Regex::new(r"```(\w+)?\n([\s\S]*?)```").unwrap();
-        let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)").unwrap();
-
-        let mut html_output = String::new();
-        let mut last_end = 0;
-
-        let img_html = |img_format: &str, img_path: &str| {
-            if img_format == "svg" {
-                return format!(
-                    r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
-                    img_path
-                );
-            } else {
-                return format!(
-                    r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
-                    img_path
-                );
-            };
-        };
-
-        for cap in re_code.captures_iter(&markdown) {
-            let markdown_before_code = &markdown[last_end..cap.get(0).unwrap().start()];
-            let mut processed_before_code = String::new();
-            let mut last_img_end = 0;
-            for img_cap in re_img.captures_iter(markdown_before_code) {
-                processed_before_code
-                    .push_str(&markdown_before_code[last_img_end..img_cap.get(0).unwrap().start()]);
-                let img_path = &img_cap[1];
-                let img_format = &img_cap[2];
-                processed_before_code.push_str(&img_html(img_format, img_path));
-                last_img_end = img_cap.get(0).unwrap().end();
-            }
-            processed_before_code.push_str(&markdown_before_code[last_img_end..]);
-
-            let parser = Parser::new_ext(&processed_before_code, Options::all());
-            push_html(&mut html_output, parser);
-
-            let language = cap.get(1).map_or("plaintext", |m| m.as_str());
-            let code_block = &cap[2];
-
-            let syntax = ps
-                .find_syntax_by_token(language)
-                .unwrap_or_else(|| ps.find_syntax_plain_text());
-
-            let mut h = HighlightLines::new(syntax, theme);
-            html_output.push_str(r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#);
-
-            for line in code_block.lines() {
-                let ranges = h.highlight_line(line, &ps).unwrap();
-                let escaped =
-                    styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No).unwrap();
-                html_output.push_str(&escaped);
-                html_output.push_str("\n");
-            }
-
-            html_output.push_str("</code></pre>");
-
-            last_end = cap.get(0).unwrap().end();
-        }
-
-        let markdown_after_last_code = &markdown[last_end..];
-        let mut processed_after_code = String::new();
-        let mut last_img_end = 0;
-        for img_cap in re_img.captures_iter(markdown_after_last_code) {
-            processed_after_code
-                .push_str(&markdown_after_last_code[last_img_end..img_cap.get(0).unwrap().start()]);
-            let img_path = &img_cap[1];
-            let img_format = &img_cap[2];
-            processed_after_code.push_str(&img_html(img_format, img_path));
-            last_img_end = img_cap.get(0).unwrap().end();
-        }
-        processed_after_code.push_str(&markdown_after_last_code[last_img_end..]);
-
-        let parser = Parser::new_ext(&processed_after_code, Options::all());
-        push_html(&mut html_output, parser);
-
-        Ok(html_output)
-    }
-
-    post.body = process_markdown(post.body.to_string()).unwrap().into();
+    post.body = process_markdown(post.body.to_string())
+        .await
+        .unwrap()
+        .into();
 
     Ok(post)
 }
@@ -269,4 +177,99 @@ pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
     }
 
     Ok(())
+}
+
+#[server]
+pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError> {
+    use pulldown_cmark::{html::push_html, Options, Parser};
+    use regex::Regex;
+    use syntect::easy::HighlightLines;
+    use syntect::highlighting::ThemeSet;
+    use syntect::html::styled_line_to_highlighted_html;
+    use syntect::html::IncludeBackground;
+    use syntect::parsing::SyntaxSet;
+
+    let ps = SyntaxSet::load_defaults_newlines();
+    let ts = ThemeSet::load_defaults();
+    let theme = &ts.themes["base16-eighties.dark"];
+
+    let re_code = Regex::new(r"```(\w+)?\n([\s\S]*?)```").unwrap();
+    let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)").unwrap();
+
+    let mut html_output = String::new();
+    let mut last_end = 0;
+
+    let img_html = |img_format: &str, img_path: &str| {
+        if img_format == "svg" {
+            return format!(
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                img_path
+            );
+        } else {
+            return format!(
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
+                img_path
+            );
+        };
+    };
+
+    for cap in re_code.captures_iter(&markdown) {
+        let markdown_before_code = &markdown[last_end..cap.get(0).unwrap().start()];
+        let mut processed_before_code = String::new();
+        let mut last_img_end = 0;
+        for img_cap in re_img.captures_iter(markdown_before_code) {
+            processed_before_code
+                .push_str(&markdown_before_code[last_img_end..img_cap.get(0).unwrap().start()]);
+            let img_path = &img_cap[1];
+            let img_format = &img_cap[2];
+            processed_before_code.push_str(&img_html(img_format, img_path));
+            last_img_end = img_cap.get(0).unwrap().end();
+        }
+        processed_before_code.push_str(&markdown_before_code[last_img_end..]);
+
+        let parser = Parser::new_ext(&processed_before_code, Options::all());
+        push_html(&mut html_output, parser);
+
+        let language = cap.get(1).map_or("plaintext", |m| m.as_str());
+        let code_block = &cap[2];
+
+        let syntax = ps
+            .find_syntax_by_token(language)
+            .unwrap_or_else(|| ps.find_syntax_plain_text());
+
+        let mut h = HighlightLines::new(syntax, theme);
+        html_output.push_str(
+            r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
+        );
+
+        for line in code_block.lines() {
+            let ranges = h.highlight_line(line, &ps).unwrap();
+            let escaped =
+                styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No).unwrap();
+            html_output.push_str(&escaped);
+            html_output.push_str("\n");
+        }
+
+        html_output.push_str("</code></pre>");
+
+        last_end = cap.get(0).unwrap().end();
+    }
+
+    let markdown_after_last_code = &markdown[last_end..];
+    let mut processed_after_code = String::new();
+    let mut last_img_end = 0;
+    for img_cap in re_img.captures_iter(markdown_after_last_code) {
+        processed_after_code
+            .push_str(&markdown_after_last_code[last_img_end..img_cap.get(0).unwrap().start()]);
+        let img_path = &img_cap[1];
+        let img_format = &img_cap[2];
+        processed_after_code.push_str(&img_html(img_format, img_path));
+        last_img_end = img_cap.get(0).unwrap().end();
+    }
+    processed_after_code.push_str(&markdown_after_last_code[last_img_end..]);
+
+    let parser = Parser::new_ext(&processed_after_code, Options::all());
+    push_html(&mut html_output, parser);
+
+    Ok(html_output)
 }

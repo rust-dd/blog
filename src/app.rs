@@ -1,9 +1,13 @@
-use crate::error_template::{AppError, ErrorTemplate};
-use crate::{home, post};
 use chrono::{Datelike, Utc};
+use html::ElementDescriptorBounds;
+use icondata as i;
 use leptos::*;
+use leptos_icons::Icon;
 use leptos_meta::*;
 use leptos_router::*;
+
+use crate::error_template::{AppError, ErrorTemplate};
+use crate::{home, post};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -29,9 +33,19 @@ pub fn App() -> impl IntoView {
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                 <div class="container mx-auto max-w-5xl">
-                    <a href="/" class="text-3xl font-bold">
-                        blog
-                    </a>
+                    <div class="flex flex-row justify-between items-center">
+                        <a href="/" class="text-3xl font-bold">
+                            blog
+                        </a>
+                        <div class="flex flex-row gap-2 items-center h-10">
+                            <a href="https://github.com/rust-dd/blog" target="_blank">
+                                <Icon icon=i::IoLogoGithub class="text-white size-6" />
+                            </a>
+                            <a href="/rss.xml" target="_blank">
+                                <Icon icon=i::IoLogoRss class="text-white size-6" />
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </header>
             <main class="container flex flex-col gap-8 py-12 px-4 mx-auto mt-16 max-w-5xl md:px-0">
