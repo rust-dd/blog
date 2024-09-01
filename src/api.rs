@@ -170,31 +170,39 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
         let ts = ThemeSet::load_defaults();
         let theme = &ts.themes["base16-eighties.dark"];
 
-        // Regex kódblokkok felismerésére
         let re_code = Regex::new(r"```(\w+)?\n([\s\S]*?)```").unwrap();
-        // Regex SVG fájlok felismerésére
-        let re_svg = Regex::new(r"!\[.*?\]\((.*?\.svg)\)").unwrap();
+        let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)").unwrap();
 
         let mut html_output = String::new();
         let mut last_end = 0;
 
+        let img_html = |img_format: &str, img_path: &str| {
+            if img_format == "svg" {
+                return format!(
+                    r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                    img_path
+                );
+            } else {
+                return format!(
+                    r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
+                    img_path
+                );
+            };
+        };
+
         for cap in re_code.captures_iter(&markdown) {
             let markdown_before_code = &markdown[last_end..cap.get(0).unwrap().start()];
-
             let mut processed_before_code = String::new();
-            let mut last_svg_end = 0;
-            for svg_cap in re_svg.captures_iter(markdown_before_code) {
+            let mut last_img_end = 0;
+            for img_cap in re_img.captures_iter(markdown_before_code) {
                 processed_before_code
-                    .push_str(&markdown_before_code[last_svg_end..svg_cap.get(0).unwrap().start()]);
-                let svg_path = &svg_cap[1];
-                let svg_html = format!(
-                    r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
-                    svg_path
-                );
-                processed_before_code.push_str(&svg_html);
-                last_svg_end = svg_cap.get(0).unwrap().end();
+                    .push_str(&markdown_before_code[last_img_end..img_cap.get(0).unwrap().start()]);
+                let img_path = &img_cap[1];
+                let img_format = &img_cap[2];
+                processed_before_code.push_str(&img_html(img_format, img_path));
+                last_img_end = img_cap.get(0).unwrap().end();
             }
-            processed_before_code.push_str(&markdown_before_code[last_svg_end..]);
+            processed_before_code.push_str(&markdown_before_code[last_img_end..]);
 
             let parser = Parser::new_ext(&processed_before_code, Options::all());
             push_html(&mut html_output, parser);
@@ -224,19 +232,16 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
 
         let markdown_after_last_code = &markdown[last_end..];
         let mut processed_after_code = String::new();
-        let mut last_svg_end = 0;
-        for svg_cap in re_svg.captures_iter(markdown_after_last_code) {
+        let mut last_img_end = 0;
+        for img_cap in re_img.captures_iter(markdown_after_last_code) {
             processed_after_code
-                .push_str(&markdown_after_last_code[last_svg_end..svg_cap.get(0).unwrap().start()]);
-            let svg_path = &svg_cap[1];
-            let svg_html = format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
-                svg_path
-            );
-            processed_after_code.push_str(&svg_html);
-            last_svg_end = svg_cap.get(0).unwrap().end();
+                .push_str(&markdown_after_last_code[last_img_end..img_cap.get(0).unwrap().start()]);
+            let img_path = &img_cap[1];
+            let img_format = &img_cap[2];
+            processed_after_code.push_str(&img_html(img_format, img_path));
+            last_img_end = img_cap.get(0).unwrap().end();
         }
-        processed_after_code.push_str(&markdown_after_last_code[last_svg_end..]);
+        processed_after_code.push_str(&markdown_after_last_code[last_img_end..]);
 
         let parser = Parser::new_ext(&processed_after_code, Options::all());
         push_html(&mut html_output, parser);
