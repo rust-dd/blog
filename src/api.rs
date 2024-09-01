@@ -135,6 +135,7 @@ pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
 #[server(endpoint = "/post")]
 pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
+    use cached::proc_macro::cached;
     use chrono::{DateTime, Utc};
     use leptos::expect_context;
 
@@ -154,6 +155,62 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     let naive_date = date_time.date_naive();
     let formatted_date = naive_date.format("%b %-d").to_string();
     post.created_at = formatted_date.into();
+
+    #[cached]
+    fn process_markdown(markdown: String) -> Result<String, ServerFnError> {
+        use pulldown_cmark::{html::push_html, Options, Parser};
+        use regex::Regex;
+        use syntect::easy::HighlightLines;
+        use syntect::highlighting::ThemeSet;
+        use syntect::html::styled_line_to_highlighted_html;
+        use syntect::html::IncludeBackground;
+        use syntect::parsing::SyntaxSet;
+
+        let ps = SyntaxSet::load_defaults_newlines();
+        let ts = ThemeSet::load_defaults();
+        let theme = &ts.themes["base16-eighties.dark"];
+
+        let re = Regex::new(r"```(\w+)?\n([\s\S]*?)```").unwrap();
+
+        let mut html_output = String::new();
+        let mut last_end = 0;
+
+        for cap in re.captures_iter(&markdown) {
+            let markdown_before_code = &markdown[last_end..cap.get(0).unwrap().start()];
+            let parser = Parser::new_ext(markdown_before_code, Options::all());
+            push_html(&mut html_output, parser);
+
+            let language = cap.get(1).map_or("plaintext", |m| m.as_str());
+            let code_block = &cap[2];
+
+            let syntax = ps
+                .find_syntax_by_token(language)
+                .unwrap_or_else(|| ps.find_syntax_plain_text());
+
+            let mut h = HighlightLines::new(syntax, theme);
+            html_output.push_str(r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#);
+
+            for line in code_block.lines() {
+                let ranges = h.highlight_line(line, &ps).unwrap();
+                let escaped =
+                    styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No).unwrap();
+                html_output.push_str(&escaped);
+                html_output.push_str("\n");
+            }
+
+            html_output.push_str("</code></pre>");
+
+            last_end = cap.get(0).unwrap().end();
+        }
+
+        let markdown_after_last_code = &markdown[last_end..];
+        let parser = Parser::new_ext(markdown_after_last_code, Options::all());
+        push_html(&mut html_output, parser);
+
+        Ok(html_output)
+    }
+
+    post.body = process_markdown(post.body.to_string()).unwrap().into();
 
     Ok(post)
 }

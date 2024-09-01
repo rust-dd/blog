@@ -1,9 +1,11 @@
 use leptos::*;
+use leptos_router::use_navigate;
 
 use crate::api::{increment_views, select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
+    let navigate = use_navigate();
     let selected_tags = create_rw_signal(Vec::<String>::new());
     let tags = create_blocking_resource(
         || (),
@@ -23,6 +25,7 @@ pub fn Component() -> impl IntoView {
     view! {
         <Suspense fallback=|| ()>
             {
+                let navigate = navigate.clone();
                 view! {
                     <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                         <button
@@ -85,15 +88,16 @@ pub fn Component() -> impl IntoView {
                         each=move || posts.get().unwrap_or_default()
                         key=|post| post.id.id.to_string()
                         children=move |post| {
+                            let navigate = navigate.clone();
                             view! {
                                 <article
                                     on:click=move |_| {
+                                        #[cfg(not(debug_assertions))]
                                         increment_view.dispatch(post.id.id.to_string());
-                                        let _ = window()
-                                            .open_with_url_and_target(
-                                                &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
-                                                "_self",
-                                            );
+                                        navigate(
+                                            &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
+                                            Default::default(),
+                                        );
                                     }
                                     class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >
