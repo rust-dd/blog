@@ -41,8 +41,7 @@ pub fn Component() -> impl IntoView {
                                         on:click=move |e| {
                                             e.stop_propagation();
                                             if let Some(github) = &post.author.github {
-                                                let _ = window()
-                                                    .open_with_url_and_target(&github, "_blank");
+                                                let _ = window().open_with_url_and_target(github, "_blank");
                                             }
                                         }
                                         class="cursor-pointer hover:underline"
