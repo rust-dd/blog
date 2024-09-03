@@ -16,7 +16,7 @@ pub fn App() -> impl IntoView {
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
-        // <Meta name="description" content="Tech Diaries - The Official Rust-DD Developer Blog" />
+        <Meta name="description" content="Tech Diaries - The Official Rust-DD Developer Blog" />
         // <Meta property="og:type" content="website" />
         // <Meta property="og:url" content="https://rust-dd.com/" />
         // <Meta property="og:image" content="https://static.rust-dd.com/rust-dd_custom_bg.png" />
