@@ -2,6 +2,8 @@
 
 pub mod api;
 pub mod app;
+#[cfg(feature = "ssr")]
+pub mod fileserv;
 pub mod home;
 pub mod post;
 #[cfg(feature = "ssr")]

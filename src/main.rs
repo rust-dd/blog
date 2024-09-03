@@ -2,11 +2,11 @@
 #[tokio::main]
 async fn main() {
     use axum::extract::State;
-    use axum::http::StatusCode;
     use axum::response::Response;
     use axum::{routing::get, Router};
     use blog::api::{process_markdown, Post};
     use blog::app::App;
+    use blog::fileserv::file_and_error_handler;
     use blog::redirect::redirect_www;
     use blog::ssr::AppState;
     use chrono::{DateTime, Utc};
@@ -138,7 +138,7 @@ async fn main() {
             App,
         )
         .route("/rss.xml", get(rss_handler))
-        .fallback((|| (StatusCode::NOT_FOUND, "Not Found".to_string()))())
+        .fallback(file_and_error_handler)
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
