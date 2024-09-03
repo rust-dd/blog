@@ -1,5 +1,4 @@
 use chrono::{Datelike, Utc};
-use html::ElementDescriptorBounds;
 use icondata as i;
 use leptos::*;
 use leptos_icons::Icon;
@@ -12,15 +11,18 @@ use crate::{home, post};
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
-    provide_meta_context();
+    // provide_meta_context();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
         <Meta name="description" content="Tech Diaries - The Official Rust-DD Developer Blog" />
-        <Meta property="og:type" content="article" />
+        <Meta property="og:type" content="website" />
         <Meta property="og:url" content="https://rust-dd.com/" />
-        <Meta property="og:image" content="https://static.rust-dd.com/rust-dd.png" />
+        <Meta property="og:image" content="https://static.rust-dd.com/rust-dd_custom_bg.png" />
+        <Meta property="og:image:type" content="image/png" />
+        <Meta property="og:image:width" content="1200" />
+        <Meta property="og:image:height" content="627" />
         <Meta
             property="og:site_name"
             content="Tech Diaries - The Official Rust-DD Developer Blog"

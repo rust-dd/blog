@@ -16,12 +16,6 @@ pub fn Component() -> impl IntoView {
     view! {
         <Suspense fallback=|| ()>
             <Meta property="og:type" content="article" />
-            <Meta property="og:url" content=format!("https://rust-dd.com/post/{}", slug()) />
-            <Meta property="og:image" content="https://static.rust-dd.com/rust-dd.png" />
-            <Meta
-                property="og:site_name"
-                content="Tech Diaries - The Official Rust-DD Developer Blog"
-            />
             {move || {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
