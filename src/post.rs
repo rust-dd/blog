@@ -15,23 +15,22 @@ pub fn Component() -> impl IntoView {
 
     view! {
         <Suspense fallback=|| ()>
-
             {move || {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
                     view! {
                         <Title text=post.title.to_string() />
                         <Meta name="description" content=post.summary.to_string() />
-                        // <Meta property="og:type" content="article" />
-                        // <Meta property="og:title" content=post.title.to_string() />
-                        // <Meta property="og:description" content=post.summary.to_string() />
-                        // {post
-                        // .tags
-                        // .into_iter()
-                        // .map(|tag| {
-                        // view! { <Meta name="keywords" content=tag.to_string() /> }
-                        // })
-                        // .collect::<Vec<_>>()}
+                        <Meta property="og:type" content="article" />
+                        <Meta property="og:title" content=post.title.to_string() />
+                        <Meta property="og:description" content=post.summary.to_string() />
+                        {post
+                            .tags
+                            .into_iter()
+                            .map(|tag| {
+                                view! { <Meta name="keywords" content=tag.to_string() /> }
+                            })
+                            .collect::<Vec<_>>()}
                         <article>
                             <div class="flex flex-col gap-4 mx-auto max-w-3xl">
                                 <p class="text-4xl font-semibold">{post.title.clone()}</p>
