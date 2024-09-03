@@ -9,6 +9,7 @@ async fn main() {
     use blog::fileserv::file_and_error_handler;
     use blog::ssr::AppState;
     use chrono::{DateTime, Utc};
+    use blog::redirect::redirect_www;
     use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
@@ -19,6 +20,7 @@ async fn main() {
         opt::auth::Root,
         Surreal,
     };
+    use tower_http::trace::TraceLayer;
 
     let env_result = dotenv();
     if env_result.is_err() {
@@ -137,6 +139,7 @@ async fn main() {
         )
         .route("/rss.xml", get(rss_handler))
         .fallback(file_and_error_handler)
+        .layer(tower::ServiceBuilder::new().layer(TraceLayer::new_for_http()).layer(axum::middleware::from_fn(redirect_www)))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();

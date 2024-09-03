@@ -5,6 +5,8 @@ pub mod app;
 pub mod error_template;
 #[cfg(feature = "ssr")]
 pub mod fileserv;
+#[cfg(feature = "ssr")]
+pub mod redirect;
 pub mod home;
 pub mod post;
 
