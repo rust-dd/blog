@@ -11,27 +11,27 @@ use crate::{home, post};
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
-    // provide_meta_context();
+    provide_meta_context();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
-        <Meta name="description" content="Tech Diaries - The Official Rust-DD Developer Blog" />
-        <Meta property="og:type" content="website" />
-        <Meta property="og:url" content="https://rust-dd.com/" />
-        <Meta property="og:image" content="https://static.rust-dd.com/rust-dd_custom_bg.png" />
-        <Meta property="og:image:type" content="image/png" />
-        <Meta property="og:image:width" content="1200" />
-        <Meta property="og:image:height" content="627" />
-        <Meta
-            property="og:site_name"
-            content="Tech Diaries - The Official Rust-DD Developer Blog"
-        />
-        <Meta property="og:title" content="Tech Diaries - The Official Rust-DD Developer Blog" />
-        <Meta
-            property="og:description"
-            content="Tech Diaries - The Official Rust-DD Developer Blog"
-        />
+        // <Meta name="description" content="Tech Diaries - The Official Rust-DD Developer Blog" />
+        // <Meta property="og:type" content="website" />
+        // <Meta property="og:url" content="https://rust-dd.com/" />
+        // <Meta property="og:image" content="https://static.rust-dd.com/rust-dd_custom_bg.png" />
+        // <Meta property="og:image:type" content="image/png" />
+        // <Meta property="og:image:width" content="1200" />
+        // <Meta property="og:image:height" content="627" />
+        // <Meta
+        // property="og:site_name"
+        // content="Tech Diaries - The Official Rust-DD Developer Blog"
+        // />
+        // <Meta property="og:title" content="Tech Diaries - The Official Rust-DD Developer Blog" />
+        // <Meta
+        // property="og:description"
+        // content="Tech Diaries - The Official Rust-DD Developer Blog"
+        // />
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                 <div class="container mx-auto max-w-5xl">
