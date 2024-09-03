@@ -20,8 +20,8 @@ pub fn Component() -> impl IntoView {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
                     view! {
-                        // <Title text=post.title.to_string() />
-                        // <Meta name="description" content=post.summary.to_string() />
+                        <Title text=post.title.to_string() />
+                        <Meta name="description" content=post.summary.to_string() />
                         // <Meta property="og:type" content="article" />
                         // <Meta property="og:title" content=post.title.to_string() />
                         // <Meta property="og:description" content=post.summary.to_string() />

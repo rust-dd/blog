@@ -2,13 +2,10 @@
 
 pub mod api;
 pub mod app;
-pub mod error_template;
-#[cfg(feature = "ssr")]
-pub mod fileserv;
-#[cfg(feature = "ssr")]
-pub mod redirect;
 pub mod home;
 pub mod post;
+#[cfg(feature = "ssr")]
+pub mod redirect;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]

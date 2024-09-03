@@ -5,7 +5,6 @@ use leptos_icons::Icon;
 use leptos_meta::*;
 use leptos_router::*;
 
-use crate::error_template::{AppError, ErrorTemplate};
 use crate::{home, post};
 
 #[component]
@@ -51,14 +50,10 @@ pub fn App() -> impl IntoView {
                 </div>
             </header>
             <main class="container flex flex-col gap-8 py-12 px-4 mx-auto mt-16 max-w-5xl md:px-0">
-                <Router fallback=|| {
-                    let mut outside_errors = Errors::default();
-                    outside_errors.insert_with_default_key(AppError::NotFound);
-                    view! { <ErrorTemplate outside_errors /> }.into_view()
-                }>
+                <Router>
                     <Routes>
-                        <Route path="" view=home::Component ssr=SsrMode::Async />
-                        <Route path="/post/:slug" view=post::Component ssr=SsrMode::Async />
+                        <Route path="/" view=home::Component ssr=SsrMode::Async />
+                        <Route path="/post/:slug/" view=post::Component ssr=SsrMode::Async />
                     </Routes>
                 </Router>
             </main>
