@@ -114,12 +114,12 @@ pub fn Component() -> impl IntoView {
                                         <p>{format!("{} min read", post.read_time)}</p>
                                         <p>{format!("{} views", post.total_views)}</p>
                                         <p>{post.created_at}</p>
-                                        <p
+                                        <a
+                                            href={post.author.github.unwrap_or_default()}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             on:click=move |e| {
                                                 e.stop_propagation();
-                                                if let Some(github) = &post.author.github {
-                                                    let _ = window().open_with_url_and_target(github, "_blank");
-                                                }
                                             }
                                             class="cursor-pointer hover:underline"
                                         >
@@ -127,7 +127,7 @@ pub fn Component() -> impl IntoView {
                                             <span class="ml-1 font-semibold">
                                                 {&post.author.name.to_string()}
                                             </span>
-                                        </p>
+                                        </a>
                                     </div>
                                 </article>
                             }

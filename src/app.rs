@@ -42,10 +42,10 @@ pub fn App() -> impl IntoView {
                             blog
                         </a>
                         <div class="flex flex-row gap-2 items-center h-10">
-                            <a href="https://github.com/rust-dd/blog" target="_blank">
+                            <a href="https://github.com/rust-dd/blog" rel="noopener noreferrer" target="_blank">
                                 <Icon icon=i::IoLogoGithub class="text-white size-6" />
                             </a>
-                            <a href="/rss.xml" target="_blank">
+                            <a href="/rss.xml" rel="noopener noreferrer" target="_blank">
                                 <Icon icon=i::IoLogoRss class="text-white size-6" />
                             </a>
                         </div>
