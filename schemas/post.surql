@@ -14,3 +14,4 @@ DEFINE FIELD read_time ON post TYPE option<int>;
 DEFINE FIELD total_views ON post TYPE int DEFAULT 0;
 DEFINE FIELD created_at ON post TYPE datetime DEFAULT time::now();
 DEFINE FIELD updated_at ON post TYPE datetime VALUE time::now();
+DEFINE FIELD publish_to_x ON post TYPE bool DEFAULT false;
