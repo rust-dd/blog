@@ -19,7 +19,7 @@ pub fn Component() -> impl IntoView {
         }
     });
     create_effect(move |_| {
-        //#[cfg(not(debug_assertions))]
+        #[cfg(not(debug_assertions))]
         if post.get().is_some() {
             increment_view.dispatch(post.get().as_ref().unwrap().id.id.to_string());
         }
