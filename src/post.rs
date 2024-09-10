@@ -18,8 +18,8 @@ pub fn Component() -> impl IntoView {
             let _ = increment_views(id.to_string()).await;
         }
     });
-    create_render_effect(move |_| {
-        #[cfg(not(debug_assertions))]
+    create_effect(move |_| {
+        //#[cfg(not(debug_assertions))]
         if post.get().is_some() {
             increment_view.dispatch(post.get().as_ref().unwrap().id.id.to_string());
         }
