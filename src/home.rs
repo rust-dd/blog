@@ -1,7 +1,7 @@
 use leptos::*;
 use leptos_router::use_navigate;
 
-use crate::api::{increment_views, select_posts, select_tags};
+use crate::api::{select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -15,12 +15,6 @@ pub fn Component() -> impl IntoView {
         move || selected_tags.get(),
         move |selected_tags| async move { select_posts(selected_tags).await.unwrap_or_default() },
     );
-    let increment_view = create_action(move |id: &String| {
-        let id = id.clone();
-        async move {
-            let _ = increment_views(id.to_string()).await;
-        }
-    });
 
     view! {
         <Suspense fallback=|| ()>
@@ -92,8 +86,6 @@ pub fn Component() -> impl IntoView {
                             view! {
                                 <article
                                     on:click=move |_| {
-                                        #[cfg(not(debug_assertions))]
-                                        increment_view.dispatch(post.id.id.to_string());
                                         navigate(
                                             &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
                                             Default::default(),
@@ -115,7 +107,7 @@ pub fn Component() -> impl IntoView {
                                         <p>{format!("{} views", post.total_views)}</p>
                                         <p>{post.created_at}</p>
                                         <a
-                                            href={post.author.github.unwrap_or_default()}
+                                            href=post.author.github.unwrap_or_default()
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             on:click=move |e| {

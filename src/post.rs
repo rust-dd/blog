@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 
-use crate::api::select_post;
+use crate::api::{increment_views, select_post};
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -12,6 +12,18 @@ pub fn Component() -> impl IntoView {
         || (),
         move |_| async move { select_post(slug()).await.unwrap() },
     );
+    let increment_view = create_action(move |id: &String| {
+        let id = id.clone();
+        async move {
+            let _ = increment_views(id.to_string()).await;
+        }
+    });
+    create_render_effect(move |_| {
+        #[cfg(not(debug_assertions))]
+        if post.get().is_some() {
+            increment_view.dispatch(post.get().as_ref().unwrap().id.id.to_string());
+        }
+    });
 
     view! {
         <Suspense fallback=|| ()>
