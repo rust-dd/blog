@@ -22,6 +22,12 @@ async fn main() {
     };
     use tower_http::trace::TraceLayer;
 
+    tracing_subscriber::fmt()
+        .with_file(true)
+        .with_line_number(true)
+        .with_max_level(tracing::Level::TRACE)
+        .init();
+
     let env_result = dotenv();
     if env_result.is_err() {
         logging::warn!("There is no corresponding .env file");
