@@ -145,11 +145,11 @@ async fn main() {
         )
         .route("/rss.xml", get(rss_handler))
         .fallback(file_and_error_handler)
-        // .layer(
-        //     tower::ServiceBuilder::new()
-        //         .layer(TraceLayer::new_for_http())
-        //         .layer(axum::middleware::from_fn(redirect_www)),
-        // )
+        .layer(
+            tower::ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .layer(axum::middleware::from_fn(redirect_www)),
+        )
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
