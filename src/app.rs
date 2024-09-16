@@ -15,6 +15,8 @@ pub fn App() -> impl IntoView {
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css" />
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
+        <Meta name="hostname" content="rust-dd.com" />
+        <Meta name="expected-hostname" content="rust-dd.com" />
         <Meta
             name="description"
             content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
@@ -34,6 +36,16 @@ pub fn App() -> impl IntoView {
         <Meta property="og:image:type" content="image/png" />
         <Meta property="og:image:width" content="1200" />
         <Meta property="og:image:height" content="627" />
+        <Meta name="twitter:card" content="summary_large_image" />
+        <Meta name="twitter:title" content="Tech Diaries - The Official Rust-DD Developer Blog" />
+        <Meta
+            name="twitter:description"
+            content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+        />
+        <Meta name="twitter:site" content="@rust_dd" />
+        <Meta name="twitter:url" content="https://rust-dd.com/" />
+        <Meta name="twitter:image" content="https://static.rust-dd.com/rust-dd_custom_bg.png" />
+        <Meta name="twitter:image:alt" content="Rust-DD Framework" />
         <div class="overflow-auto h-screen text-white bg-[#1e1e1e]">
             <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                 <div class="container mx-auto max-w-5xl">
