@@ -20,7 +20,10 @@ async fn main() {
         opt::auth::Root,
         Surreal,
     };
+    use tower_http::compression::predicate::{NotForContentType, SizeAbove};
+    use tower_http::compression::{CompressionLayer, Predicate};
     use tower_http::trace::TraceLayer;
+    use tower_http::CompressionLevel;
 
     tracing_subscriber::fmt()
         .with_file(true)
@@ -149,6 +152,19 @@ async fn main() {
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
                 .layer(axum::middleware::from_fn(redirect_www)),
+        )
+        .layer(
+            CompressionLayer::new()
+                .quality(CompressionLevel::Default)
+                .compress_when(
+                    SizeAbove::new(1500)
+                        .and(NotForContentType::GRPC)
+                        .and(NotForContentType::IMAGES)
+                        .and(NotForContentType::const_new("application/xml"))
+                        .and(NotForContentType::const_new("application/javascript"))
+                        .and(NotForContentType::const_new("application/wasm"))
+                        .and(NotForContentType::const_new("text/css")),
+                ),
         )
         .with_state(app_state);
 

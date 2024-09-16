@@ -32,21 +32,6 @@ pub fn Component() -> impl IntoView {
                     let post = post.clone().unwrap_or_default();
                     view! {
                         <Title text=post.title.to_string() />
-                        <Meta name="description" content=post.summary.to_string() />
-                        <Meta property="og:type" content="article" />
-                        <Meta property="og:title" content=post.title.to_string() />
-                        <Meta property="og:description" content=post.summary.to_string() />
-                        <Meta name="twitter:site" content="@rust_dd" />
-                        <Meta name="twitter:card" content="summary_large_image" />
-                        <Meta name="twitter:title" content=post.title.to_string() />
-                        <Meta name="twitter:description" content=post.summary.to_string() />
-                        {post
-                            .tags
-                            .into_iter()
-                            .map(|tag| {
-                                view! { <Meta name="keywords" content=tag.to_string() /> }
-                            })
-                            .collect::<Vec<_>>()}
                         <article>
                             <div class="flex flex-col gap-4 mx-auto max-w-3xl">
                                 <p class="text-4xl font-semibold">{post.title.clone()}</p>

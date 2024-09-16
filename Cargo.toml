@@ -9,13 +9,21 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 axum = { version = "0.7", optional = true, features = ["macros"] }
 console_error_panic_hook = "0.1"
-leptos = { version = "0.6", features = ["rustls"] }
+leptos = { version = "0.6", features = ["rustls", "nightly"] }
 leptos_axum = { version = "0.6", optional = true }
-leptos_meta = { version = "0.6" }
-leptos_router = { version = "0.6" }
+leptos_meta = { version = "0.6", features = ["nightly"] }
+leptos_router = { version = "0.6", features = ["nightly"] }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.4", optional = true }
-tower-http = { version = "0.5", features = ["fs", "trace"], optional = true }
+tower-http = { version = "0.5", features = [
+    "fs",
+    "trace",
+    "cors",
+    "compression-br",
+    "compression-deflate",
+    "compression-zstd",
+    "compression-gzip",
+], optional = true }
 wasm-bindgen = "0.2.93"
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
