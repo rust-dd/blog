@@ -111,11 +111,7 @@ pub fn App() -> impl IntoView {
                 <main class="container flex flex-col gap-8 py-12 px-4 mx-auto mt-16 max-w-5xl md:px-0">
                     <Routes>
                         <Route path="/" view=move || view! { <home::Component /> } />
-                        <Route
-                            path="/post/:slug/"
-                            view=move || view! { <post::Component /> }
-                            ssr=SsrMode::Async
-                        />
+                        <Route path="/post/:slug/" view=move || view! { <post::Component /> } />
                     </Routes>
                 </main>
                 <footer class="fixed right-0 bottom-0 left-0 z-10 py-4 text-center bg-[#1e1e1e]/80 backdrop-blur-md">
