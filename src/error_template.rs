@@ -54,7 +54,7 @@ pub fn ErrorTemplate(
     }
 
     view! {
-        <div class="grid place-content-center px-4 h-screen antialiased bg-white">
+        <div class="grid place-content-center px-4 h-full antialiased">
             <h1 class="mb-6 text-center">{if errors.len() > 1 { "Errors" } else { "Error" }}</h1>
             <For
                 // a function that returns the items we're iterating over; a signal is fine
@@ -66,7 +66,7 @@ pub fn ErrorTemplate(
                     let error_string = error.1.to_string();
                     let error_code = error.1.status_code();
                     view! {
-                        <h1 class="text-xl tracking-widest text-gray-500 uppercase">
+                        <h1 class="text-xl tracking-widest text-gray-400 uppercase">
                             {error_code.to_string()}| {error_string}
                         </h1>
                         <a
