@@ -125,9 +125,10 @@ pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
     tags.sort();
     let tags = tags
         .into_iter()
+        .map(|tag| tag.to_lowercase())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
-        .collect();
+        .collect::<Vec<_>>();
 
     Ok(tags)
 }
