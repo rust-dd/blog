@@ -101,6 +101,13 @@ pub fn App() -> impl IntoView {
                                 >
                                     <Icon icon=i::FaXTwitterBrands class="text-white size-6" />
                                 </a>
+                                <a
+                                    href="https://www.linkedin.com/company/rust-dd"
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                >
+                                    <Icon icon=i::FaLinkedinBrands class="text-white size-6" />
+                                </a>
                                 <a href="/rss.xml" rel="noopener noreferrer" target="_blank">
                                     <Icon icon=i::IoLogoRss class="text-white size-6" />
                                 </a>
