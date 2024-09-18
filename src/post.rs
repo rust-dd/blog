@@ -56,7 +56,7 @@ pub fn Component() -> impl IntoView {
                                 </div>
                             </div>
                             <div
-                                class="my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffbd2e] prose-strong:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
+                                class="my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-code:before:content-none prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffbd2e] prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffbd2e]"
                                 inner_html=post.body
                             />
                         </article>
