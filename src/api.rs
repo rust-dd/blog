@@ -121,14 +121,14 @@ pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
         tags: Vec<String>,
     }
     let tags = query?.take::<Vec<Tags>>(0)?;
-    let mut tags = tags.iter().flat_map(|t| t.tags.clone()).collect::<Vec<_>>();
-    tags.sort();
-    let tags = tags
+    let tags = tags.iter().flat_map(|t| t.tags.clone()).collect::<Vec<_>>();
+    let mut tags = tags
         .into_iter()
         .map(|tag| tag.to_lowercase())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
         .collect::<Vec<_>>();
+    tags.sort();
 
     Ok(tags)
 }
