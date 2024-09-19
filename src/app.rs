@@ -14,7 +14,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html lang="en">
             <head>
                 <link
@@ -24,7 +24,7 @@ pub fn App() -> impl IntoView {
                     crossorigin="anonymous"
                 />
             </head>
-            <body>
+            <body class="bg-[#1e1e1e]">
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
                 <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
                 <Meta name="hostname" content="rust-dd.com" />
@@ -87,7 +87,7 @@ pub fn App() -> impl IntoView {
             outside_errors.insert_with_default_key(AppError::NotFound);
             view! { <ErrorTemplate outside_errors /> }.into_view()
         }>
-            <div class="overflow-auto text-white bg-[#1e1e1e]">
+            <div class="overflow-auto text-white">
                 <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                     <div class="container mx-auto max-w-5xl">
                         <div class="flex flex-row justify-between items-center">
