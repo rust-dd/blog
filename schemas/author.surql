@@ -3,7 +3,6 @@ DEFINE TABLE author TYPE NORMAL SCHEMAFULL
         FOR select FULL
         FOR create, update, delete NONE;
 
-DEFINE FIELD id ON author TYPE record<author> ASSERT $value != NONE;
 DEFINE FIELD name ON author TYPE string ASSERT $value != NONE;
 DEFINE FIELD bio ON author TYPE option<string>;
 DEFINE FIELD email ON author TYPE string ASSERT string::is::email($value);
