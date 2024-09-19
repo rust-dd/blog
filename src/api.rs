@@ -124,7 +124,6 @@ pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
     let tags = tags.iter().flat_map(|t| t.tags.clone()).collect::<Vec<_>>();
     let mut tags = tags
         .into_iter()
-        .map(|tag| tag.to_lowercase())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
         .collect::<Vec<_>>();
