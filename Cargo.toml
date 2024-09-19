@@ -41,6 +41,7 @@ rss = { version = "2.0.9", optional = true }
 leptos_icons = "0.3.1"
 icondata = "0.4.0"
 tracing-subscriber = { version = "0.3.18", optional = true }
+katex = {version = "0.4.6", optional = true}
 
 
 [features]
@@ -60,6 +61,7 @@ ssr = [
     "dep:pulldown-cmark",
     "dep:rss",
     "dep:tracing-subscriber",
+    "dep:katex",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode

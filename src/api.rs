@@ -182,95 +182,156 @@ pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
 
 #[server]
 pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError> {
-    use pulldown_cmark::{html::push_html, Options, Parser};
+    use pulldown_cmark::{
+        CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream,
+    };
     use regex::Regex;
     use syntect::easy::HighlightLines;
     use syntect::highlighting::ThemeSet;
-    use syntect::html::styled_line_to_highlighted_html;
-    use syntect::html::IncludeBackground;
+    use syntect::html::{styled_line_to_highlighted_html, IncludeBackground};
     use syntect::parsing::SyntaxSet;
 
+    pub struct MathEventProcessor {
+        display_style_opts: katex::Opts,
+    }
+
+    impl MathEventProcessor {
+        pub fn new() -> MathEventProcessor {
+            let opts = katex::Opts::builder().display_mode(true).build().unwrap();
+            MathEventProcessor {
+                display_style_opts: opts,
+            }
+        }
+
+        pub fn process_math_event<'a>(&'a self, event: Event<'a>) -> Event<'a> {
+            match event {
+                Event::InlineMath(math_exp) => {
+                    Event::InlineHtml(CowStr::from(katex::render(&math_exp).unwrap()))
+                }
+                Event::DisplayMath(math_exp) => Event::Html(CowStr::from(
+                    katex::render_with_opts(&math_exp, &self.display_style_opts).unwrap(),
+                )),
+                _ => event,
+            }
+        }
+    }
+
+    // Initialize syntax highlighting
     let ps = SyntaxSet::load_defaults_newlines();
     let ts = ThemeSet::load_defaults();
     let theme = &ts.themes["base16-eighties.dark"];
 
-    let re_code = Regex::new(r"```(\w+)?\n([\s\S]*?)```").unwrap();
+    // Regex for images
     let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)").unwrap();
 
-    let mut html_output = String::new();
-    let mut last_end = 0;
-
-    let img_html = |img_format: &str, img_path: &str| {
-        if img_format == "svg" {
-            return format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
-                img_path
-            );
-        } else {
-            return format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
-                img_path
-            );
-        };
-    };
-
-    for cap in re_code.captures_iter(&markdown) {
-        let markdown_before_code = &markdown[last_end..cap.get(0).unwrap().start()];
-        let mut processed_before_code = String::new();
-        let mut last_img_end = 0;
-        for img_cap in re_img.captures_iter(markdown_before_code) {
-            processed_before_code
-                .push_str(&markdown_before_code[last_img_end..img_cap.get(0).unwrap().start()]);
-            let img_path = &img_cap[1];
-            let img_format = &img_cap[2];
-            processed_before_code.push_str(&img_html(img_format, img_path));
-            last_img_end = img_cap.get(0).unwrap().end();
-        }
-        processed_before_code.push_str(&markdown_before_code[last_img_end..]);
-
-        let parser = Parser::new_ext(&processed_before_code, Options::all());
-        push_html(&mut html_output, parser);
-
-        let language = cap.get(1).map_or("plaintext", |m| m.as_str());
-        let code_block = &cap[2];
-
-        let syntax = ps
-            .find_syntax_by_token(language)
-            .unwrap_or_else(|| ps.find_syntax_plain_text());
-
-        let mut h = HighlightLines::new(syntax, theme);
-        html_output.push_str(
-            r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
-        );
-
-        for line in code_block.lines() {
-            let ranges = h.highlight_line(line, &ps).unwrap();
-            let escaped =
-                styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No).unwrap();
-            html_output.push_str(&escaped);
-            html_output.push_str("\n");
-        }
-
-        html_output.push_str("</code></pre>");
-
-        last_end = cap.get(0).unwrap().end();
-    }
-
-    let markdown_after_last_code = &markdown[last_end..];
-    let mut processed_after_code = String::new();
+    // Preprocess the markdown to handle images
+    let mut processed_markdown = String::new();
     let mut last_img_end = 0;
-    for img_cap in re_img.captures_iter(markdown_after_last_code) {
-        processed_after_code
-            .push_str(&markdown_after_last_code[last_img_end..img_cap.get(0).unwrap().start()]);
+    for img_cap in re_img.captures_iter(&markdown) {
+        processed_markdown.push_str(&markdown[last_img_end..img_cap.get(0).unwrap().start()]);
         let img_path = &img_cap[1];
         let img_format = &img_cap[2];
-        processed_after_code.push_str(&img_html(img_format, img_path));
+        let img_html = if img_format == "svg" {
+            format!(
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                img_path
+            )
+        } else {
+            format!(
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
+                img_path
+            )
+        };
+        processed_markdown.push_str(&img_html);
         last_img_end = img_cap.get(0).unwrap().end();
     }
-    processed_after_code.push_str(&markdown_after_last_code[last_img_end..]);
+    processed_markdown.push_str(&markdown[last_img_end..]);
 
-    let parser = Parser::new_ext(&processed_after_code, Options::all());
-    push_html(&mut html_output, parser);
+    // Now parse the markdown
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_TABLES);
+    options.insert(Options::ENABLE_TASKLISTS);
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_MATH);
+
+    let parser = Parser::new_ext(&processed_markdown, options);
+
+    // Initialize the MathEventProcessor
+    let mep = MathEventProcessor::new();
+
+    // Prepare to collect the events
+    let mut events = Vec::new();
+
+    let mut code_block_language: Option<String> = None;
+    let mut code_block_content = String::new();
+    let mut in_code_block = false;
+
+    // Use TextMergeStream to merge adjacent text events
+    let iterator = TextMergeStream::new(parser).map(|event| mep.process_math_event(event));
+
+    for event in iterator {
+        match event {
+            Event::Start(Tag::CodeBlock(kind)) => {
+                in_code_block = true;
+                code_block_content.clear();
+
+                // Extract language from CodeBlockKind
+                code_block_language = match kind {
+                    CodeBlockKind::Fenced(info) => {
+                        // Get the first word as the language identifier
+                        let lang = info.split_whitespace().next().unwrap_or("").to_string();
+                        Some(lang)
+                    }
+                    CodeBlockKind::Indented => None,
+                };
+            }
+            Event::End(TagEnd::CodeBlock) => {
+                in_code_block = false;
+
+                // Perform syntax highlighting on the code block content
+                let language = code_block_language.as_deref().unwrap_or("plaintext");
+                let syntax = ps
+                    .find_syntax_by_token(language)
+                    .unwrap_or_else(|| ps.find_syntax_plain_text());
+                let mut h = HighlightLines::new(syntax, theme);
+                let mut highlighted_html = String::new();
+                highlighted_html.push_str(
+                    r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
+                );
+
+                for line in code_block_content.lines() {
+                    let ranges = h.highlight_line(line, &ps).unwrap();
+                    let escaped =
+                        styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)
+                            .unwrap();
+                    highlighted_html.push_str(&escaped);
+                    highlighted_html.push('\n');
+                }
+                highlighted_html.push_str("</code></pre>");
+
+                events.push(Event::Html(CowStr::from(highlighted_html)));
+
+                code_block_language = None;
+            }
+            Event::Text(text) => {
+                if in_code_block {
+                    code_block_content.push_str(&text);
+                } else {
+                    events.push(Event::Text(text));
+                }
+            }
+            other => {
+                events.push(other);
+            }
+        }
+    }
+
+    // Render the events back to HTML
+    use pulldown_cmark::html::push_html;
+    let mut html_output = String::new();
+    push_html(&mut html_output, events.into_iter());
 
     Ok(html_output)
 }
+
+// Define the MathEventProcessor struct

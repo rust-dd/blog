@@ -241,7 +241,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a3a5ed3201df5658d1aa45060c5a57dc9dba8a8ada20d696d67cb0c479ee043"
 dependencies = [
  "chrono",
- "derive_builder",
+ "derive_builder 0.20.1",
  "diligent-date-parser",
  "never",
  "quick-xml 0.36.1",
@@ -483,6 +483,7 @@ dependencies = [
  "dotenvy",
  "http 1.1.0",
  "icondata",
+ "katex",
  "leptos",
  "leptos_axum",
  "leptos_icons",
@@ -851,6 +852,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "copy_dir"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "543d1dd138ef086e2ff05e3a48cf9da045da2033d16f8538fd76b86cd49b2ca3"
+dependencies = [
+ "walkdir",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1035,11 +1045,32 @@ dependencies = [
 
 [[package]]
 name = "derive_builder"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d67778784b508018359cbc8696edb3db78160bab2c2a28ba7f56ef6932997f8"
+dependencies = [
+ "derive_builder_macro 0.12.0",
+]
+
+[[package]]
+name = "derive_builder"
 version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd33f37ee6a119146a1781d3356a7c26028f83d779b2e04ecd45fdc75c76877b"
 dependencies = [
- "derive_builder_macro",
+ "derive_builder_macro 0.20.1",
+]
+
+[[package]]
+name = "derive_builder_core"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c11bdc11a0c47bc7d37d582b5285da6849c96681023680b906673c5707af7b0f"
+dependencies = [
+ "darling 0.14.4",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -1056,11 +1087,21 @@ dependencies = [
 
 [[package]]
 name = "derive_builder_macro"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebcda35c7a396850a55ffeac740804b40ffec779b98fffbb1738f4033f0ee79e"
+dependencies = [
+ "derive_builder_core 0.12.0",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "derive_builder_macro"
 version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4abae7035bf79b9877b779505d8cf3749285b80c43941eda66604841889451dc"
 dependencies = [
- "derive_builder_core",
+ "derive_builder_core 0.20.1",
  "syn 2.0.72",
 ]
 
@@ -2180,6 +2221,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "katex"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bdbc7a1823f188f56ac9486993536b70a2686a58d47095dcc10507a7d242bf5"
+dependencies = [
+ "cfg-if",
+ "derive_builder 0.12.0",
+ "itertools 0.10.5",
+ "quick-js",
+ "thiserror",
+]
+
+[[package]]
 name = "lalrpop"
 version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2486,6 +2540,16 @@ name = "libm"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ec2a862134d2a7d32d7983ddcdd1c4923530833c9f2ea1a44fc5fa473989058"
+
+[[package]]
+name = "libquickjs-sys"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f0b24e9bd171b75ae0295bd428fb8fe58410fb23156e5f34a4657a70c3cee96"
+dependencies = [
+ "cc",
+ "copy_dir",
+]
 
 [[package]]
 name = "libredox"
@@ -3241,6 +3305,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae"
 
 [[package]]
+name = "quick-js"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19cb4cefcb00f4ab9b332664d06005a74f582ac16aa959c6ad5912957bd83e5f"
+dependencies = [
+ "libquickjs-sys",
+ "once_cell",
+]
+
+[[package]]
 name = "quick-xml"
 version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3699,7 +3773,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "27e92048f840d98c6d6dd870af9101610ea9ff413f11f1bcebf4f4c31d96d957"
 dependencies = [
  "atom_syndication",
- "derive_builder",
+ "derive_builder 0.20.1",
  "never",
  "quick-xml 0.36.1",
 ]

@@ -16,6 +16,14 @@ pub fn App() -> impl IntoView {
     view! {
         <!DOCTYPE html>
         <html lang="en">
+            <head>
+                <link
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"
+                    integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww"
+                    crossorigin="anonymous"
+                />
+            </head>
             <body>
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
                 <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
