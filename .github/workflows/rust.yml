@@ -33,7 +33,7 @@ jobs:
         db: ${{ secrets.SURREAL_DB }}
         username: ${{ secrets.SURREAL_USERNAME }}
         password: ${{ secrets.SURREAL_PASSWORD }}
-        version: v2.0.0-preview.1
+        version: v2.0.0-preview.3
 
     - name: Deploy to DigitalOcean
       uses: digitalocean/app_action@v1 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
