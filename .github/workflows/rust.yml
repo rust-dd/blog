@@ -34,6 +34,7 @@ jobs:
         username: ${{ secrets.SURREAL_USERNAME }}
         password: ${{ secrets.SURREAL_PASSWORD }}
         version: v2.0.0-preview.1
+        skip-untracked-files: true
 
     - name: Deploy to DigitalOcean
       uses: digitalocean/app_action@v2 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
