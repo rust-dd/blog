@@ -25,16 +25,16 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
-    - name: Apply migrations
-      uses: Odonno/surrealdb-migrations-action@v0.2.0
-      with:
-        address: ${{ secrets.SURREAL_ADDRESS }}
-        ns: ${{ secrets.SURREAL_NS }}
-        db: ${{ secrets.SURREAL_DB }}
-        username: ${{ secrets.SURREAL_USERNAME }}
-        password: ${{ secrets.SURREAL_PASSWORD }}
-        version: v2.0.0-preview.1
-        skip-untracked-files: true
+    # - name: Apply migrations
+    #   uses: Odonno/surrealdb-migrations-action@v0.2.0
+    #   with:
+    #     address: ${{ secrets.SURREAL_ADDRESS }}
+    #     ns: ${{ secrets.SURREAL_NS }}
+    #     db: ${{ secrets.SURREAL_DB }}
+    #     username: ${{ secrets.SURREAL_USERNAME }}
+    #     password: ${{ secrets.SURREAL_PASSWORD }}
+    #     version: v2.0.0-preview.1
+    #     skip-untracked-files: true
 
     - name: Deploy to DigitalOcean
       uses: digitalocean/app_action@v1 # switch to v2 after https://github.com/digitalocean/app_action/issues/123
