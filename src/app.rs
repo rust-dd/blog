@@ -14,18 +14,11 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
-            <head>
-                <link
-                    rel="stylesheet"
-                    href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"
-                    integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww"
-                    crossorigin="anonymous"
-                />
-            </head>
             <body class="bg-[#1e1e1e]">
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
+                <Stylesheet id="katex" href="/katex.min.css" />
                 <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
                 <Meta name="hostname" content="rust-dd.com" />
                 <Meta name="expected-hostname" content="rust-dd.com" />
