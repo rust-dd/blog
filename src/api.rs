@@ -264,11 +264,19 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
     let mut code_block_language: Option<String> = None;
     let mut code_block_content = String::new();
     let mut in_code_block = false;
+    let mut skip_image = false;
 
     // Use TextMergeStream to merge adjacent text events
     let iterator = TextMergeStream::new(parser).map(|event| mep.process_math_event(event));
 
     for event in iterator {
+        if skip_image {
+            if let Event::End(TagEnd::Image) = event {
+                skip_image = false;
+            }
+            continue;
+        }
+
         match event {
             Event::Start(Tag::CodeBlock(kind)) => {
                 in_code_block = true;
@@ -293,7 +301,7 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
                     .find_syntax_by_token(language)
                     .unwrap_or_else(|| ps.find_syntax_plain_text());
                 let mut h = HighlightLines::new(syntax, theme);
-                let mut highlighted_html = String::new();
+                let mut highlighted_html = String::with_capacity(code_block_content.len() * 2);
                 highlighted_html.push_str(
                     r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
                 );
@@ -319,6 +327,34 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
                     events.push(Event::Text(text));
                 }
             }
+            Event::Start(Tag::Image { dest_url, .. }) => {
+                // Handle the image
+                let img_path = dest_url.into_string();
+                let img_format = img_path.split('.').last().unwrap_or("").to_lowercase();
+
+                let img_html = if img_format == "svg" {
+                    format!(
+                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                        img_path
+                    )
+                } else {
+                    format!(
+                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="width: 50%;"></div>"#,
+                        img_path
+                    )
+                };
+
+                events.push(Event::Html(CowStr::from(img_html)));
+
+                // Set skip_image flag to true to skip alt text and End(TagEnd::Image)
+                skip_image = true;
+            }
+            Event::End(TagEnd::Image) => {
+                // This will be skipped when skip_image is true
+                if !skip_image {
+                    events.push(Event::End(TagEnd::Image));
+                }
+            }
             other => {
                 events.push(other);
             }
@@ -332,5 +368,3 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
 
     Ok(html_output)
 }
-
-// Define the MathEventProcessor struct
