@@ -128,7 +128,7 @@ pub fn Component() -> impl IntoView {
                                         <img
                                             src=post.header_image.as_ref().unwrap().to_string()
                                             alt=""
-                                            class="object-cover w-full h-auto rounded-lg md:w-1/5 aspect-auto"
+                                            class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
                                         />
                                     </Show>
                                 </article>
