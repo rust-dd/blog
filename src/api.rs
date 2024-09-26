@@ -42,9 +42,11 @@ pub struct Post {
     pub slug: Option<Cow<'static, str>>,
     pub created_at: Cow<'static, str>,
     pub updated_at: Cow<'static, str>,
+    pub is_published: bool,
+    pub header_image: Option<Cow<'static, str>>,
 }
 
-impl Default for Post {
+impl<'a> Default for Post {
     fn default() -> Self {
         Self {
             id: Thing::from(("post", "0")),
@@ -58,6 +60,8 @@ impl Default for Post {
             slug: None,
             created_at: Cow::Borrowed(""),
             updated_at: Cow::Borrowed(""),
+            is_published: true,
+            header_image: None,
         }
     }
 }
@@ -71,7 +75,8 @@ pub async fn select_posts(
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
-    let mut query = format!("SELECT *, author.* from post ORDER BY created_at DESC;");
+    let mut query =
+        format!("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
     if !tags.is_empty() {
         let tags = tags
             .iter()

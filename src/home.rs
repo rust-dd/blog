@@ -93,36 +93,44 @@ pub fn Component() -> impl IntoView {
                                             Default::default(),
                                         );
                                     }
-                                    class="p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card"
+                                    class="flex flex-col-reverse gap-10 p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer md:flex-row hover:shadow-lg hover:-translate-y-2 bg-card"
                                 >
-                                    <div class="flex gap-8 justify-between items-center mb-4">
-                                        <p class="text-3xl font-semibold">
-                                            {&post.title.to_string()}
-                                        </p>
-
+                                    <div>
+                                        <div class="flex gap-8 justify-between items-center mb-4">
+                                            <p class="text-3xl font-semibold">{post.title}</p>
+                                        </div>
+                                        <p class="mb-2 text-muted-foreground">{post.summary}</p>
+                                        <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
+                                            <p>{format!("{} min read", post.read_time)}</p>
+                                            <p>{format!("{} views", post.total_views)}</p>
+                                            <p>{post.created_at}</p>
+                                            <a
+                                                href=post.author.github.unwrap_or_default()
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                on:click=move |e| {
+                                                    e.stop_propagation();
+                                                }
+                                                class="cursor-pointer hover:underline"
+                                            >
+                                                {"by "}
+                                                <span class="ml-1 font-semibold">{post.author.name}</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <p class="mb-2 text-muted-foreground">
-                                        {&post.summary.to_string()}
-                                    </p>
-                                    <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
-                                        <p>{format!("{} min read", post.read_time)}</p>
-                                        <p>{format!("{} views", post.total_views)}</p>
-                                        <p>{post.created_at}</p>
-                                        <a
-                                            href=post.author.github.unwrap_or_default()
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            on:click=move |e| {
-                                                e.stop_propagation();
-                                            }
-                                            class="cursor-pointer hover:underline"
-                                        >
-                                            {"by "}
-                                            <span class="ml-1 font-semibold">
-                                                {&post.author.name.to_string()}
-                                            </span>
-                                        </a>
-                                    </div>
+                                    <Show
+                                        when={
+                                            let post_header = post.header_image.clone();
+                                            move || post_header.is_some()
+                                        }
+                                        fallback=|| ()
+                                    >
+                                        <img
+                                            src=post.header_image.as_ref().unwrap().to_string()
+                                            alt=""
+                                            class="object-cover w-full h-auto rounded-lg md:w-1/5 aspect-auto"
+                                        />
+                                    </Show>
                                 </article>
                             }
                         }

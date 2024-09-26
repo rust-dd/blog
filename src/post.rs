@@ -31,6 +31,19 @@ pub fn Component() -> impl IntoView {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();
                     view! {
+                        <Show
+                            when={
+                                let post_header = post.header_image.clone();
+                                move || post_header.is_some()
+                            }
+                            fallback=|| ()
+                        >
+                            <img
+                                src=post.header_image.as_ref().unwrap().to_string()
+                                alt=""
+                                class="object-contain self-center mb-6 max-w-3xl h-full rounded-lg aspect-auto md:w-[768px]"
+                            />
+                        </Show>
                         <Title text=post.title.to_string() />
                         <article>
                             <div class="flex flex-col gap-4 mx-auto max-w-3xl">
