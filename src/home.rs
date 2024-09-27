@@ -1,11 +1,9 @@
 use leptos::*;
-use leptos_router::use_navigate;
 
 use crate::api::{select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
-    let navigate = use_navigate();
     let selected_tags = create_rw_signal(Vec::<String>::new());
     let tags = create_blocking_resource(
         || (),
@@ -77,64 +75,56 @@ pub fn Component() -> impl IntoView {
             </div>
         </Suspense>
         <Suspense fallback=|| ()>
-            {
-                let navigate = navigate.clone();
-                view! {
-                    <For
-                        each=move || posts.get().unwrap_or_default()
-                        key=|post| post.id.id.to_string()
-                        children=move |post| {
-                            view! {
-                                <div class="flex flex-col p-6 text-left rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card">
-                                    <a href=format!(
-                                        "/post/{}",
-                                        post.slug.as_ref().map_or("", |v| v),
-                                    )>
-                                        <div class="flex flex-col-reverse gap-10 mb-4 md:flex-row">
-                                            <div class="flex flex-col gap-8">
-                                                <p class="text-3xl font-semibold">{post.title}</p>
-                                                <p class="mb-2 text-muted-foreground">{post.summary}</p>
-                                            </div>
-                                            <Show
-                                                when={
-                                                    let post_header = post.header_image.clone();
-                                                    move || post_header.is_some()
-                                                }
-                                                fallback=|| ()
-                                            >
-                                                <img
-                                                    src=post.header_image.as_ref().unwrap().to_string()
-                                                    alt=""
-                                                    class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
-                                                />
-                                            </Show>
-                                        </div>
-                                        <div class="flex flex-row gap-3 justify-end items-center text-sm">
-                                            <div class="flex flex-row gap-3">
-                                                <p>{format!("{} min read", post.read_time)}</p>
-                                                <p>{format!("{} views", post.total_views)}</p>
-                                                <p>{post.created_at}</p>
-                                            </div>
-                                            <a
-                                                href=post.author.github.unwrap_or_default()
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                on:click=move |e| {
-                                                    e.stop_propagation();
-                                                }
-                                                class="cursor-pointer hover:underline"
-                                            >
-                                                {"by "}
-                                                <span class="ml-1 font-semibold">{post.author.name}</span>
-                                            </a>
-                                        </div>
+            <For
+                each=move || posts.get().unwrap_or_default()
+                key=|post| post.id.id.to_string()
+                children=move |post| {
+                    view! {
+                        <div class="flex flex-col p-6 text-left rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card">
+                            <a href=format!("/post/{}", post.slug.as_ref().map_or("", |v| v))>
+                                <div class="flex flex-col-reverse gap-10 mb-4 md:flex-row">
+                                    <div class="flex flex-col gap-8">
+                                        <p class="text-3xl font-semibold">{post.title}</p>
+                                        <p class="mb-2 text-muted-foreground">{post.summary}</p>
+                                    </div>
+                                    <Show
+                                        when={
+                                            let post_header = post.header_image.clone();
+                                            move || post_header.is_some()
+                                        }
+                                        fallback=|| ()
+                                    >
+                                        <img
+                                            src=post.header_image.as_ref().unwrap().to_string()
+                                            alt=""
+                                            class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
+                                        />
+                                    </Show>
+                                </div>
+                                <div class="flex flex-row gap-3 justify-end items-center text-sm">
+                                    <div class="flex flex-row gap-3">
+                                        <p>{format!("{} min read", post.read_time)}</p>
+                                        <p>{format!("{} views", post.total_views)}</p>
+                                        <p>{post.created_at}</p>
+                                    </div>
+                                    <a
+                                        href=post.author.github.unwrap_or_default()
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        on:click=move |e| {
+                                            e.stop_propagation();
+                                        }
+                                        class="cursor-pointer hover:underline"
+                                    >
+                                        {"by "}
+                                        <span class="ml-1 font-semibold">{post.author.name}</span>
                                     </a>
                                 </div>
-                            }
-                        }
-                    />
+                            </a>
+                        </div>
+                    }
                 }
-            }
+            />
         </Suspense>
     }
 }
