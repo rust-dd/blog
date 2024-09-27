@@ -84,26 +84,37 @@ pub fn Component() -> impl IntoView {
                         each=move || posts.get().unwrap_or_default()
                         key=|post| post.id.id.to_string()
                         children=move |post| {
-                            let navigate = navigate.clone();
                             view! {
-                                <article
-                                    on:click=move |_| {
-                                        navigate(
-                                            &format!("/post/{}", post.slug.as_ref().map_or("", |v| v)),
-                                            Default::default(),
-                                        );
-                                    }
-                                    class="flex flex-col-reverse gap-10 p-6 rounded-lg shadow-sm transition-transform duration-300 cursor-pointer md:flex-row hover:shadow-lg hover:-translate-y-2 bg-card"
-                                >
-                                    <div>
-                                        <div class="flex gap-8 justify-between items-center mb-4">
-                                            <p class="text-3xl font-semibold">{post.title}</p>
+                                <div class="flex flex-col p-6 text-left rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card">
+                                    <a href=format!(
+                                        "/post/{}",
+                                        post.slug.as_ref().map_or("", |v| v),
+                                    )>
+                                        <div class="flex flex-col-reverse gap-10 mb-4 md:flex-row">
+                                            <div class="flex flex-col gap-8">
+                                                <p class="text-3xl font-semibold">{post.title}</p>
+                                                <p class="mb-2 text-muted-foreground">{post.summary}</p>
+                                            </div>
+                                            <Show
+                                                when={
+                                                    let post_header = post.header_image.clone();
+                                                    move || post_header.is_some()
+                                                }
+                                                fallback=|| ()
+                                            >
+                                                <img
+                                                    src=post.header_image.as_ref().unwrap().to_string()
+                                                    alt=""
+                                                    class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
+                                                />
+                                            </Show>
                                         </div>
-                                        <p class="mb-2 text-muted-foreground">{post.summary}</p>
-                                        <div class="flex gap-3 justify-end items-center text-sm text-muted-foreground">
-                                            <p>{format!("{} min read", post.read_time)}</p>
-                                            <p>{format!("{} views", post.total_views)}</p>
-                                            <p>{post.created_at}</p>
+                                        <div class="flex flex-row gap-3 justify-end items-center text-sm">
+                                            <div class="flex flex-row gap-3">
+                                                <p>{format!("{} min read", post.read_time)}</p>
+                                                <p>{format!("{} views", post.total_views)}</p>
+                                                <p>{post.created_at}</p>
+                                            </div>
                                             <a
                                                 href=post.author.github.unwrap_or_default()
                                                 target="_blank"
@@ -117,21 +128,8 @@ pub fn Component() -> impl IntoView {
                                                 <span class="ml-1 font-semibold">{post.author.name}</span>
                                             </a>
                                         </div>
-                                    </div>
-                                    <Show
-                                        when={
-                                            let post_header = post.header_image.clone();
-                                            move || post_header.is_some()
-                                        }
-                                        fallback=|| ()
-                                    >
-                                        <img
-                                            src=post.header_image.as_ref().unwrap().to_string()
-                                            alt=""
-                                            class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
-                                        />
-                                    </Show>
-                                </article>
+                                    </a>
+                                </div>
                             }
                         }
                     />
