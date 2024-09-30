@@ -92,6 +92,7 @@ pub fn App() -> impl IntoView {
                                     href="https://github.com/rust-dd/blog"
                                     rel="noopener noreferrer"
                                     target="_blank"
+                                    aria-label="GitHub"
                                 >
                                     <Icon icon=i::IoLogoGithub class="text-white size-6" />
                                 </a>
@@ -99,6 +100,7 @@ pub fn App() -> impl IntoView {
                                     href="https://x.com/rust_dd"
                                     rel="noopener noreferrer"
                                     target="_blank"
+                                    aria-label="X"
                                 >
                                     <Icon icon=i::FaXTwitterBrands class="text-white size-6" />
                                 </a>
@@ -106,10 +108,16 @@ pub fn App() -> impl IntoView {
                                     href="https://www.linkedin.com/company/rust-dd"
                                     rel="noopener noreferrer"
                                     target="_blank"
+                                    aria-label="LinkedIn"
                                 >
                                     <Icon icon=i::FaLinkedinBrands class="text-white size-6" />
                                 </a>
-                                <a href="/rss.xml" rel="noopener noreferrer" target="_blank">
+                                <a
+                                    href="/rss.xml"
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                    aria-label="RSS"
+                                >
                                     <Icon icon=i::IoLogoRss class="text-white size-6" />
                                 </a>
                             </div>
@@ -124,8 +132,9 @@ pub fn App() -> impl IntoView {
                 </main>
                 <footer class="fixed right-0 bottom-0 left-0 z-10 py-4 text-center bg-[#1e1e1e]/80 backdrop-blur-md">
                     <p class="text-gray-400">
-                        Powered by <a href="https://github.com/rust-dd" class="text-[#ffbd2e]">
-                            rust-dd
+                        Powered by
+                        <a href="https://github.com/rust-dd" class="hover:underline text-[#ffbd2e]">
+                            {"rust-dd"}
                         </a> {" © "} {Utc::now().year()}
                     </p>
                 </footer>
