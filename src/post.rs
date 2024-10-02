@@ -41,7 +41,7 @@ pub fn Component() -> impl IntoView {
                             <img
                                 src=post.header_image.as_ref().unwrap().to_string()
                                 alt=""
-                                class="object-contain self-center mb-6 w-auto h-full rounded-lg aspect-auto md:w-[768px]"
+                                class="object-contain self-center mb-6 h-full rounded-lg w-fit aspect-auto"
                             />
                         </Show>
                         <Title text=post.title.to_string() />
