@@ -76,6 +76,22 @@ pub fn Component() -> impl IntoView {
                     }
                 })
             }}
+            <script
+                src="https://giscus.app/client.js"
+                data-repo="rust-dd/blog"
+                data-repo-id="R_kgDOMRLPjw"
+                data-category="General"
+                data-category-id="DIC_kwDOMRLPj84CjCwK"
+                data-mapping="title"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="noborder_gray"
+                data-lang="en"
+                crossorigin="anonymous"
+                async
+            ></script>
         </Suspense>
     }
 }

@@ -1,4 +1,5 @@
 use leptos::*;
+use leptos_meta::Title;
 
 use crate::api::{select_posts, select_tags};
 
@@ -15,6 +16,7 @@ pub fn Component() -> impl IntoView {
     );
 
     view! {
+        <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
         <Suspense fallback=|| ()>
             <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                 <button
