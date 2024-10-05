@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeMap};
 
 use leptos::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
@@ -108,33 +108,31 @@ pub async fn select_posts(
 }
 
 #[server(endpoint = "/tags")]
-pub async fn select_tags() -> Result<Vec<String>, ServerFnError> {
+pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
     use crate::ssr::AppState;
     use leptos::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
-    let query = format!("SELECT tags from post;");
+    let query = format!(
+        "
+    LET $tags = SELECT tags FROM post;
+    array::flatten($tags.map(|$t| $t.tags));
+    "
+    );
     let query = db.query(&query).await;
 
     if let Err(e) = query {
         return Err(ServerFnError::from(e));
     }
 
-    #[derive(Debug, Clone, Serialize, Deserialize)]
-    struct Tags {
-        tags: Vec<String>,
+    let tags = query?.take::<Vec<String>>(1)?;
+    let mut tag_map = BTreeMap::<String, usize>::new();
+    for tag in tags {
+        *tag_map.entry(tag).or_insert(0) += 1;
     }
-    let tags = query?.take::<Vec<Tags>>(0)?;
-    let tags = tags.iter().flat_map(|t| t.tags.clone()).collect::<Vec<_>>();
-    let mut tags = tags
-        .into_iter()
-        .collect::<std::collections::HashSet<_>>()
-        .into_iter()
-        .collect::<Vec<_>>();
-    tags.sort();
 
-    Ok(tags)
+    Ok(tag_map)
 }
 
 #[server(endpoint = "/post")]

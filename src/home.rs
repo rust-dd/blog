@@ -29,7 +29,7 @@ pub fn Component() -> impl IntoView {
                 <For
                     each=move || tags.get().unwrap_or_default()
                     key=|tag| tag.clone()
-                    children=move |tag| {
+                    children=move |(tag, count)| {
                         view! {
                             <button
                                 on:click={
@@ -69,7 +69,7 @@ pub fn Component() -> impl IntoView {
                                     },
                                 )
                             >
-                                {tag}
+                                {tag + " (" + &count.to_string() + ")"}
                             </button>
                         }
                     }

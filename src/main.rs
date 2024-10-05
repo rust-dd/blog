@@ -25,10 +25,16 @@ async fn main() {
     use tower_http::trace::TraceLayer;
     use tower_http::CompressionLevel;
 
+    let tracing_level = if cfg!(debug_assertions) {
+        tracing::Level::TRACE
+    } else {
+        tracing::Level::INFO
+    };
+
     tracing_subscriber::fmt()
         .with_file(true)
         .with_line_number(true)
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing_level)
         .init();
 
     let env_result = dotenv();
