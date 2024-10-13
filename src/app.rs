@@ -14,7 +14,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html lang="en">
             <body class="bg-[#1e1e1e]">
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
