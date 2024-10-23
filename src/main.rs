@@ -73,7 +73,9 @@ async fn main() {
         use std::sync::Arc;
         use tokio::sync::Mutex;
 
-        let query = format!("SELECT *, author.* from post ORDER BY created_at DESC WHERE is_published = true;");
+        let query = format!(
+            "SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;"
+        );
         let query = db.query(&query).await;
         let mut posts = query?.take::<Vec<Post>>(0)?;
         posts.iter_mut().for_each(|post| {
