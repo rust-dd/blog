@@ -2,6 +2,7 @@ use leptos::*;
 use leptos_meta::Title;
 
 use crate::api::{select_posts, select_tags};
+use crate::loader;
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -17,7 +18,7 @@ pub fn Component() -> impl IntoView {
 
     view! {
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
-        <Suspense fallback=|| ()>
+        <Suspense fallback=|| view! { <loader::Component /> }>
             <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                 <button
                     on:click=move |_| selected_tags.update(|prev| prev.clear())

@@ -3,6 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::api::{increment_views, select_post};
+use crate::loader;
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -26,7 +27,9 @@ pub fn Component() -> impl IntoView {
     });
 
     view! {
-        <Suspense fallback=|| ()>
+        <Suspense fallback=|| {
+            view! { <loader::Component /> }
+        }>
             {move || {
                 post.with(|post| {
                     let post = post.clone().unwrap_or_default();

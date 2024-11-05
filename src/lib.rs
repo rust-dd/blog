@@ -6,6 +6,7 @@ pub mod error_template;
 #[cfg(feature = "ssr")]
 pub mod fileserv;
 pub mod home;
+pub mod loader;
 pub mod post;
 #[cfg(feature = "ssr")]
 pub mod redirect;
