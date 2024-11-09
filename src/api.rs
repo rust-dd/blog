@@ -235,12 +235,12 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
         let img_format = &img_cap[2];
         let img_html = if img_format == "svg" {
             format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 100%;"></div>"#,
                 img_path
             )
         } else {
             format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 50%;"></div>"#,
+                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 100%;"></div>"#,
                 img_path
             )
         };
@@ -337,12 +337,12 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
 
                 let img_html = if img_format == "svg" {
                     format!(
-                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="filter: invert(100%); width: 50%;"></div>"#,
+                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="filter: invert(100%); width: 100%;"></div>"#,
                         img_path
                     )
                 } else {
                     format!(
-                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="width: 50%;"></div>"#,
+                        r#"<div style="display: flex; justify-content: center;"><img alt="iamge" src="{}" style="width: 100%;"></div>"#,
                         img_path
                     )
                 };
