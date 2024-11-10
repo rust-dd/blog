@@ -14,7 +14,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
             <body class="bg-[#1e1e1e]">
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
@@ -73,6 +73,12 @@ pub fn App() -> impl IntoView {
                     content="https://static.rust-dd.com/rust-dd_custom_bg.png"
                 />
                 <Meta name="twitter:image:alt" content="Rust-DD Framework" />
+                <Link rel="preconnect" href="https://fonts.googleapis.com" />
+                <Link rel="preconnect" href="https://fonts.gstatic.com" />
+                <Link
+                    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+                    rel="stylesheet"
+                />
             </body>
         </html>
         <Router fallback=|| {
@@ -80,12 +86,15 @@ pub fn App() -> impl IntoView {
             outside_errors.insert_with_default_key(AppError::NotFound);
             view! { <ErrorTemplate outside_errors /> }.into_view()
         }>
-            <div class="overflow-auto text-white">
+            <div class="overflow-auto text-white font-poppins">
                 <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                     <div class="container mx-auto max-w-5xl">
-                        <div class="flex flex-row justify-between items-center">
-                            <a href="/" class="text-3xl font-bold">
-                                blog
+                        <div class="flex flex-row justify-between items-center text-white">
+                            <a
+                                href="/"
+                                class="text-3xl font-bold transition-all duration-500 hover:text-[#ffef5c]"
+                            >
+                                rust-dd.com
                             </a>
                             <div class="flex flex-row gap-3 items-center h-10">
                                 <a
@@ -94,7 +103,10 @@ pub fn App() -> impl IntoView {
                                     target="_blank"
                                     aria-label="GitHub"
                                 >
-                                    <Icon icon=i::IoLogoGithub class="text-white size-6" />
+                                    <Icon
+                                        icon=i::IoLogoGithub
+                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                    />
                                 </a>
                                 <a
                                     href="https://x.com/rust_dd"
@@ -102,7 +114,10 @@ pub fn App() -> impl IntoView {
                                     target="_blank"
                                     aria-label="X"
                                 >
-                                    <Icon icon=i::FaXTwitterBrands class="text-white size-6" />
+                                    <Icon
+                                        icon=i::FaXTwitterBrands
+                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                    />
                                 </a>
                                 <a
                                     href="https://www.linkedin.com/company/rust-dd"
@@ -110,7 +125,10 @@ pub fn App() -> impl IntoView {
                                     target="_blank"
                                     aria-label="LinkedIn"
                                 >
-                                    <Icon icon=i::FaLinkedinBrands class="text-white size-6" />
+                                    <Icon
+                                        icon=i::FaLinkedinBrands
+                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                    />
                                 </a>
                                 <a
                                     href="/rss.xml"
@@ -118,13 +136,16 @@ pub fn App() -> impl IntoView {
                                     target="_blank"
                                     aria-label="RSS"
                                 >
-                                    <Icon icon=i::IoLogoRss class="text-white size-6" />
+                                    <Icon
+                                        icon=i::IoLogoRss
+                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                    />
                                 </a>
                             </div>
                         </div>
                     </div>
                 </header>
-                <main class="container flex flex-col gap-8 py-12 px-4 mx-auto mt-16 max-w-5xl md:px-0">
+                <main class="container flex flex-col gap-8 px-4 pt-10 pb-14 mx-auto mt-16 max-w-4xl md:px-0">
                     <Routes>
                         <Route path="/" view=move || view! { <home::Component /> } />
                         <Route path="/post/:slug/" view=move || view! { <post::Component /> } />
@@ -133,7 +154,7 @@ pub fn App() -> impl IntoView {
                 <footer class="fixed right-0 bottom-0 left-0 z-10 py-4 text-center bg-[#1e1e1e]/80 backdrop-blur-md">
                     <p class="text-gray-400">
                         Powered by
-                        <a href="https://github.com/rust-dd" class="hover:underline text-[#ffbd2e]">
+                        <a href="https://github.com/rust-dd" class="hover:underline text-[#ffef5c]">
                             {"rust-dd"}
                         </a> {" © "} {Utc::now().year()}
                     </p>

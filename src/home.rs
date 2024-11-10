@@ -1,4 +1,6 @@
+use icondata as i;
 use leptos::*;
+use leptos_icons::Icon;
 use leptos_meta::Title;
 
 use crate::api::{select_posts, select_tags};
@@ -18,6 +20,58 @@ pub fn Component() -> impl IntoView {
 
     view! {
         <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
+        <Suspense fallback=|| ()>
+            <div class="gap-4 columns-1 sm:columns-2">
+                <For
+                    each=move || posts.get().unwrap_or_default()
+                    key=|post| post.id.id.to_string()
+                    children=move |post| {
+                        view! {
+                            <div class="flex flex-col p-3 text-left text-white rounded-lg transition-all duration-500 cursor-pointer break-inside-avoid bg-card hover:text-[#ffef5c]">
+                                <a href=format!("/post/{}", post.slug.as_ref().map_or("", |v| v))>
+                                    <div class="flex flex-col gap-1 mb-4">
+                                        <p class="text-base font-medium line-clamp-2">
+                                            {post.title}
+                                        </p>
+                                        <p class="italic text-xxs">{post.summary}</p>
+                                    </div>
+                                    <div class="flex flex-row gap-3 justify-start items-center text-xxs">
+                                        <div class="flex flex-row gap-3">
+                                            <div class="flex flex-row gap-1 items-center">
+                                                <Icon icon=i::IoStopwatch class="size-4" />
+                                                <p>{format!("{} min read", post.read_time)}</p>
+                                            </div>
+                                            <div class="flex flex-row gap-1 items-center">
+                                                <Icon icon=i::IoEye class="size-4" />
+                                                <p>{format!("{} views", post.total_views)}</p>
+                                            </div>
+                                            <div class="flex flex-row gap-1 items-center">
+                                                <Icon icon=i::IoCalendar class="size-4" />
+                                                <p>{post.created_at}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-row gap-1 items-center">
+                                            <Icon icon=i::IoPerson class="size-4" />
+                                            <a
+                                                href=post.author.github.unwrap_or_default()
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                on:click=move |e| {
+                                                    e.stop_propagation();
+                                                }
+                                                class="cursor-pointer hover:underline"
+                                            >
+                                                <span class="font-semibold">{post.author.name}</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    }
+                />
+            </div>
+        </Suspense>
         <Suspense fallback=|| view! { <loader::Component /> }>
             <div class="flex flex-row flex-wrap gap-1 px-4 text-xs">
                 <button
@@ -76,58 +130,6 @@ pub fn Component() -> impl IntoView {
                     }
                 />
             </div>
-        </Suspense>
-        <Suspense fallback=|| ()>
-            <For
-                each=move || posts.get().unwrap_or_default()
-                key=|post| post.id.id.to_string()
-                children=move |post| {
-                    view! {
-                        <div class="flex flex-col p-6 text-left rounded-lg shadow-sm transition-transform duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-2 bg-card">
-                            <a href=format!("/post/{}", post.slug.as_ref().map_or("", |v| v))>
-                                <div class="flex flex-col-reverse gap-10 mb-4 md:flex-row">
-                                    <div class="flex flex-col gap-8">
-                                        <p class="text-3xl font-semibold">{post.title}</p>
-                                        <p class="mb-2 text-muted-foreground">{post.summary}</p>
-                                    </div>
-                                    <Show
-                                        when={
-                                            let post_header = post.header_image.clone();
-                                            move || post_header.is_some()
-                                        }
-                                        fallback=|| ()
-                                    >
-                                        <img
-                                            src=post.header_image.as_ref().unwrap().to_string()
-                                            alt=""
-                                            class="object-contain w-full h-auto rounded-lg md:w-1/5 aspect-auto"
-                                        />
-                                    </Show>
-                                </div>
-                                <div class="flex flex-row gap-3 justify-end items-center text-sm">
-                                    <div class="flex flex-row gap-3">
-                                        <p>{format!("{} min read", post.read_time)}</p>
-                                        <p>{format!("{} views", post.total_views)}</p>
-                                        <p>{post.created_at}</p>
-                                    </div>
-                                    <a
-                                        href=post.author.github.unwrap_or_default()
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        on:click=move |e| {
-                                            e.stop_propagation();
-                                        }
-                                        class="cursor-pointer hover:underline"
-                                    >
-                                        {"by "}
-                                        <span class="ml-1 font-semibold">{post.author.name}</span>
-                                    </a>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                }
-            />
         </Suspense>
     }
 }

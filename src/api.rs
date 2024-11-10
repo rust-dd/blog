@@ -4,7 +4,7 @@ use leptos::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Author {
     pub id: Thing,
     pub name: Cow<'static, str>,
@@ -29,7 +29,7 @@ impl Default for Author {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Post {
     pub id: Thing,
     pub title: Cow<'static, str>,
@@ -100,7 +100,7 @@ pub async fn select_posts(
             .unwrap()
             .with_timezone(&Utc);
         let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d").to_string();
+        let formatted_date = naive_date.format("%b %-d, %Y").to_string();
         post.created_at = formatted_date.into();
     });
 
