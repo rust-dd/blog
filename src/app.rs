@@ -92,7 +92,7 @@ pub fn App() -> impl IntoView {
                         <div class="flex flex-row justify-between items-center text-white">
                             <a
                                 href="/"
-                                class="text-3xl font-bold transition-all duration-500 hover:text-[#ffef5c]"
+                                class="text-xl font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
                             >
                                 rust-dd.com
                             </a>
