@@ -1,6 +1,6 @@
 use http::status::StatusCode;
 use icondata as i;
-use leptos::*;
+use leptos::prelude::*;
 use leptos_icons::*;
 use thiserror::Error;
 
@@ -26,7 +26,7 @@ pub fn ErrorTemplate(
     #[prop(optional)] errors: Option<RwSignal<Errors>>,
 ) -> impl IntoView {
     let errors = match outside_errors {
-        Some(e) => create_rw_signal(e),
+        Some(e) => RwSignal::new(e),
         None => match errors {
             Some(e) => e,
             None => panic!("No Errors found and we expected errors!"),
@@ -73,7 +73,7 @@ pub fn ErrorTemplate(
                             href="/"
                             class="flex gap-1 justify-center items-center mt-6 text-center duration-200 hover:text-[#68b5fc]"
                         >
-                            <Icon width="1.1em" height="1.1em" icon=i::BiArrowBackRegular />
+                            // <Icon width="1.1em" height="1.1em" icon=i::BiArrowBackRegular />
                             Go back home
                         </a>
                     }

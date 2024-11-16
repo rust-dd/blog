@@ -1,22 +1,26 @@
 use crate::error_template::{AppError, ErrorTemplate};
 use chrono::{Datelike, Utc};
 use icondata as i;
-use leptos::*;
+use leptos::prelude::*;
 use leptos_icons::Icon;
 use leptos_meta::*;
-use leptos_router::*;
+use leptos_router::{
+    components::{FlatRoutes, Route, Router},
+    ParamSegment, StaticSegment,
+};
 
 use crate::{home, post};
 
-#[component]
-pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
-    provide_meta_context();
-
+pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
         <!DOCTYPE html>
         <html lang="en">
-            <body class="bg-[#1e1e1e]">
+            <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <AutoReload options=options.clone() />
+                <HydrationScripts options />
+                <MetaTags />
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
                 <Stylesheet id="katex" href="/katex.min.css" />
                 <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
@@ -79,13 +83,21 @@ pub fn App() -> impl IntoView {
                     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
                     rel="stylesheet"
                 />
+            </head>
+            <body class="bg-[#1e1e1e]">
+                <App />
             </body>
         </html>
-        <Router fallback=|| {
-            let mut outside_errors = Errors::default();
-            outside_errors.insert_with_default_key(AppError::NotFound);
-            view! { <ErrorTemplate outside_errors /> }.into_view()
-        }>
+    }
+}
+
+#[component]
+pub fn App() -> impl IntoView {
+    // Provides context that manages stylesheets, titles, meta tags, etc.
+    provide_meta_context();
+
+    view! {
+        <Router>
             <div class="overflow-auto text-white font-poppins">
                 <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
                     <div class="container mx-auto max-w-5xl">
@@ -102,54 +114,57 @@ pub fn App() -> impl IntoView {
                                     rel="noopener noreferrer"
                                     target="_blank"
                                     aria-label="GitHub"
-                                >
-                                    <Icon
-                                        icon=i::IoLogoGithub
-                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
-                                    />
+                                >// <Icon
+                                // icon=i::IoLogoGithub
+                                // class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                // />
                                 </a>
                                 <a
                                     href="https://x.com/rust_dd"
                                     rel="noopener noreferrer"
                                     target="_blank"
                                     aria-label="X"
-                                >
-                                    <Icon
-                                        icon=i::FaXTwitterBrands
-                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
-                                    />
+                                >// <Icon
+                                // icon=i::FaXTwitterBrands
+                                // class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                // />
                                 </a>
                                 <a
                                     href="https://www.linkedin.com/company/rust-dd"
                                     rel="noopener noreferrer"
                                     target="_blank"
                                     aria-label="LinkedIn"
-                                >
-                                    <Icon
-                                        icon=i::FaLinkedinBrands
-                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
-                                    />
+                                >// <Icon
+                                // icon=i::FaLinkedinBrands
+                                // class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                // />
                                 </a>
                                 <a
                                     href="/rss.xml"
                                     rel="noopener noreferrer"
                                     target="_blank"
                                     aria-label="RSS"
-                                >
-                                    <Icon
-                                        icon=i::IoLogoRss
-                                        class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
-                                    />
+                                >// <Icon
+                                // icon=i::IoLogoRss
+                                // class="transition-all duration-500 size-6 hover:text-[#ffef5c]"
+                                // />
                                 </a>
                             </div>
                         </div>
                     </div>
                 </header>
                 <main class="container flex flex-col gap-8 px-4 pt-10 pb-14 mx-auto mt-16 max-w-4xl md:px-0">
-                    <Routes>
-                        <Route path="/" view=move || view! { <home::Component /> } />
-                        <Route path="/post/:slug/" view=move || view! { <post::Component /> } />
-                    </Routes>
+                    <FlatRoutes fallback=|| {
+                        let mut outside_errors = Errors::default();
+                        outside_errors.insert_with_default_key(AppError::NotFound);
+                        view! { <ErrorTemplate outside_errors /> }.into_view()
+                    }>
+                        <Route path=StaticSegment("") view=home::Component />
+                        <Route
+                            path=(StaticSegment("post"), ParamSegment("slug"))
+                            view=post::Component
+                        />
+                    </FlatRoutes>
                 </main>
                 <footer class="fixed right-0 bottom-0 left-0 z-10 py-4 text-center bg-[#1e1e1e]/80 backdrop-blur-md">
                     <p class="text-gray-400">

@@ -5,13 +5,13 @@ async fn main() {
     use axum::response::Response;
     use axum::{routing::get, Router};
     use blog::api::{process_markdown, Post};
-    use blog::app::App;
-    use blog::fileserv::file_and_error_handler;
+    use blog::app::{shell, App};
     use blog::redirect::redirect_www;
     use blog::ssr::AppState;
     use chrono::{DateTime, Utc};
     use dotenvy::dotenv;
-    use leptos::*;
+    use leptos::logging;
+    use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use std::env;
     use surrealdb::engine::remote::http::Client;
@@ -26,7 +26,7 @@ async fn main() {
     use tower_http::CompressionLevel;
 
     let tracing_level = if cfg!(debug_assertions) {
-        tracing::Level::TRACE
+        tracing::Level::INFO
     } else {
         tracing::Level::INFO
     };
@@ -42,7 +42,7 @@ async fn main() {
         logging::warn!("There is no corresponding .env file");
     }
 
-    let conf = get_configuration(None).await.unwrap();
+    let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
@@ -143,7 +143,10 @@ async fn main() {
             .unwrap()
     }
 
-    let app_state = AppState { db, leptos_options };
+    let app_state = AppState {
+        db,
+        leptos_options: leptos_options.clone(),
+    };
     let app = Router::new()
         .leptos_routes_with_context(
             &app_state,
@@ -152,10 +155,12 @@ async fn main() {
                 let app_state = app_state.clone();
                 move || provide_context(app_state.clone())
             },
-            App,
+            {
+                let leptos_options = leptos_options.clone();
+                move || shell(leptos_options.clone())
+            },
         )
         .route("/rss.xml", get(rss_handler))
-        .fallback(file_and_error_handler)
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
@@ -174,6 +179,7 @@ async fn main() {
                         .and(NotForContentType::const_new("text/css")),
                 ),
         )
+        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();

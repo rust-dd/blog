@@ -1,26 +1,26 @@
 use std::{borrow::Cow, collections::BTreeMap};
 
-use leptos::{server, ServerFnError};
+use leptos::prelude::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Author {
     pub id: Thing,
-    pub name: Cow<'static, str>,
-    pub email: Cow<'static, str>,
-    pub bio: Option<Cow<'static, str>>,
-    pub linkedin: Option<Cow<'static, str>>,
-    pub twitter: Option<Cow<'static, str>>,
-    pub github: Option<Cow<'static, str>>,
+    pub name: String,
+    pub email: String,
+    pub bio: Option<String>,
+    pub linkedin: Option<String>,
+    pub twitter: Option<String>,
+    pub github: Option<String>,
 }
 
 impl Default for Author {
     fn default() -> Self {
         Self {
             id: Thing::from(("author", "0")),
-            name: Cow::Borrowed(""),
-            email: Cow::Borrowed(""),
+            name: String::new(),
+            email: String::new(),
             bio: None,
             linkedin: None,
             twitter: None,
@@ -32,34 +32,34 @@ impl Default for Author {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Post {
     pub id: Thing,
-    pub title: Cow<'static, str>,
-    pub summary: Cow<'static, str>,
-    pub body: Cow<'static, str>,
-    pub tags: Vec<Cow<'static, str>>,
+    pub title: String,
+    pub summary: String,
+    pub body: String,
+    pub tags: Vec<String>,
     pub author: Author,
     pub read_time: usize,
     pub total_views: usize,
-    pub slug: Option<Cow<'static, str>>,
-    pub created_at: Cow<'static, str>,
-    pub updated_at: Cow<'static, str>,
+    pub slug: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
     pub is_published: bool,
-    pub header_image: Option<Cow<'static, str>>,
+    pub header_image: Option<String>,
 }
 
 impl<'a> Default for Post {
     fn default() -> Self {
         Self {
             id: Thing::from(("post", "0")),
-            title: Cow::Borrowed(""),
-            summary: Cow::Borrowed(""),
-            body: Cow::Borrowed(""),
+            title: String::new(),
+            summary: String::new(),
+            body: String::new(),
             tags: vec![],
             author: Author::default(),
             read_time: 0,
             total_views: 0,
             slug: None,
-            created_at: Cow::Borrowed(""),
-            updated_at: Cow::Borrowed(""),
+            created_at: String::new(),
+            updated_at: String::new(),
             is_published: true,
             header_image: None,
         }
@@ -72,7 +72,7 @@ pub async fn select_posts(
 ) -> Result<Vec<Post>, ServerFnError> {
     use crate::ssr::AppState;
     use chrono::{DateTime, Utc};
-    use leptos::expect_context;
+    use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
     let mut query =
@@ -110,7 +110,7 @@ pub async fn select_posts(
 #[server(endpoint = "/tags")]
 pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
     use crate::ssr::AppState;
-    use leptos::expect_context;
+    use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
@@ -139,7 +139,7 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
 pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     use crate::ssr::AppState;
     use chrono::{DateTime, Utc};
-    use leptos::expect_context;
+    use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
@@ -168,7 +168,7 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
 #[server(endpoint = "/increment_views")]
 pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
     use crate::ssr::AppState;
-    use leptos::expect_context;
+    use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
