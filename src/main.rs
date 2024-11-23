@@ -13,6 +13,7 @@ async fn main() {
     use dotenvy::dotenv;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
+    use serde::{Deserialize, Serialize};
     use std::env;
     use surrealdb::engine::remote::http::Client;
     use surrealdb::{
@@ -143,6 +144,38 @@ async fn main() {
             .unwrap()
     }
 
+    async fn sitemap_handler(State(state): State<AppState>) -> Response<String> {
+        #[derive(Serialize, Deserialize)]
+        struct Post {
+            slug: Option<String>,
+            created_at: String,
+        }
+
+        let AppState { db, .. } = state;
+        let query = format!(
+            "SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;"
+        );
+        let query = db.query(&query).await;
+        let posts = query.unwrap().take::<Vec<Post>>(0).unwrap();
+        let mut sitemap = String::new();
+        sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+        for post in posts {
+            sitemap.push_str("<url>\n");
+            sitemap.push_str(&format!(
+                "<loc>https://rust-dd.com/post/{}</loc>\n",
+                post.slug.unwrap()
+            ));
+            sitemap.push_str(&format!("<lastmod>{}</lastmod>\n", post.created_at));
+            sitemap.push_str("</url>\n");
+        }
+        sitemap.push_str("</urlset>");
+        Response::builder()
+            .header("Content-Type", "application/xml")
+            .body(sitemap)
+            .unwrap()
+    }
+
     let app_state = AppState { db, leptos_options };
     let app = Router::new()
         .leptos_routes_with_context(
@@ -155,6 +188,7 @@ async fn main() {
             App,
         )
         .route("/rss.xml", get(rss_handler))
+        .route("/sitemap.xml", get(sitemap_handler))
         .fallback(file_and_error_handler)
         .layer(
             tower::ServiceBuilder::new()
