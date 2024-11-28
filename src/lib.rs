@@ -3,8 +3,6 @@
 pub mod api;
 pub mod app;
 pub mod error_template;
-#[cfg(feature = "ssr")]
-pub mod fileserv;
 pub mod home;
 pub mod loader;
 pub mod post;
@@ -16,13 +14,13 @@ pub mod redirect;
 pub fn hydrate() {
     use crate::app::*;
     console_error_panic_hook::set_once();
-    leptos::mount_to_body(App);
+    leptos::mount::hydrate_body(App);
 }
 
 #[cfg(feature = "ssr")]
 pub mod ssr {
     use axum::extract::FromRef;
-    use leptos::LeptosOptions;
+    use leptos::prelude::*;
     use surrealdb::{engine::remote::http::Client, Surreal};
 
     #[derive(FromRef, Debug, Clone)]

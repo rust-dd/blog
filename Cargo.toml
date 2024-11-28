@@ -9,10 +9,10 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 axum = { version = "0.7", optional = true, features = ["macros"] }
 console_error_panic_hook = "0.1"
-leptos = { version = "0.6", features = ["rustls", "nightly"] }
-leptos_axum = { version = "0.6", optional = true }
-leptos_meta = { version = "0.6", features = ["nightly"] }
-leptos_router = { version = "0.6", features = ["nightly"] }
+leptos = { version = "0.7.0-rc3", features = ["rustls", "nightly"] }
+leptos_axum = { version = "0.7.0-rc3", optional = true }
+leptos_meta = { version = "0.7.0-rc3" }
+leptos_router = { version = "0.7.0-rc3", features = ["nightly"] }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.4", optional = true }
 tower-http = { version = "0.5", features = [
@@ -38,17 +38,15 @@ syntect = { version = "5.2.0", optional = true }
 regex = { version = "1.10.6", optional = true }
 pulldown-cmark = { version = "0.12.0", optional = true }
 rss = { version = "2.0.9", optional = true }
-leptos_icons = "0.3.1"
-icondata = "0.4.0"
 tracing-subscriber = { version = "0.3.18", optional = true }
 katex = { version = "0.4.6", optional = true, default-features = false, features = [
     "duktape",
 ] }
-
-
+leptos-use = { version = "0.13.11", features = ["ssr"] }
+web-sys = "0.3.72"
 
 [features]
-hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
+hydrate = ["leptos/hydrate"]
 ssr = [
     "dep:axum",
     "dep:tokio",
@@ -65,6 +63,7 @@ ssr = [
     "dep:rss",
     "dep:tracing-subscriber",
     "dep:katex",
+    "leptos-use/ssr",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
