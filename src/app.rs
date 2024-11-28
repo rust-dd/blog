@@ -11,7 +11,7 @@ use crate::{home, post};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
@@ -102,13 +102,22 @@ pub fn App() -> impl IntoView {
                         <div class="flex flex-row justify-between items-center text-white">
                             <a
                                 href="/"
+                                on:click=move |_| {
+                                    use web_sys::window;
+                                    let document = window().unwrap().document().unwrap();
+                                    if let Some(element) = document.get_element_by_id("giscus") {
+                                        if let Some(parent) = element.parent_node() {
+                                            parent.remove_child(&element).unwrap();
+                                        }
+                                    }
+                                }
                                 class="text-xl font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
                             >
                                 rust-dd.com
                             </a>
                             <div class="flex flex-row gap-3 items-center h-10">
                                 <a
-                                    href="https://github.com/rust-dd/blog"
+                                    href="https://github.com/rust-dd/"
                                     rel="noopener noreferrer"
                                     target="_blank"
                                     aria-label="GitHub"

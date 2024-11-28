@@ -9,10 +9,14 @@ use crate::loader;
 pub fn Component() -> impl IntoView {
     let params = use_params_map();
     let slug = move || params.with(|params| params.get("slug").unwrap_or_default());
-
+    let (show, set_show) = signal(false);
     let post = Resource::new_blocking(
         || (),
-        move |_| async move { select_post(slug()).await.unwrap() },
+        move |_| async move {
+            let post = select_post(slug()).await.unwrap();
+            set_show(true);
+            post
+        },
     );
     let increment_view = Action::new(move |id: &String| {
         let id = id.clone();
@@ -79,23 +83,26 @@ pub fn Component() -> impl IntoView {
                         </article>
                     }
                 })
-            }}
-            <script
-                src="https://giscus.app/client.js"
-                data-repo="rust-dd/blog"
-                data-repo-id="R_kgDOMRLPjw"
-                data-category="General"
-                data-category-id="DIC_kwDOMRLPj84CjCwK"
-                data-mapping="title"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="noborder_gray"
-                data-lang="en"
-                crossorigin="anonymous"
-                async
-            ></script>
+            }} <div id="giscus">
+                <Show when=show>
+                    <script
+                        src="https://giscus.app/client.js"
+                        data-repo="rust-dd/blog"
+                        data-repo-id="R_kgDOMRLPjw"
+                        data-category="General"
+                        data-category-id="DIC_kwDOMRLPj84CjCwK"
+                        data-mapping="title"
+                        data-strict="0"
+                        data-reactions-enabled="1"
+                        data-emit-metadata="0"
+                        data-input-position="bottom"
+                        data-theme="noborder_gray"
+                        data-lang="en"
+                        crossorigin="anonymous"
+                        async
+                    ></script>
+                </Show>
+            </div>
         </Suspense>
     }
 }

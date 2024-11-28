@@ -42,9 +42,8 @@ tracing-subscriber = { version = "0.3.18", optional = true }
 katex = { version = "0.4.6", optional = true, default-features = false, features = [
     "duktape",
 ] }
-
-
-
+leptos-use = { version = "0.13.11", features = ["ssr"] }
+web-sys = "0.3.72"
 
 [features]
 hydrate = ["leptos/hydrate"]
@@ -64,6 +63,7 @@ ssr = [
     "dep:rss",
     "dep:tracing-subscriber",
     "dep:katex",
+    "leptos-use/ssr",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
