@@ -638,8 +638,6 @@ dependencies = [
  "regex",
  "rss",
  "serde",
- "serde-wasm-bindgen",
- "serde_json",
  "surrealdb",
  "syntect",
  "thiserror 1.0.63",
@@ -3948,17 +3946,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e255eaf9f3814135df4f959c9f404ebb2e67238bae0ed412da10518d0629e7c9"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "serde-wasm-bindgen"
-version = "0.6.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8302e169f0eddcc139c70f139d19d6467353af16f9fce27e8c30158036a1e16b"
-dependencies = [
- "js-sys",
- "serde",
- "wasm-bindgen",
 ]
 
 [[package]]
