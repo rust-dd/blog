@@ -75,8 +75,7 @@ pub async fn select_posts(
     use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
-    let mut query =
-        format!("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
+    let mut query = String::from("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
     if !tags.is_empty() {
         let tags = tags
             .iter()
@@ -157,10 +156,7 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     let naive_date = date_time.date_naive();
     let formatted_date = naive_date.format("%b %-d").to_string();
     post.created_at = formatted_date.into();
-    post.body = process_markdown(post.body.to_string())
-        .await
-        .unwrap()
-        .into();
+    post.body = process_markdown(post.body.to_string()).await?.into();
 
     Ok(post)
 }
@@ -224,7 +220,7 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
     let theme = &ts.themes["base16-eighties.dark"];
 
     // Regex for images
-    let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)").unwrap();
+    let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)")?;
 
     // Preprocess the markdown to handle images
     let mut processed_markdown = String::new();
@@ -310,10 +306,9 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
                 );
 
                 for line in code_block_content.lines() {
-                    let ranges = h.highlight_line(line, &ps).unwrap();
+                    let ranges = h.highlight_line(line, &ps)?;
                     let escaped =
-                        styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)
-                            .unwrap();
+                        styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)?;
                     highlighted_html.push_str(&escaped);
                     highlighted_html.push('\n');
                 }

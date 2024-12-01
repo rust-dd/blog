@@ -74,10 +74,7 @@ async fn main() {
         use std::sync::Arc;
         use tokio::sync::Mutex;
 
-        let query = format!(
-            "SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;"
-        );
-        let query = db.query(&query).await;
+        let query = db.query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;").await;
         let mut posts = query?.take::<Vec<Post>>(0)?;
         posts.iter_mut().for_each(|post| {
             let date_time = DateTime::parse_from_rfc3339(&post.created_at)
@@ -96,9 +93,7 @@ async fn main() {
                 let mut posts = posts_clone.lock().await;
                 if let Some(post) = posts.iter_mut().next() {
                     post.body = process_markdown(post.body.to_string())
-                        .await
-                        .unwrap()
-                        .into();
+                        .await.unwrap().into();
                 }
             });
 
@@ -106,7 +101,7 @@ async fn main() {
         }
 
         for handle in handles {
-            handle.await.unwrap();
+            handle.await?;
         }
 
         let channel = ChannelBuilder::default()
@@ -152,10 +147,7 @@ async fn main() {
         }
 
         let AppState { db, .. } = state;
-        let query = format!(
-            "SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;"
-        );
-        let query = db.query(&query).await;
+        let query = db.query("SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;").await;
         let posts = query.unwrap().take::<Vec<Post>>(0).unwrap();
         let mut sitemap = String::new();
         sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
