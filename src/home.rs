@@ -2,8 +2,8 @@ use leptos::prelude::*;
 use leptos_meta::Title;
 use leptos_router::components::A;
 
-use crate::api::{select_posts, select_tags};
 use crate::loader;
+use crate::server::{select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {

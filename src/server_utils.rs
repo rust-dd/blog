@@ -1,194 +1,120 @@
-use std::collections::BTreeMap;
-
-use leptos::prelude::{server, ServerFnError};
+use crate::server::Post;
+use crate::ssr::AppState;
+use axum::extract::State;
+use axum::response::Response;
+use chrono::{DateTime, Utc};
+use leptos::prelude::ServerFnError;
+use pulldown_cmark::{CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
+use regex::Regex;
+use rss::{ChannelBuilder, Item};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use std::env;
+use std::sync::Arc;
+use surrealdb::engine::remote::http::{Client, Http, Https};
+use surrealdb::opt::auth::Root;
+use surrealdb::Surreal;
+use syntect::easy::HighlightLines;
+use syntect::highlighting::ThemeSet;
+use syntect::html::{styled_line_to_highlighted_html, IncludeBackground};
+use syntect::parsing::SyntaxSet;
+use tokio::sync::Mutex;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Author {
-    pub id: Thing,
-    pub name: String,
-    pub email: String,
-    pub bio: Option<String>,
-    pub linkedin: Option<String>,
-    pub twitter: Option<String>,
-    pub github: Option<String>,
+pub async fn connect() -> Surreal<Client> {
+    let protocol = env::var("SURREAL_PROTOCOL").unwrap_or("http".to_string());
+    let host = env::var("SURREAL_HOST").unwrap_or("127.0.0.1:8000".to_string());
+    let username = env::var("SURREAL_ROOT_USER").unwrap_or("root".to_string());
+    let password = env::var("SURREAL_ROOT_PASS").unwrap_or("root".to_string());
+    let ns = env::var("SURREAL_NS").unwrap_or("rustblog".to_string());
+    let db_name = env::var("SURREAL_DB").unwrap_or("rustblog".to_string());
+
+    let db = if protocol == "http" {
+        Surreal::new::<Http>(host).await.unwrap()
+    } else {
+        Surreal::new::<Https>(host).await.unwrap()
+    };
+
+    db.signin(Root {
+        username: &username,
+        password: &password,
+    })
+    .await
+    .unwrap();
+    db.use_ns(ns).use_db(db_name).await.unwrap();
+
+    db
 }
 
-impl Default for Author {
-    fn default() -> Self {
-        Self {
-            id: Thing::from(("author", "0")),
-            name: String::new(),
-            email: String::new(),
-            bio: None,
-            linkedin: None,
-            twitter: None,
-            github: None,
-        }
-    }
+pub async fn rss_handler(State(state): State<AppState>) -> Response<String> {
+    let AppState { db, .. } = state;
+    let rss = generate_rss(db).await.unwrap();
+    Response::builder()
+        .header("Content-Type", "application/xml")
+        .body(rss)
+        .unwrap()
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Post {
-    pub id: Thing,
-    pub title: String,
-    pub summary: String,
-    pub body: String,
-    pub tags: Vec<String>,
-    pub author: Author,
-    pub read_time: usize,
-    pub total_views: usize,
-    pub slug: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-    pub is_published: bool,
-    pub header_image: Option<String>,
-}
-
-impl<'a> Default for Post {
-    fn default() -> Self {
-        Self {
-            id: Thing::from(("post", "0")),
-            title: String::new(),
-            summary: String::new(),
-            body: String::new(),
-            tags: vec![],
-            author: Author::default(),
-            read_time: 0,
-            total_views: 0,
-            slug: None,
-            created_at: String::new(),
-            updated_at: String::new(),
-            is_published: true,
-            header_image: None,
-        }
-    }
-}
-
-#[server(endpoint = "/posts")]
-pub async fn select_posts(
-    #[server(default)] tags: Vec<String>,
-) -> Result<Vec<Post>, ServerFnError> {
-    use crate::ssr::AppState;
-    use chrono::{DateTime, Utc};
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-    let mut query = String::from("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
-    if !tags.is_empty() {
-        let tags = tags
-            .iter()
-            .map(|tag| format!(r#""{}""#, tag))
-            .collect::<Vec<_>>();
-        query = format!(
-            "SELECT *, author.* from post WHERE tags CONTAINSANY [{0}] ORDER BY created_at DESC;",
-            tags.join(", ")
-        );
-    }
-
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
-    }
-
+pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, ServerFnError> {
+    let query = db
+        .query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;")
+        .await;
     let mut posts = query?.take::<Vec<Post>>(0)?;
     posts.iter_mut().for_each(|post| {
         let date_time = DateTime::parse_from_rfc3339(&post.created_at)
             .unwrap()
             .with_timezone(&Utc);
         let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d, %Y").to_string();
+        let formatted_date = naive_date.format("%b %-d").to_string();
         post.created_at = formatted_date.into();
     });
+    let posts = Arc::new(Mutex::new(posts));
+    let mut handles = vec![];
 
-    Ok(posts)
-}
+    for _ in 0..posts.lock().await.len() {
+        let posts_clone = Arc::clone(&posts);
+        let handle = tokio::spawn(async move {
+            let mut posts = posts_clone.lock().await;
+            if let Some(post) = posts.iter_mut().next() {
+                post.body = process_markdown(post.body.to_string())
+                    .await
+                    .unwrap()
+                    .into();
+            }
+        });
 
-#[server(endpoint = "/tags")]
-pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
-    use crate::ssr::AppState;
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-
-    let query = format!(
-        "
-    LET $tags = SELECT tags FROM post;
-    array::flatten($tags.map(|$t| $t.tags));
-    "
-    );
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
+        handles.push(handle);
     }
 
-    let tags = query?.take::<Vec<String>>(1)?;
-    let mut tag_map = BTreeMap::<String, usize>::new();
-    for tag in tags {
-        *tag_map.entry(tag).or_insert(0) += 1;
+    for handle in handles {
+        handle.await?;
     }
 
-    Ok(tag_map)
+    let channel = ChannelBuilder::default()
+        .title("Rust-DD")
+        .link("https://rust-dd.com")
+        .description("Tech Diaries - The Official Rust-DD Developer Blog")
+        .items(
+            posts
+                .lock()
+                .await
+                .clone()
+                .into_iter()
+                .map(|post| {
+                    let mut item = Item::default();
+                    item.set_author(post.author.name.to_string());
+                    item.set_title(post.title.to_string());
+                    item.set_description(post.body.to_string());
+                    item.set_link(format!("https://rust-dd.com/post/{}", post.slug.unwrap()));
+                    item.set_pub_date(post.created_at.to_string());
+                    item
+                })
+                .collect::<Vec<_>>(),
+        )
+        .build();
+
+    Ok(channel.to_string())
 }
 
-#[server(endpoint = "/post")]
-pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
-    use crate::ssr::AppState;
-    use chrono::{DateTime, Utc};
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-
-    let query = format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#);
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
-    }
-
-    let post = query?.take::<Vec<Post>>(0)?;
-    let mut post = post.first().unwrap().clone();
-
-    let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
-    let naive_date = date_time.date_naive();
-    let formatted_date = naive_date.format("%b %-d").to_string();
-    post.created_at = formatted_date.into();
-    post.body = process_markdown(post.body.to_string()).await?.into();
-
-    Ok(post)
-}
-
-#[server(endpoint = "/increment_views")]
-pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
-    use crate::ssr::AppState;
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-
-    let query = format!("UPDATE post:{0} SET total_views = total_views + 1;", id);
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
-    }
-
-    Ok(())
-}
-
-#[server]
 pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError> {
-    use pulldown_cmark::{
-        CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream,
-    };
-    use regex::Regex;
-    use syntect::easy::HighlightLines;
-    use syntect::highlighting::ThemeSet;
-    use syntect::html::{styled_line_to_highlighted_html, IncludeBackground};
-    use syntect::parsing::SyntaxSet;
-
     pub struct MathEventProcessor {
         display_style_opts: katex::Opts,
     }
@@ -302,8 +228,8 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
                 let mut h = HighlightLines::new(syntax, theme);
                 let mut highlighted_html = String::with_capacity(code_block_content.len() * 2);
                 highlighted_html.push_str(
-                    r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
-                );
+					r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
+				);
 
                 for line in code_block_content.lines() {
                     let ranges = h.highlight_line(line, &ps)?;
@@ -365,4 +291,37 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
     push_html(&mut html_output, events.into_iter());
 
     Ok(html_output)
+}
+
+pub async fn sitemap_handler(State(state): State<AppState>) -> Response<String> {
+    #[derive(Serialize, Deserialize)]
+    struct Post {
+        slug: Option<String>,
+        created_at: String,
+    }
+
+    let AppState { db, .. } = state;
+    let query = db
+        .query(
+            "SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;",
+        )
+        .await;
+    let posts = query.unwrap().take::<Vec<Post>>(0).unwrap();
+    let mut sitemap = String::new();
+    sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+    for post in posts {
+        sitemap.push_str("<url>\n");
+        sitemap.push_str(&format!(
+            "<loc>https://rust-dd.com/post/{}</loc>\n",
+            post.slug.unwrap()
+        ));
+        sitemap.push_str(&format!("<lastmod>{}</lastmod>\n", post.created_at));
+        sitemap.push_str("</url>\n");
+    }
+    sitemap.push_str("</urlset>");
+    Response::builder()
+        .header("Content-Type", "application/xml")
+        .body(sitemap)
+        .unwrap()
 }

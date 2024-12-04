@@ -1,6 +1,5 @@
 #![feature(async_closure)]
 
-pub mod api;
 pub mod app;
 pub mod error_template;
 pub mod home;
@@ -8,6 +7,9 @@ pub mod loader;
 pub mod post;
 #[cfg(feature = "ssr")]
 pub mod redirect;
+pub mod server;
+#[cfg(feature = "ssr")]
+pub mod server_utils;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]
