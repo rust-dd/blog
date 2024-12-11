@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{
     components::{FlatRoutes, Route, Router},
-    ParamSegment, StaticSegment,
+    ParamSegment, SsrMode, StaticSegment,
 };
 
 use crate::{home, post};
@@ -196,7 +196,7 @@ pub fn App() -> impl IntoView {
                         outside_errors.insert_with_default_key(AppError::NotFound);
                         view! { <ErrorTemplate outside_errors /> }.into_view()
                     }>
-                        <Route path=StaticSegment("") view=home::Component />
+                        <Route path=StaticSegment("") view=home::Component ssr=SsrMode::InOrder />
                         <Route
                             path=(StaticSegment("post"), ParamSegment("slug"))
                             view=post::Component

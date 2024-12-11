@@ -11,7 +11,6 @@ async fn main() {
     use leptos::logging;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use std::env;
     use tower_http::compression::predicate::{NotForContentType, SizeAbove};
     use tower_http::compression::{CompressionLayer, Predicate};
     use tower_http::trace::TraceLayer;

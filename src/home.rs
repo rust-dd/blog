@@ -28,8 +28,8 @@ pub fn Component() -> impl IntoView {
                 >
                     <div class="flex flex-col p-3 text-left text-white rounded-lg transition-all duration-500 cursor-pointer break-inside-avoid bg-card hover:text-[#ffef5c]">
                         <A href=format!("/post/{}", post.slug.as_ref().map_or("", |v| v))>
-                            <div class="flex flex-col gap-1 mb-4">
-                                <p class="text-base font-medium line-clamp-2">{post.title}</p>
+                            <div class="flex flex-col gap-1 mb-4 font-medium">
+                                <p class="text-base line-clamp-2">{post.title}</p>
                                 <p class="italic text-xxs">{post.summary}</p>
                             </div>
                             <div class="flex flex-row gap-3 justify-start items-center text-xxs">
