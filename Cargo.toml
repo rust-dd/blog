@@ -74,7 +74,7 @@ panic = "abort"
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "blog"
 
-# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
+# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your ssr setup.
 site-root = "target/site"
 
 # The site-root relative folder where all compiled output (JS, WASM and CSS) is written
@@ -92,7 +92,7 @@ tailwind-config-file = "tailwind.config.js"
 # Optional. Env: LEPTOS_ASSETS_DIR.
 assets-dir = "public"
 
-# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+# The IP and port (ex: 127.0.0.1:3000) where the ssr serves the content. Use it in your ssr setup.
 site-addr = "127.0.0.1:3000"
 
 # The port to use for automatic reload monitoring

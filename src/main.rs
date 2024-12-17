@@ -3,10 +3,9 @@
 async fn main() {
     use axum::{routing::get, Router};
     use blog::app::{shell, App};
-    use blog::redirect::redirect_www;
-    use blog::server_utils::connect;
-    use blog::server_utils::{rss_handler, sitemap_handler};
-    use blog::ssr::AppState;
+    use blog::ssr::app_state::AppState;
+    use blog::ssr::redirect::redirect_www;
+    use blog::ssr::server_utils::{connect, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
     use leptos::logging;
     use leptos::prelude::*;
