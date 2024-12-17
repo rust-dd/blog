@@ -19,7 +19,7 @@ impl AppError {
 // A basic function to display errors served by the error boundaries.
 // Feel free to do more complicated things here than just displaying the error.
 #[component]
-pub fn ErrorTemplate(
+pub fn Component(
     #[prop(optional)] outside_errors: Option<Errors>,
     #[prop(optional)] errors: Option<RwSignal<Errors>>,
 ) -> impl IntoView {
@@ -40,7 +40,7 @@ pub fn ErrorTemplate(
         .collect();
     println!("Errors: {errors:#?}");
 
-    // Only the response code for the first error is actually sent from the server
+    // Only the response code for the first error is actually sent from the ssr
     // this may be customized by the specific application
     #[cfg(feature = "ssr")]
     {

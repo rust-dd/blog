@@ -2,8 +2,8 @@ use leptos::prelude::*;
 use leptos_meta::Title;
 use leptos_router::components::A;
 
-use crate::loader;
-use crate::server::{select_posts, select_tags};
+use crate::components::loader;
+use crate::ssr::api::{select_posts, select_tags};
 
 #[component]
 pub fn Component() -> impl IntoView {
@@ -94,6 +94,7 @@ pub fn Component() -> impl IntoView {
                                         <path d="M432,480H80A31,31,0,0,1,55.8,468.87c-6.5-7.77-9.12-18.38-7.18-29.11C57.06,392.94,83.4,353.61,124.8,326c36.78-24.51,83.37-38,131.2-38s94.42,13.5,131.2,38c41.4,27.6,67.74,66.93,76.18,113.75,1.94,10.73-.68,21.34-7.18,29.11A31,31,0,0,1,432,480Z"></path>
                                     </svg>
                                     <button on:click=move |e| {
+                                        e.prevent_default();
                                         e.stop_propagation();
                                         let _ = window()
                                             .open_with_url_and_target(
@@ -101,7 +102,7 @@ pub fn Component() -> impl IntoView {
                                                 "_blank",
                                             );
                                     }>
-                                        <span class="font-semibold cursor-pointer hover:underline">
+                                        <span class="text-xs font-semibold cursor-pointer hover:underline">
                                             {post.author.name}
                                         </span>
                                     </button>
