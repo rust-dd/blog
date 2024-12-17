@@ -1,13 +1,13 @@
+use crate::{
+    components::{error_template, header},
+    pages::{hireus, home, post, references},
+};
 use chrono::{Datelike, Utc};
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{
     components::{FlatRoutes, Route, Router},
     ParamSegment, SsrMode, StaticSegment,
-};
-use crate::{
-    components::{error_template, header},
-    pages::{hireus, home, post, references},
 };
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {

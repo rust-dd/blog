@@ -96,7 +96,6 @@ pub fn Component() -> impl IntoView {
                                     <button on:click=move |e| {
                                         e.prevent_default();
                                         e.stop_propagation();
-
                                         let _ = window()
                                             .open_with_url_and_target(
                                                 post.author.github.as_ref().unwrap_or(&"".to_string()),
