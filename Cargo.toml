@@ -9,10 +9,10 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 axum = { version = "0.7", optional = true, features = ["macros"] }
 console_error_panic_hook = "0.1"
-leptos = { version = "0.7.0", features = ["rustls", "nightly"] }
-leptos_axum = { version = "0.7.0", optional = true }
-leptos_meta = { version = "0.7.0" }
-leptos_router = { version = "0.7.0", features = ["nightly"] }
+leptos = { version = "0.7.1", features = ["rustls", "nightly"] }
+leptos_axum = { version = "0.7.1", optional = true }
+leptos_meta = { version = "0.7.1" }
+leptos_router = { version = "0.7.1", features = ["nightly"] }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.5.1", optional = true }
 tower-http = { version = "0.6.2", features = [
@@ -41,6 +41,13 @@ katex = { version = "0.4.6", optional = true, default-features = false, features
     "duktape",
 ] }
 web-sys = "0.3.72"
+lettre = { version = "0.11.9", default-features = false, optional = true, features = [
+    "builder",
+    "smtp-transport",
+    "rustls-tls",
+    "tokio1",
+    "tokio1-rustls-tls",
+] }
 
 [features]
 hydrate = ["leptos/hydrate"]
@@ -60,6 +67,7 @@ ssr = [
     "dep:rss",
     "dep:tracing-subscriber",
     "dep:katex",
+    "dep:lettre",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
@@ -74,7 +82,7 @@ panic = "abort"
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "blog"
 
-# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
+# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your ssr setup.
 site-root = "target/site"
 
 # The site-root relative folder where all compiled output (JS, WASM and CSS) is written
@@ -92,7 +100,7 @@ tailwind-config-file = "tailwind.config.js"
 # Optional. Env: LEPTOS_ASSETS_DIR.
 assets-dir = "public"
 
-# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+# The IP and port (ex: 127.0.0.1:3000) where the ssr serves the content. Use it in your ssr setup.
 site-addr = "127.0.0.1:3000"
 
 # The port to use for automatic reload monitoring

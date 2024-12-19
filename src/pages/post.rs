@@ -2,8 +2,8 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::hooks::use_params_map;
 
-use crate::loader;
-use crate::server::{increment_views, select_post};
+use crate::components::loader;
+use crate::ssr::api::{increment_views, select_post};
 
 #[component]
 pub fn Component() -> impl IntoView {
