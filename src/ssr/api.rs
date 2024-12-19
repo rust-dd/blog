@@ -211,7 +211,14 @@ pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
         .body(data.message)
         .expect("failed to build email");
 
-    mailer.send(email).await.unwrap();
-
-    Ok(())
+    match mailer.send(email).await {
+        Ok(_) => {
+            tracing::info!("Email sent successfully");
+            return Ok(());
+        }
+        Err(e) => {
+            tracing::error!("Failed to send email: {:?}", e);
+            return Err(ServerFnError::from(e));
+        }
+    }
 }

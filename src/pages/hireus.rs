@@ -120,7 +120,13 @@ pub fn Component() -> impl IntoView {
             <section class="py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]">
                 <div class="mx-auto max-w-3xl">
                     <h2 class="mb-8 text-3xl font-bold text-[#ffef5c]">Get In Touch</h2>
-                    <form class="space-y-6" on:submit=move |_| {let _ = submit.dispatch(state.get());}>
+                    <form
+                        class="space-y-6"
+                        on:submit=move |e| {
+                            e.prevent_default();
+                            let _ = submit.dispatch(state.get());
+                        }
+                    >
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <input
                                 type="text"
@@ -166,7 +172,7 @@ pub fn Component() -> impl IntoView {
                             Send Message
                         </button>
                         <Show when=sent fallback=|| ()>
-                            <p class="bg-[#ffef5c]" style="color: #1e1e1e;">
+                            <p class="text-[#ffef5c] text-center">
                                 {"Message sent successfully! We\'ll get back to you shortly."}
                             </p>
                         </Show>
