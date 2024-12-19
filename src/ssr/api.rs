@@ -191,21 +191,24 @@ pub struct HireUsRequest {
 
 #[server(endpoint = "/hire_us")]
 pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
+    use std::env;
     use lettre::{
+        transport::smtp::authentication::Credentials,
         message::header::ContentType, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
     };
 
-    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay("smtppro.zoho.eu")
-        .unwrap()
-        // .credentials(Credentials::new(
-        //     env::var("SMTP_USER").unwrap(),
-        //     env::var("SMTP_PASS").unwrap(),
-        // ))
-        .build::<Tokio1Executor>();
+
+    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&env::var("SMTP_HOST")?)
+      ?
+      .credentials(Credentials::new(
+          env::var("SMTP_USER")?,
+          env::var("SMTP_PASSWORD")?,
+      ))
+      .build::<Tokio1Executor>();
 
     let email = Message::builder()
-        .from(data.email.parse().unwrap())
-        .to("info@rust-dd.com".parse().unwrap())
+        .from(data.email.parse()?)
+        .to(env::var("SMTP_USER")?.parse()?)
         .subject(data.subject)
         .header(ContentType::TEXT_HTML)
         .body(data.message)
