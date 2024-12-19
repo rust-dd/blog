@@ -41,6 +41,13 @@ katex = { version = "0.4.6", optional = true, default-features = false, features
     "duktape",
 ] }
 web-sys = "0.3.72"
+lettre = { version = "0.11.9", default-features = false, optional = true, features = [
+    "builder",
+    "smtp-transport",
+    "rustls-tls",
+    "tokio1",
+    "tokio1-rustls-tls",
+] }
 
 [features]
 hydrate = ["leptos/hydrate"]
@@ -60,6 +67,7 @@ ssr = [
     "dep:rss",
     "dep:tracing-subscriber",
     "dep:katex",
+    "dep:lettre",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode

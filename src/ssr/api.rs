@@ -180,3 +180,38 @@ pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
 
     Ok(())
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct HireUsRequest {
+    pub name: String,
+    pub email: String,
+    pub subject: String,
+    pub message: String,
+}
+
+#[server(endpoint = "/hire_us")]
+pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
+    use lettre::{
+        message::header::ContentType, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
+    };
+
+    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay("smtppro.zoho.eu")
+        .unwrap()
+        // .credentials(Credentials::new(
+        //     env::var("SMTP_USER").unwrap(),
+        //     env::var("SMTP_PASS").unwrap(),
+        // ))
+        .build::<Tokio1Executor>();
+
+    let email = Message::builder()
+        .from(data.email.parse().unwrap())
+        .to("info@rust-dd.com".parse().unwrap())
+        .subject(data.subject)
+        .header(ContentType::TEXT_HTML)
+        .body(data.message)
+        .expect("failed to build email");
+
+    mailer.send(email).await.unwrap();
+
+    Ok(())
+}
