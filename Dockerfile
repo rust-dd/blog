@@ -32,7 +32,7 @@ FROM rustlang/rust:nightly-alpine as runner
 
 WORKDIR /app
 
-# Copy the server binary and site content from the builder stage
+# Copy the ssr binary and site content from the builder stage
 COPY --from=builder /work/target/release/blog /app/
 COPY --from=builder /work/target/site /app/site
 COPY --from=builder /work/Cargo.toml /app/
@@ -44,5 +44,5 @@ ENV LEPTOS_SITE_ROOT="site"
 EXPOSE 8080
 
 
-# Run the server
+# Run the ssr
 CMD ["/app/blog"]
