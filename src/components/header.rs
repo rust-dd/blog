@@ -22,17 +22,17 @@ pub fn Component() -> impl IntoView {
                         >
                             blog
                         </a>
-                        <a
-                            href="/references"
-                            class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
-                        >
-                            references
-                        </a>
+                        // <a
+                        // href="/references"
+                        // class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
+                        // >
+                        // references
+                        // </a>
                         <a
                             href="/hireus"
                             class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
                         >
-                            hire us
+                            hire us!
                         </a>
                     </div>
                     <div class="flex flex-row gap-3 items-center h-10">
