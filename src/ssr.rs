@@ -3,6 +3,7 @@ pub mod api;
 pub mod redirect;
 #[cfg(feature = "ssr")]
 pub mod server_utils;
+pub mod types;
 
 #[cfg(feature = "ssr")]
 pub mod app_state {

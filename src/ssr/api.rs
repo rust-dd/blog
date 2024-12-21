@@ -2,69 +2,8 @@ use std::collections::BTreeMap;
 
 use leptos::prelude::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Author {
-    pub id: Thing,
-    pub name: String,
-    pub email: String,
-    pub bio: Option<String>,
-    pub linkedin: Option<String>,
-    pub twitter: Option<String>,
-    pub github: Option<String>,
-}
-
-impl Default for Author {
-    fn default() -> Self {
-        Self {
-            id: Thing::from(("author", "0")),
-            name: String::new(),
-            email: String::new(),
-            bio: None,
-            linkedin: None,
-            twitter: None,
-            github: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Post {
-    pub id: Thing,
-    pub title: String,
-    pub summary: String,
-    pub body: String,
-    pub tags: Vec<String>,
-    pub author: Author,
-    pub read_time: usize,
-    pub total_views: usize,
-    pub slug: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-    pub is_published: bool,
-    pub header_image: Option<String>,
-}
-
-impl<'a> Default for Post {
-    fn default() -> Self {
-        Self {
-            id: Thing::from(("post", "0")),
-            title: String::new(),
-            summary: String::new(),
-            body: String::new(),
-            tags: vec![],
-            author: Author::default(),
-            read_time: 0,
-            total_views: 0,
-            slug: None,
-            created_at: String::new(),
-            updated_at: String::new(),
-            is_published: true,
-            header_image: None,
-        }
-    }
-}
+use crate::ssr::types::{Post, Reference};
 
 #[server(endpoint = "/posts")]
 pub async fn select_posts(
@@ -224,4 +163,22 @@ pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
             return Err(ServerFnError::from(e));
         }
     }
+}
+
+#[server(endpoint = "/references")]
+pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
+    use crate::ssr::app_state::AppState;
+    use leptos::prelude::expect_context;
+
+    let AppState { db, .. } = expect_context::<AppState>();
+
+    let query = "SELECT * from reference WHERE is_published = true ORDER BY created_at DESC;";
+    let query = db.query(&query).await;
+
+    if let Err(e) = query {
+        return Err(ServerFnError::from(e));
+    }
+
+    let  references = query?.take::<Vec<Reference>>(0)?;
+    Ok(references)
 }
