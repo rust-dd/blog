@@ -25,13 +25,13 @@ pub fn Component() -> impl IntoView {
                             key=|r| r.id.id.to_string()
                             let:reference
                         >
-                            <div class="relative h-[300px] group">
-                                <div class="absolute inset-0 z-0 rounded-2xl transition-colors duration-500 bg-[#ffef5c]/8 blur-2xl group-hover:bg-[#ffef5c]/10"></div>
-                                <div class="absolute inset-2 z-10 rounded-xl border shadow-lg bg-[#ffef5c]/10 backdrop-blur-xl shadow-[#ffef5c]/5 border-[#ffef5c]/20"></div>
-                                <div class="overflow-hidden absolute inset-2 z-20 rounded-xl border backdrop-blur-2xl bg-white/5 border-white/10">
+                            <div class="relative p-6 rounded-2xl transition-colors duration-500 group bg-[#ffef5c]/8 hover:bg-[#ffef5c]/10">
+                                <div class="absolute inset-0 rounded-2xl -z-10 blur-2xl"></div>
+                                <div class="absolute inset-2 rounded-xl border shadow-lg -z-10 bg-[#ffef5c]/10 backdrop-blur-xl shadow-[#ffef5c]/5 border-[#ffef5c]/20"></div>
+                                <div class="absolute inset-2 rounded-xl border -z-10 backdrop-blur-2xl bg-white/5 border-white/10">
                                     <div class="absolute inset-0 bg-[linear-gradient(0deg,transparent_24px,rgba(255,255,255,0.03)_25px),linear-gradient(90deg,transparent_24px,rgba(255,255,255,0.03)_25px)] bg-[size:25px_25px]"></div>
                                 </div>
-                                <div class="flex absolute inset-0 z-30 flex-col px-6 pt-6 pb-10">
+                                <div class="flex relative flex-col">
                                     <h3 class="mb-2 text-xl font-bold text-[#ffef5c]">
                                         {reference.title}
                                     </h3>
