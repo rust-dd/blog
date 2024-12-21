@@ -310,12 +310,31 @@ pub async fn sitemap_handler(State(state): State<AppState>) -> Response<String> 
     let mut sitemap = String::new();
     sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+
+    let static_urls = vec![
+        ("https://rust-dd.com/", "daily", "0.9"),
+        ("https://rust-dd.com/hireus", "weekly", "1.0"),
+        ("https://rust-dd.com/references", "weekly", "0.6"),
+        ("https://rust-dd.com/rss.xml", "daily", "0.5"),
+        ("https://rust-dd.com/sitemap.xml", "monthly", "0.5"),
+    ];
+
+    for (url, freq, priority) in static_urls {
+        sitemap.push_str("<url>\n");
+        sitemap.push_str(&format!("<loc>{}</loc>\n", url));
+        sitemap.push_str(&format!("<changefreq>{}</changefreq>\n", freq));
+        sitemap.push_str(&format!("<priority>{}</priority>\n", priority));
+        sitemap.push_str("</url>\n");
+    }
+
     for post in posts {
         sitemap.push_str("<url>\n");
         sitemap.push_str(&format!(
             "<loc>https://rust-dd.com/post/{}</loc>\n",
             post.slug.unwrap()
         ));
+        sitemap.push_str("<changefreq>monthly</changefreq>\n");
+        sitemap.push_str("<priority>1.0</priority>\n");
         sitemap.push_str(&format!("<lastmod>{}</lastmod>\n", post.created_at));
         sitemap.push_str("</url>\n");
     }
