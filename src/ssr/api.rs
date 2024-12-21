@@ -130,20 +130,18 @@ pub struct HireUsRequest {
 
 #[server(endpoint = "/hire_us")]
 pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
-    use std::env;
     use lettre::{
-        transport::smtp::authentication::Credentials,
-        message::header::ContentType, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
+        message::header::ContentType, transport::smtp::authentication::Credentials,
+        AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
     };
+    use std::env;
 
-
-    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&env::var("SMTP_HOST")?)
-      ?
-      .credentials(Credentials::new(
-          env::var("SMTP_USER")?,
-          env::var("SMTP_PASSWORD")?,
-      ))
-      .build::<Tokio1Executor>();
+    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&env::var("SMTP_HOST")?)?
+        .credentials(Credentials::new(
+            env::var("SMTP_USER")?,
+            env::var("SMTP_PASSWORD")?,
+        ))
+        .build::<Tokio1Executor>();
 
     let email = Message::builder()
         .from(data.email.parse()?)
@@ -173,12 +171,12 @@ pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
     let AppState { db, .. } = expect_context::<AppState>();
 
     let query = "SELECT * from reference WHERE is_published = true ORDER BY created_at DESC;";
-    let query = db.query(&query).await;
+    let query = db.query(query).await;
 
     if let Err(e) = query {
         return Err(ServerFnError::from(e));
     }
 
-    let  references = query?.take::<Vec<Reference>>(0)?;
+    let references = query?.take::<Vec<Reference>>(0)?;
     Ok(references)
 }

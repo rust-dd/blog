@@ -1,4 +1,4 @@
-use super::api::Post;
+use super::types::Post;
 use crate::ssr::app_state::AppState;
 use axum::extract::State;
 use axum::response::Response;
