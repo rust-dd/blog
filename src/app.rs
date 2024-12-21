@@ -12,7 +12,7 @@ use leptos_router::{
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
@@ -102,7 +102,7 @@ pub fn App() -> impl IntoView {
                         view! { <error_template::Component outside_errors /> }.into_view()
                     }>
                         <Route path=StaticSegment("") view=home::Component ssr=SsrMode::InOrder />
-                        // <Route path=StaticSegment("references") view=references::Component />
+                        <Route path=StaticSegment("references") view=references::Component />
                         <Route path=StaticSegment("hireus") view=hireus::Component />
                         <Route
                             path=(StaticSegment("post"), ParamSegment("slug"))
