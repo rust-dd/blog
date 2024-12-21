@@ -1,4 +1,3 @@
-use std::time::Duration;
 use leptos::prelude::*;
 use crate::ssr::api::{hire_us, HireUsRequest};
 
