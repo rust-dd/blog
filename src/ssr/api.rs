@@ -144,9 +144,9 @@ pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
         .build::<Tokio1Executor>();
 
     let email = Message::builder()
-        .from(data.email.parse()?)
+        .from(env::var("SMTP_USER")?.parse()?)
         .to(env::var("SMTP_USER")?.parse()?)
-        .subject(data.subject)
+        .subject(format!("{} - {}", data.email, data.subject))
         .header(ContentType::TEXT_HTML)
         .body(data.message)
         .expect("failed to build email");
