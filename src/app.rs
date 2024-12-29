@@ -27,7 +27,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Meta name="expected-hostname" content="rust-dd.com" />
                 <Meta
                     name="description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta
                     name="keywords"
@@ -48,7 +48,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 />
                 <Meta
                     property="og:description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta property="og:url" content="https://rust-dd.com/" />
                 <Meta
@@ -67,7 +67,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 />
                 <Meta
                     name="twitter:description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta name="twitter:site" content="@rust_dd" />
                 <Meta name="twitter:url" content="https://rust-dd.com/" />
@@ -75,7 +75,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                     name="twitter:image"
                     content="https://static.rust-dd.com/rust-dd_custom_bg.png"
                 />
-                <Meta name="twitter:image:alt" content="Rust-DD Framework" />
+                <Meta name="twitter:image:alt" content="Rust-DD logo" />
                 <Link rel="preconnect" href="https://fonts.googleapis.com" />
                 <Link rel="preconnect" href="https://fonts.gstatic.com" />
             </head>
