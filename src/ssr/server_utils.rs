@@ -91,7 +91,7 @@ pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, 
     let channel = ChannelBuilder::default()
         .title("Rust-DD")
         .link("https://rust-dd.com")
-        .description("Tech Diaries - The Official Rust-DD Developer Blog")
+        .description("Rust-DD Blog – Tech Insights & Consulting")
         .items(
             posts
                 .lock()

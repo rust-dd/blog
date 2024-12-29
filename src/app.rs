@@ -22,7 +22,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <MetaTags />
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
                 <Stylesheet id="katex" href="/katex.min.css" />
-                <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
+                <Title text="Rust-DD Blog – Tech Insights & Consulting" />
                 <Meta name="hostname" content="rust-dd.com" />
                 <Meta name="expected-hostname" content="rust-dd.com" />
                 <Meta
@@ -40,11 +40,11 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Meta property="og:type" content="website" />
                 <Meta
                     property="og:title"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     property="og:site_name"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     property="og:description"
@@ -63,7 +63,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Meta name="twitter:card" content="summary_large_image" />
                 <Meta
                     name="twitter:title"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     name="twitter:description"
