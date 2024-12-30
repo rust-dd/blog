@@ -22,12 +22,12 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <MetaTags />
                 <Stylesheet id="leptos" href="/pkg/blog.css" />
                 <Stylesheet id="katex" href="/katex.min.css" />
-                <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
+                <Title text="Rust-DD Blog – Tech Insights & Consulting" />
                 <Meta name="hostname" content="rust-dd.com" />
                 <Meta name="expected-hostname" content="rust-dd.com" />
                 <Meta
                     name="description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta
                     name="keywords"
@@ -40,15 +40,15 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Meta property="og:type" content="website" />
                 <Meta
                     property="og:title"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     property="og:site_name"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     property="og:description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta property="og:url" content="https://rust-dd.com/" />
                 <Meta
@@ -63,11 +63,11 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Meta name="twitter:card" content="summary_large_image" />
                 <Meta
                     name="twitter:title"
-                    content="Tech Diaries - The Official Rust-DD Developer Blog"
+                    content="Rust-DD Blog – Tech Insights & Consulting"
                 />
                 <Meta
                     name="twitter:description"
-                    content="Discover the Rust-DD framework, enabling the application of domain-driven design (DDD) principles in Rust. Write efficient, safe, and clean code with this modern development tool."
+                    content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
                 />
                 <Meta name="twitter:site" content="@rust_dd" />
                 <Meta name="twitter:url" content="https://rust-dd.com/" />
@@ -75,7 +75,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                     name="twitter:image"
                     content="https://static.rust-dd.com/rust-dd_custom_bg.png"
                 />
-                <Meta name="twitter:image:alt" content="Rust-DD Framework" />
+                <Meta name="twitter:image:alt" content="Rust-DD logo" />
                 <Link rel="preconnect" href="https://fonts.googleapis.com" />
                 <Link rel="preconnect" href="https://fonts.gstatic.com" />
             </head>

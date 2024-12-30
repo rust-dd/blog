@@ -18,7 +18,7 @@ pub fn Component() -> impl IntoView {
     );
 
     view! {
-        <Title text="Tech Diaries - The Official Rust-DD Developer Blog" />
+        <Title text="Rust-DD Blog – Tech Insights & Consulting" />
         <Suspense fallback=|| ()>
             <div class="gap-4 columns-1 sm:columns-2">
                 <For
