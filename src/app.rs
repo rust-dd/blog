@@ -12,7 +12,7 @@ use leptos_router::{
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
@@ -38,10 +38,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
                 // Facebook
                 <Meta property="og:type" content="website" />
-                <Meta
-                    property="og:title"
-                    content="Rust-DD Blog – Tech Insights & Consulting"
-                />
+                <Meta property="og:title" content="Rust-DD Blog – Tech Insights & Consulting" />
                 <Meta
                     property="og:site_name"
                     content="Rust-DD Blog – Tech Insights & Consulting"
@@ -61,10 +58,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
                 // Twitter
                 <Meta name="twitter:card" content="summary_large_image" />
-                <Meta
-                    name="twitter:title"
-                    content="Rust-DD Blog – Tech Insights & Consulting"
-                />
+                <Meta name="twitter:title" content="Rust-DD Blog – Tech Insights & Consulting" />
                 <Meta
                     name="twitter:description"
                     content="Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services."
