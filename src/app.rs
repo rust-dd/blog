@@ -1,5 +1,5 @@
 use crate::{
-    components::{error_template, header},
+    components::{error_template, header, icons},
     pages::{hireus, home, post, references},
 };
 use chrono::{Datelike, Utc};
@@ -12,7 +12,7 @@ use leptos_router::{
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
@@ -110,13 +110,21 @@ pub fn App() -> impl IntoView {
                         />
                     </FlatRoutes>
                 </main>
-                <footer class="fixed right-0 bottom-0 left-0 z-10 py-4 text-center bg-[#1e1e1e]/80 backdrop-blur-md">
-                    <p class="text-gray-400">
-                        Powered by
-                        <a href="https://github.com/rust-dd" class="hover:underline text-[#ffef5c]">
-                            {"rust-dd"}
-                        </a> {" © "} {Utc::now().year()}
-                    </p>
+                <footer class="fixed right-0 bottom-0 left-0 z-10 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md">
+                    <div class="flex flex-col gap-1 justify-center items-center">
+                        <p class="text-gray-400">
+                            Powered by
+                            <a
+                                href="https://github.com/rust-dd"
+                                class="hover:underline text-[#ffef5c]"
+                            >
+                                {"rust-dd"}
+                            </a> {" © "} {Utc::now().year()}
+                        </p>
+                        <div class="block md:hidden">
+                            <icons::Component />
+                        </div>
+                    </div>
                 </footer>
             </div>
         </Router>
