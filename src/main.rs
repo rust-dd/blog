@@ -5,6 +5,7 @@ async fn main() {
     use blog::app::{shell, App};
     use blog::ssr::app_state::AppState;
     use blog::ssr::redirect::redirect_www;
+    use blog::ssr::increment::increment;
     use blog::ssr::server_utils::{connect, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
     use leptos::logging;
@@ -61,7 +62,8 @@ async fn main() {
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
-                .layer(axum::middleware::from_fn(redirect_www)),
+                .layer(axum::middleware::from_fn(redirect_www))
+                .layer(axum::middleware::from_fn_with_state(app_state.clone(), increment)),
         )
         .layer(
             CompressionLayer::new()

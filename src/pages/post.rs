@@ -47,15 +47,27 @@ pub fn Component() -> impl IntoView {
                             fallback=|| ()
                         >
                             <img
-                                src=post.header_image.as_ref().unwrap().to_string()
+                                src=post.header_image.as_ref().unwrap().to_owned()
                                 alt=""
                                 class="object-contain self-center mb-6 h-full rounded-lg w-fit aspect-auto"
                             />
                         </Show>
-                        <Title text=post.title.to_string() />
+                        <Title text=post.title.to_owned() />
+                        // <Meta property="og:title" content=post.title.to_owned() />
+                        // <Meta property="og:description" content=post.summary.to_owned() />
+                        // <Meta
+                        //     property="og:url"
+                        //     content=format!("https://rust-dd.com/{}", post.slug.as_ref().unwrap())
+                        // />
+                        // <Meta name="twitter:title" content=post.title.to_owned() />
+                        // <Meta name="twitter:description" content=post.summary />
+                        // <Meta
+                        //     name="twitter:url"
+                        //     content=format!("https://rust-dd.com/{}", post.slug.as_ref().unwrap())
+                        // />
                         <article>
                             <div class="flex flex-col gap-4 mx-auto max-w-3xl">
-                                <p class="text-4xl font-semibold">{post.title.clone()}</p>
+                                <p class="text-4xl font-semibold">{post.title}</p>
                                 <div class="flex gap-3 justify-start items-center text-sm text-muted-foreground">
                                     <p
                                         on:click=move |e| {

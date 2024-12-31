@@ -28,7 +28,7 @@ wasm-bindgen = "0.2.96"
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
-surrealdb = { version = "2.0.1", features = ["protocol-http"] }
+surrealdb = { version = "2.1.4", features = ["protocol-http"] }
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
 dotenvy = "0.15.7"
