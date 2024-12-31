@@ -1,5 +1,7 @@
 pub mod api;
 #[cfg(feature = "ssr")]
+pub mod increment;
+#[cfg(feature = "ssr")]
 pub mod redirect;
 #[cfg(feature = "ssr")]
 pub mod server_utils;
