@@ -4,10 +4,11 @@ use leptos::prelude::*;
 #[component]
 pub fn Component() -> impl IntoView {
     view! {
-        <header class="fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md">
-            <div class="container mx-auto max-w-5xl">
-                <div class="flex flex-row justify-between items-center text-white">
-                    <div class="flex flex-row gap-4">
+        <header class="mt-14 z-10">
+            <div class="container mx-auto max-w-4xl">
+                <div class="flex flex-row justify-between items-center">
+                    <div class="flex flex-row text-xs items-center py-2 px-4 text-[#969696]">
+                        <p>{"rust-dd://"}</p>
                         <a
                             href="/"
                             on:click=move |_| {
@@ -19,23 +20,26 @@ pub fn Component() -> impl IntoView {
                                     }
                                 }
                             }
-                            class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
+                            class="transition-all duration-500 hover:underline hover:text-[#ffef5c]"
                         >
-                            blog
+                            {"blog"}
                         </a>
+                        <p>{"."}</p>
                         <a
                             href="/references"
-                            class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
+                            class="transition-all duration-500 hover:underline hover:text-[#ffef5c]"
                         >
-                            references
+                            {"references"}
                         </a>
+                        <p>{"."}</p>
                         <a
                             href="/hireus"
-                            class="text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]"
+                            class="transition-all duration-500 hover:underline hover:text-[#ffef5c]"
                         >
-                            hire us!
+                            {"hire.us"}
                         </a>
                     </div>
+
                     <div class="hidden md:block">
                         <icons::Component />
                     </div>

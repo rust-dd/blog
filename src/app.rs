@@ -73,7 +73,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Link rel="preconnect" href="https://fonts.googleapis.com" />
                 <Link rel="preconnect" href="https://fonts.gstatic.com" />
             </head>
-            <body class="bg-[#1e1e1e]">
+            <body class="bg-[#161616]">
                 <App />
             </body>
         </html>
@@ -87,9 +87,9 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Router>
-            <div class="overflow-auto text-white font-poppins">
+            <div class="overflow-auto text-white font-mono">
                 <header::Component />
-                <main class="container flex flex-col gap-8 px-4 pt-10 pb-14 mx-auto mt-16 max-w-4xl md:px-0">
+                <main class="container flex flex-col gap-8 px-4 pb-14 mx-auto mt-14 max-w-4xl md:px-0">
                     <FlatRoutes fallback=|| {
                         let mut outside_errors = Errors::default();
                         outside_errors.insert_with_default_key(error_template::AppError::NotFound);

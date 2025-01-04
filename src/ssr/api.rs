@@ -1,5 +1,5 @@
 use std::collections::BTreeMap;
-
+use chrono::Datelike;
 use leptos::prelude::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 
@@ -40,8 +40,8 @@ pub async fn select_posts(
             .unwrap()
             .with_timezone(&Utc);
         let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d, %Y").to_string();
-        post.created_at = formatted_date.into();
+        let formatted_date = format!("{} • {:02}", naive_date.year(), naive_date.month());
+        post.created_at = formatted_date;
     });
 
     Ok(posts)
