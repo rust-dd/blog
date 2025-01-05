@@ -67,9 +67,7 @@ pub fn Component() -> impl IntoView {
                                         class="cursor-pointer hover:underline"
                                     >
                                         {"by "}
-                                        <span class="ml-1 font-semibold">
-                                            {post.author.name.to_string()}
-                                        </span>
+                                        <span class="ml-1 font-semibold">{post.author.name.to_string()}</span>
                                     </p>
                                     <p>{post.created_at}</p>
                                     <p>{format!("{} min read", post.read_time)}</p>

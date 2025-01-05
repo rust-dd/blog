@@ -6,22 +6,15 @@ use serde::{Deserialize, Serialize};
 use crate::ssr::types::{Post, Reference};
 
 #[server(endpoint = "/posts")]
-pub async fn select_posts(
-    #[server(default)] tags: Vec<String>,
-) -> Result<Vec<Post>, ServerFnError> {
+pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Post>, ServerFnError> {
     use crate::ssr::app_state::AppState;
     use chrono::{DateTime, Utc};
     use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
-    let mut query = String::from(
-        "SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;",
-    );
+    let mut query = String::from("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
     if !tags.is_empty() {
-        let tags = tags
-            .iter()
-            .map(|tag| format!(r#""{}""#, tag))
-            .collect::<Vec<_>>();
+        let tags = tags.iter().map(|tag| format!(r#""{}""#, tag)).collect::<Vec<_>>();
         query = format!(
             "SELECT *, author.* from post WHERE tags CONTAINSANY [{0}] ORDER BY created_at DESC;",
             tags.join(", ")
@@ -131,16 +124,13 @@ pub struct HireUsRequest {
 #[server(endpoint = "/hire_us")]
 pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
     use lettre::{
-        message::header::ContentType, transport::smtp::authentication::Credentials,
-        AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
+        message::header::ContentType, transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport,
+        Message, Tokio1Executor,
     };
     use std::env;
 
     let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&env::var("SMTP_HOST")?)?
-        .credentials(Credentials::new(
-            env::var("SMTP_USER")?,
-            env::var("SMTP_PASSWORD")?,
-        ))
+        .credentials(Credentials::new(env::var("SMTP_USER")?, env::var("SMTP_PASSWORD")?))
         .build::<Tokio1Executor>();
 
     let email = Message::builder()

@@ -74,10 +74,7 @@ pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, 
         let handle = tokio::spawn(async move {
             let mut posts = posts_clone.lock().await;
             if let Some(post) = posts.iter_mut().next() {
-                post.body = process_markdown(post.body.to_string())
-                    .await
-                    .unwrap()
-                    .into();
+                post.body = process_markdown(post.body.to_string()).await.unwrap().into();
             }
         });
 
@@ -129,9 +126,7 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
 
         pub fn process_math_event<'a>(&'a self, event: Event<'a>) -> Event<'a> {
             match event {
-                Event::InlineMath(math_exp) => {
-                    Event::InlineHtml(CowStr::from(katex::render(&math_exp).unwrap()))
-                }
+                Event::InlineMath(math_exp) => Event::InlineHtml(CowStr::from(katex::render(&math_exp).unwrap())),
                 Event::DisplayMath(math_exp) => Event::Html(CowStr::from(
                     katex::render_with_opts(&math_exp, &self.display_style_opts).unwrap(),
                 )),
@@ -227,14 +222,12 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
                     .unwrap_or_else(|| ps.find_syntax_plain_text());
                 let mut h = HighlightLines::new(syntax, theme);
                 let mut highlighted_html = String::with_capacity(code_block_content.len() * 2);
-                highlighted_html.push_str(
-					r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#,
-				);
+                highlighted_html
+                    .push_str(r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#);
 
                 for line in code_block_content.lines() {
                     let ranges = h.highlight_line(line, &ps)?;
-                    let escaped =
-                        styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)?;
+                    let escaped = styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)?;
                     highlighted_html.push_str(&escaped);
                     highlighted_html.push('\n');
                 }
@@ -302,9 +295,7 @@ pub async fn sitemap_handler(State(state): State<AppState>) -> Response<String> 
 
     let AppState { db, .. } = state;
     let query = db
-        .query(
-            "SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;",
-        )
+        .query("SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
         .await;
     let posts = query.unwrap().take::<Vec<Post>>(0).unwrap();
     let mut sitemap = String::new();
@@ -329,10 +320,7 @@ pub async fn sitemap_handler(State(state): State<AppState>) -> Response<String> 
 
     for post in posts {
         sitemap.push_str("<url>\n");
-        sitemap.push_str(&format!(
-            "<loc>https://rust-dd.com/post/{}</loc>\n",
-            post.slug.unwrap()
-        ));
+        sitemap.push_str(&format!("<loc>https://rust-dd.com/post/{}</loc>\n", post.slug.unwrap()));
         sitemap.push_str("<changefreq>monthly</changefreq>\n");
         sitemap.push_str("<priority>1.0</priority>\n");
         sitemap.push_str(&format!("<lastmod>{}</lastmod>\n", post.created_at));

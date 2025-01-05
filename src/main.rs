@@ -2,7 +2,7 @@
 #[tokio::main]
 async fn main() {
     use axum::{routing::get, Router};
-    use blog::app::{shell, App};
+    use blog::app::{self, shell};
     use blog::ssr::app_state::AppState;
     use blog::ssr::redirect::redirect_www;
     use blog::ssr::server_utils::{connect, rss_handler, sitemap_handler};
@@ -35,7 +35,7 @@ async fn main() {
     let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
-    let routes = generate_route_list(App);
+    let routes = generate_route_list(app::component);
 
     let db = connect().await;
     let app_state = AppState {
@@ -81,9 +81,7 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     logging::log!("listening on http://{}", &addr);
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(listener, app.into_make_service()).await.unwrap();
 }
 
 #[cfg(not(feature = "ssr"))]

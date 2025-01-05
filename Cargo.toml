@@ -48,6 +48,8 @@ lettre = { version = "0.11.9", default-features = false, optional = true, featur
     "tokio1",
     "tokio1-rustls-tls",
 ] }
+leptos_icons = "0.4.0"
+icondata = "0.5.0"
 
 [features]
 hydrate = ["leptos/hydrate"]

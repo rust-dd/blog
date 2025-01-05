@@ -8,10 +8,7 @@ use crate::ssr::api::{select_posts, select_tags};
 #[component]
 pub fn Component() -> impl IntoView {
     let selected_tags = RwSignal::new(Vec::<String>::new());
-    let tags = Resource::new_blocking(
-        || (),
-        move |_| async move { select_tags().await.unwrap_or_default() },
-    );
+    let tags = Resource::new_blocking(|| (), move |_| async move { select_tags().await.unwrap_or_default() });
     let posts = Resource::new(
         move || selected_tags.get(),
         move |selected_tags| async move { select_posts(selected_tags).await },
@@ -130,11 +127,7 @@ pub fn Component() -> impl IntoView {
                                 selected_tags
                                     .update(|prev| {
                                         if prev.contains(&tag) {
-                                            *prev = prev
-                                                .clone()
-                                                .into_iter()
-                                                .filter(|v| v != &tag)
-                                                .collect::<Vec<_>>();
+                                            *prev = prev.clone().into_iter().filter(|v| v != &tag).collect::<Vec<_>>();
                                         } else {
                                             *prev = prev
                                                 .clone()
