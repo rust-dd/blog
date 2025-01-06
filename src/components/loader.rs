@@ -3,8 +3,7 @@ use leptos::{
     prelude::*,
 };
 
-#[component]
-pub fn Component() -> impl IntoView {
+pub fn component() -> impl IntoView {
     div()
         .class("flex absolute inset-0 flex-col gap-1 justify-center items-center m-auto")
         .child((

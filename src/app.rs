@@ -217,10 +217,9 @@ pub fn component() -> impl IntoView {
                 .fallback(|| {
                   let mut outside_errors = Errors::default();
                   outside_errors.insert_with_default_key(error_template::AppError::NotFound);
-                  error_template::Component(
-                    error_template::ComponentProps::builder()
-                      .outside_errors(outside_errors)
-                      .build(),
+                  error_template::component(
+                      Some(outside_errors),
+                      None
                   )
                 })
                 .children(RouteChildren::to_children(move || {
@@ -228,7 +227,7 @@ pub fn component() -> impl IntoView {
                     Route(
                       RouteProps::builder()
                         .path(StaticSegment(""))
-                        .view(home::Component)
+                        .view(home::component)
                         .ssr(SsrMode::InOrder)
                         .build(),
                     ),
