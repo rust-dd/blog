@@ -247,7 +247,8 @@ pub fn component() -> impl IntoView {
                     Route(
                       RouteProps::builder()
                         .path((StaticSegment("post"), ParamSegment("slug")))
-                        .view(post::Component)
+                        .view(post::component)
+                        .ssr(SsrMode::Async)
                         .build(),
                     ),
                   )
