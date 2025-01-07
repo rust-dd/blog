@@ -3,11 +3,28 @@ use std::collections::BTreeMap;
 use leptos::prelude::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 
-use crate::ssr::types::{Post, Reference};
+use types::{Post, Reference};
+
+pub mod redirect;
+pub mod server_utils;
+pub mod types;
+
+// #[cfg(feature = "ssr")]
+// pub mod app_state {
+//     use axum::extract::FromRef;
+//     use leptos::prelude::*;
+//     use surrealdb::{engine::remote::http::Client, Surreal};
+
+//     #[derive(FromRef, Debug, Clone)]
+//     pub struct AppState {
+//         pub db: Surreal<Client>,
+//         pub leptos_options: LeptosOptions,
+//     }
+// }
 
 #[server(endpoint = "/posts")]
 pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Post>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
+    use crate::types::AppState;
     use chrono::{DateTime, Utc};
     use leptos::prelude::expect_context;
 
@@ -34,7 +51,7 @@ pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Po
             .with_timezone(&Utc);
         let naive_date = date_time.date_naive();
         let formatted_date = naive_date.format("%b %-d, %Y").to_string();
-        post.created_at = formatted_date.into();
+        post.created_at = formatted_date;
     });
 
     Ok(posts)
@@ -42,7 +59,7 @@ pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Po
 
 #[server(endpoint = "/tags")]
 pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
+    use crate::types::AppState;
     use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
@@ -70,8 +87,8 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
 
 #[server(endpoint = "/post")]
 pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
-    use super::server_utils::process_markdown;
-    use crate::ssr::app_state::AppState;
+    use crate::server_utils::process_markdown;
+    use crate::types::AppState;
     use chrono::{DateTime, Utc};
     use leptos::prelude::expect_context;
 
@@ -90,15 +107,15 @@ pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
     let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
     let naive_date = date_time.date_naive();
     let formatted_date = naive_date.format("%b %-d").to_string();
-    post.created_at = formatted_date.into();
-    post.body = process_markdown(post.body.to_string()).await?.into();
+    post.created_at = formatted_date;
+    post.body = process_markdown(post.body.to_string()).await?;
 
     Ok(post)
 }
 
 #[server(endpoint = "/increment_views")]
 pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
-    use crate::ssr::app_state::AppState;
+    use crate::types::AppState;
     use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();
@@ -144,18 +161,18 @@ pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
     match mailer.send(email).await {
         Ok(_) => {
             tracing::info!("Email sent successfully");
-            return Ok(());
+            Ok(())
         }
         Err(e) => {
             tracing::error!("Failed to send email: {:?}", e);
-            return Err(ServerFnError::from(e));
+            Err(ServerFnError::from(e))
         }
     }
 }
 
 #[server(endpoint = "/references")]
 pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
+    use crate::types::AppState;
     use leptos::prelude::expect_context;
 
     let AppState { db, .. } = expect_context::<AppState>();

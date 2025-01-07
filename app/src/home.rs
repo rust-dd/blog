@@ -5,8 +5,8 @@ use leptos_icons::{Icon, IconProps};
 use leptos_meta::{Title, TitleProps};
 use leptos_router::components::{AProps, A};
 
-use crate::components::loader;
-use crate::ssr::api::{select_posts, select_tags};
+use api::{select_posts, select_tags};
+use components::loader;
 
 pub fn component() -> impl IntoView {
     let selected_tags = RwSignal::new(Vec::<String>::new());

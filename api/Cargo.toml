@@ -1,0 +1,22 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum.workspace = true
+chrono.workspace = true
+leptos = { workspace = true, features = ["ssr"]}
+lettre.workspace = true
+serde.workspace = true
+surrealdb.workspace = true
+tracing.workspace = true
+pulldown-cmark.workspace = true
+rss.workspace = true
+katex.workspace = true
+syntect.workspace = true
+regex.workspace = true
+tokio.workspace = true
+
+[features]
+ssr = ["leptos/ssr"]

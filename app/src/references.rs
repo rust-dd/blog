@@ -1,4 +1,4 @@
-use crate::ssr::api::select_references;
+use api::select_references;
 use leptos::{
     html::{div, h1, h3, p, section, span},
     prelude::*,
@@ -39,7 +39,7 @@ pub fn component() -> impl IntoView {
                                                                 r.tech_stack
                                                                     .clone()
                                                                     .into_iter()
-                                                                    .zip(r.teck_stack_percentage.clone().into_iter())
+                                                                    .zip(r.teck_stack_percentage.clone())
                                                                     .collect::<Vec<_>>()
                                                             })
                                                             .key(|tech| tech.0.to_string())

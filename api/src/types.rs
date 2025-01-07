@@ -1,5 +1,13 @@
+use axum::extract::FromRef;
+use leptos::config::LeptosOptions;
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::{engine::remote::http::Client, sql::Thing, Surreal};
+
+#[derive(FromRef, Debug, Clone)]
+pub struct AppState {
+    pub db: Surreal<Client>,
+    pub leptos_options: LeptosOptions,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Author {

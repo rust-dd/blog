@@ -1,4 +1,4 @@
-use crate::components::icons;
+use crate::icons;
 use leptos::{
     ev,
     html::{a, div, header},

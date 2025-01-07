@@ -1,5 +1,4 @@
-use super::types::Post;
-use crate::ssr::app_state::AppState;
+use crate::types::{AppState, Post};
 use axum::extract::State;
 use axum::response::Response;
 use chrono::{DateTime, Utc};
@@ -64,7 +63,7 @@ pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, 
             .with_timezone(&Utc);
         let naive_date = date_time.date_naive();
         let formatted_date = naive_date.format("%b %-d").to_string();
-        post.created_at = formatted_date.into();
+        post.created_at = formatted_date;
     });
     let posts = Arc::new(Mutex::new(posts));
     let mut handles = vec![];
@@ -74,7 +73,7 @@ pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, 
         let handle = tokio::spawn(async move {
             let mut posts = posts_clone.lock().await;
             if let Some(post) = posts.iter_mut().next() {
-                post.body = process_markdown(post.body.to_string()).await.unwrap().into();
+                post.body = process_markdown(post.body.to_string()).await.unwrap();
             }
         });
 

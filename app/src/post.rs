@@ -3,9 +3,8 @@ use leptos::{ev, prelude::*};
 use leptos_meta::*;
 use leptos_router::hooks::use_params_map;
 
-use crate::components::loader;
-use crate::ssr::api::{increment_views, select_post};
-use crate::ssr::types::Post;
+use api::{increment_views, select_post, types::Post};
+use components::loader;
 
 pub fn component() -> impl IntoView {
     let params = use_params_map();

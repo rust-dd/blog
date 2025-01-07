@@ -1,20 +1,16 @@
-[package]
-name = "blog"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+resolver = "2"
+members = ["api", "app", "components", "frontend", "server"]
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
-[dependencies]
-axum = { version = "0.7", optional = true, features = ["macros"] }
+[workspace.dependencies]
+axum = { version = "0.7", features = ["macros"] }
 console_error_panic_hook = "0.1"
 leptos = { version = "0.7.3", features = ["rustls", "nightly"] }
-leptos_axum = { version = "0.7.3", optional = true }
+leptos_axum = { version = "0.7.3" }
 leptos_meta = { version = "0.7.3" }
 leptos_router = { version = "0.7.3", features = ["nightly"] }
-tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
-tower = { version = "0.5.1", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+tower = { version = "0.5.1" }
 tower-http = { version = "0.6.2", features = [
     "fs",
     "trace",
@@ -23,25 +19,24 @@ tower-http = { version = "0.6.2", features = [
     "compression-deflate",
     "compression-zstd",
     "compression-gzip",
-], optional = true }
+] }
 wasm-bindgen = "0.2.96"
 thiserror = "1"
-tracing = { version = "0.1", optional = true }
+tracing = { version = "0.1" }
 http = "1"
 surrealdb = { version = "2.0.1", features = ["protocol-http"] }
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
 dotenvy = "0.15.7"
-syntect = { version = "5.2.0", optional = true }
-regex = { version = "1.10.6", optional = true }
-pulldown-cmark = { version = "0.12.0", optional = true }
-rss = { version = "2.0.9", optional = true }
-tracing-subscriber = { version = "0.3.18", optional = true }
-katex = { version = "0.4.6", optional = true, default-features = false, features = [
+regex = { version = "1.10.6" }
+pulldown-cmark = { version = "0.12.0" }
+rss = { version = "2.0.9" }
+tracing-subscriber = { version = "0.3.18" }
+katex = { version = "0.4.6", default-features = false, features = [
     "duktape",
 ] }
 web-sys = "0.3.72"
-lettre = { version = "0.11.9", default-features = false, optional = true, features = [
+lettre = { version = "0.11.9", default-features = false, features = [
     "builder",
     "smtp-transport",
     "rustls-tls",
@@ -50,27 +45,7 @@ lettre = { version = "0.11.9", default-features = false, optional = true, featur
 ] }
 leptos_icons = "0.4.0"
 icondata = "0.5.0"
-
-[features]
-hydrate = ["leptos/hydrate"]
-ssr = [
-    "dep:axum",
-    "dep:tokio",
-    "dep:tower",
-    "dep:tower-http",
-    "dep:leptos_axum",
-    "leptos/ssr",
-    "leptos_meta/ssr",
-    "leptos_router/ssr",
-    "dep:tracing",
-    "dep:syntect",
-    "dep:regex",
-    "dep:pulldown-cmark",
-    "dep:rss",
-    "dep:tracing-subscriber",
-    "dep:katex",
-    "dep:lettre",
-]
+syntect = "5.2.0" 
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
@@ -80,7 +55,16 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
-[package.metadata.leptos]
+[[workspace.metadata.leptos]]
+# this name is used for the wasm, js and css file names
+name = "blog"
+
+# the package in the workspace that contains the server binary (binary crate)
+bin-package = "server"
+
+# the package in the workspace that contains the frontend wasm binary (library crate)
+lib-package = "frontend"
+
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "blog"
 
@@ -123,7 +107,7 @@ env = "DEV"
 # The features to use when compiling the bin target
 #
 # Optional. Can be over-ridden with the command line parameter --bin-features
-bin-features = ["ssr"]
+bin-features = []
 
 # If the --no-default-features flag should be used when compiling the bin target
 #
@@ -133,7 +117,7 @@ bin-default-features = false
 # The features to use when compiling the lib target
 #
 # Optional. Can be over-ridden with the command line parameter --lib-features
-lib-features = ["hydrate"]
+lib-features = []
 
 # If the --no-default-features flag should be used when compiling the lib target
 #

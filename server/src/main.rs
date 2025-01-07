@@ -1,11 +1,11 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use api::redirect::redirect_www;
+    use api::server_utils::{connect, rss_handler, sitemap_handler};
+    use api::types::AppState;
+    use app::{component, shell};
     use axum::{routing::get, Router};
-    use blog::app::{self, shell};
-    use blog::ssr::app_state::AppState;
-    use blog::ssr::redirect::redirect_www;
-    use blog::ssr::server_utils::{connect, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
     use leptos::logging;
     use leptos::prelude::*;
@@ -35,7 +35,7 @@ async fn main() {
     let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
-    let routes = generate_route_list(app::component);
+    let routes = generate_route_list(component);
 
     let db = connect().await;
     let app_state = AppState {

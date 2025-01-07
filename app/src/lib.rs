@@ -1,8 +1,5 @@
-use crate::{
-    components::{error_template, header, icons},
-    pages::{hireus, home, post, references},
-};
 use chrono::{Datelike, Utc};
+use components::{error_template, header, icons};
 use leptos::{
     html::{a, body, div, footer, head, html, main, meta, p},
     prelude::*,
@@ -12,6 +9,11 @@ use leptos_router::{
     components::{FlatRoutes, FlatRoutesProps, Route, RouteChildren, RouteProps, Router, RouterProps},
     ParamSegment, SsrMode, StaticSegment,
 };
+
+mod hireus;
+mod home;
+mod post;
+mod references;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     let html_ = html().lang("en").child((
