@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-api = { path = "../api", optional = true}
+api = { path = "../api" }
 components = { path = "../components" }
 leptos = { workspace = true, features = ["ssr"]}
 leptos_meta.workspace = true
@@ -15,5 +15,5 @@ icondata.workspace = true
 
 [features]
 hydrate = ["leptos/hydrate"]
-ssr = ["leptos_meta/ssr", "leptos_router/ssr", "dep:api"]
+ssr = ["leptos_meta/ssr", "leptos_router/ssr"]
 
