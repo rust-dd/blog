@@ -1,5 +1,9 @@
 use http::status::StatusCode;
-use leptos::prelude::*;
+use leptos::{
+    html::{a, div, h1},
+    prelude::*,
+    svg::{path, svg},
+};
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error)]
@@ -18,11 +22,7 @@ impl AppError {
 
 // A basic function to display errors served by the error boundaries.
 // Feel free to do more complicated things here than just displaying the error.
-#[component]
-pub fn Component(
-    #[prop(optional)] outside_errors: Option<Errors>,
-    #[prop(optional)] errors: Option<RwSignal<Errors>>,
-) -> impl IntoView {
+pub fn component(outside_errors: Option<Errors>, errors: Option<RwSignal<Errors>>) -> impl IntoView {
     let errors = match outside_errors {
         Some(e) => RwSignal::new(e),
         None => match errors {
@@ -51,41 +51,31 @@ pub fn Component(
         }
     }
 
-    view! {
-        <div class="grid place-content-center px-4 h-full antialiased">
-            <h1 class="mb-6 text-center">{if errors.len() > 1 { "Errors" } else { "Error" }}</h1>
-            <For
-                // a function that returns the items we're iterating over; a signal is fine
-                each=move || { errors.clone().into_iter().enumerate() }
-                // a unique key for each item as a reference
-                key=|(index, _error)| *index
-                // renders each item to a view
-                children=move |error| {
+    div().class("grid place-content-center px-4 h-full antialiased").child((
+        h1().class("mb-6 text-center").child(if errors.len() > 1 { "Errors" } else { "Error" }),
+        For(
+            ForProps::builder()
+                .each(move || errors.clone().into_iter().enumerate())
+                .key(|(index, _error)| *index)
+                .children(|error| {
                     let error_string = error.1.to_string();
                     let error_code = error.1.status_code();
-                    view! {
-                        <h1 class="text-xl tracking-widest text-gray-400 uppercase">
-                            {error_code.to_string()}| {error_string}
-                        </h1>
-                        <a
-                            href="/"
-                            class="flex gap-1 justify-center items-center mt-6 text-center duration-200 hover:text-[#68b5fc]"
-                        >
-                            <svg
-                                width="1.1em"
-                                height="1.1em"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                role="graphics-symbol"
-                                data-hk="0-0-0-98"
-                            >
-                                <path d="M21 11H6.414l5.293-5.293-1.414-1.414L2.586 12l7.707 7.707 1.414-1.414L6.414 13H21z"></path>
-                            </svg>
-                            Go back home
-                        </a>
-                    }
-                }
-            />
-        </div>
-    }
+
+                    div().child((
+                        h1().class("text-xl tracking-widest text-gray-400 uppercase").child(
+                            format!("{}| {}", error_code.to_string(), error_string),
+                        ),
+                        a()
+                            .href("/")
+                            .class("flex gap-1 justify-center items-center mt-6 text-center duration-200 hover:text-[#68b5fc]")
+                            .child((
+                                svg().attr("width", "1.1em").attr("height", "1.1em").attr("viewBox", "0 0 24 24").attr("fill", "currentColor").attr("role", "graphics-symbol").attr("data-hk", "0-0-0-98").child(
+                                    path().attr("d", "M21 11H6.414l5.293-5.293-1.414-1.414L2.586 12l7.707 7.707 1.414-1.414L6.414 13H21z"),
+                                ),
+                                "Go back home",
+                            )),
+                    ))
+                }).build(),
+        ),
+    ))
 }
