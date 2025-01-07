@@ -63,7 +63,7 @@ pub fn component(outside_errors: Option<Errors>, errors: Option<RwSignal<Errors>
 
                     div().child((
                         h1().class("text-xl tracking-widest text-gray-400 uppercase").child(
-                            format!("{}| {}", error_code.to_string(), error_string),
+                            format!("{}| {}", error_code, error_string),
                         ),
                         a()
                             .href("/")

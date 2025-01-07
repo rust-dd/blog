@@ -1,6 +1,20 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
+#[cfg(feature = "ssr")]
+use axum::extract::FromRef;
+#[cfg(feature = "ssr")]
+use leptos::config::LeptosOptions;
+#[cfg(feature = "ssr")]
+use surrealdb::{engine::remote::http::Client, Surreal};
+
+#[cfg(feature = "ssr")]
+#[derive(FromRef, Debug, Clone)]
+pub struct AppState {
+    pub db: Surreal<Client>,
+    pub leptos_options: LeptosOptions,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Author {
     pub id: Thing,
