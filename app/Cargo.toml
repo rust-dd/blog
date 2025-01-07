@@ -4,16 +4,24 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-api = { path = "../api" }
-components = { path = "../components" }
-leptos = { workspace = true, features = ["ssr"]}
+markdown = { path = "../markdown", default-features = false, features = ["ssr"], optional = true}
+axum = {workspace = true, optional = true}
+chrono.workspace = true
+leptos.workspace = true
 leptos_meta.workspace = true
 leptos_router.workspace = true
-chrono.workspace = true
+leptos_axum = { workspace = true, optional = true }
 leptos_icons.workspace = true
 icondata.workspace = true
+http.workspace = true
+lettre = {workspace = true, optional = true}
+serde.workspace = true
+surrealdb.workspace = true
+thiserror.workspace = true
+web-sys.workspace = true
+tracing ={ workspace = true, optional = true }
 
 [features]
 hydrate = ["leptos/hydrate"]
-ssr = ["leptos_meta/ssr", "leptos_router/ssr"]
+ssr = ["leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum", "dep:axum", "dep:lettre", "dep:tracing", "dep:markdown"]
 

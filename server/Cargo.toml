@@ -4,18 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-api = { path = "../api" }
 app = { path = "../app", default-features = false, features = ["ssr"] }
+markdown = { path = "../markdown", default-features = false, features = ["ssr"] }
 leptos = { workspace = true, features = ["ssr"]}
 leptos_axum.workspace = true
+
 dotenvy.workspace = true
 axum.workspace = true
+chrono.workspace = true
+rss.workspace = true
+surrealdb.workspace = true
+serde.workspace = true
 tokio.workspace = true
 tower.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-
-
-[features]
-ssr = ["leptos/ssr"]

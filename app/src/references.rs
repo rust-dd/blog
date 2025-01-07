@@ -1,4 +1,4 @@
-use api::select_references;
+use crate::api::select_references;
 use leptos::{
     html::{div, h1, h3, p, section, span},
     prelude::*,

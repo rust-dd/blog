@@ -5,7 +5,7 @@ use leptos::{
     svg::{path, svg},
 };
 
-use api::{hire_us, HireUsRequest};
+use crate::api::{hire_us, HireUsRequest};
 
 pub fn component() -> impl IntoView {
     let state = RwSignal::new(HireUsRequest::default());

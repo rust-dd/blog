@@ -1,0 +1,14 @@
+[package]
+name = "markdown"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+leptos = { workspace = true, features = ["ssr"]}
+pulldown-cmark.workspace = true
+syntect.workspace = true    
+katex.workspace = true
+regex.workspace = true
+
+[features]
+ssr = ["leptos/ssr"]

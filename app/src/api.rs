@@ -3,24 +3,7 @@ use std::collections::BTreeMap;
 use leptos::prelude::{server, ServerFnError};
 use serde::{Deserialize, Serialize};
 
-use types::{Post, Reference};
-
-pub mod redirect;
-pub mod server_utils;
-pub mod types;
-
-// #[cfg(feature = "ssr")]
-// pub mod app_state {
-//     use axum::extract::FromRef;
-//     use leptos::prelude::*;
-//     use surrealdb::{engine::remote::http::Client, Surreal};
-
-//     #[derive(FromRef, Debug, Clone)]
-//     pub struct AppState {
-//         pub db: Surreal<Client>,
-//         pub leptos_options: LeptosOptions,
-//     }
-// }
+use crate::types::{Post, Reference};
 
 #[server(endpoint = "/posts")]
 pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Post>, ServerFnError> {
@@ -87,14 +70,15 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
 
 #[server(endpoint = "/post")]
 pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
-    use crate::server_utils::process_markdown;
     use crate::types::AppState;
     use chrono::{DateTime, Utc};
     use leptos::prelude::expect_context;
+    use markdown::process_markdown;
 
     let AppState { db, .. } = expect_context::<AppState>();
 
     let query = format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#);
+    println!("{:?}", query);
     let query = db.query(&query).await;
 
     if let Err(e) = query {
@@ -179,7 +163,7 @@ pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
 
     let query = "SELECT * from reference WHERE is_published = true ORDER BY created_at DESC;";
     let query = db.query(query).await;
-
+    println!("{:?}", query);
     if let Err(e) = query {
         return Err(ServerFnError::from(e));
     }

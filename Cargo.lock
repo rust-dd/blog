@@ -143,36 +143,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
 
 [[package]]
-name = "api"
+name = "app"
 version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
- "katex",
- "leptos",
- "lettre",
- "pulldown-cmark",
- "regex",
- "rss",
- "serde",
- "surrealdb",
- "syntect",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "api",
- "chrono",
- "components",
+ "http",
  "icondata",
  "leptos",
+ "leptos_axum",
  "leptos_icons",
  "leptos_meta",
  "leptos_router",
+ "lettre",
+ "markdown",
+ "serde",
+ "surrealdb",
+ "thiserror 1.0.69",
+ "tracing",
+ "web-sys",
 ]
 
 [[package]]
@@ -931,19 +920,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "186dce98367766de751c42c4f03970fc60fc012296e706ccbb9d5df9b6c1e271"
 
 [[package]]
-name = "components"
-version = "0.1.0"
-dependencies = [
- "http",
- "icondata",
- "leptos",
- "leptos_axum",
- "leptos_icons",
- "thiserror 1.0.69",
- "web-sys",
-]
-
-[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -973,6 +949,16 @@ checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
 dependencies = [
  "cfg-if",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "console_log"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be8aed40e4edbf4d3b4431ab260b63fdc40f5780a4766824329ea0f1eefe3c0f"
+dependencies = [
+ "log",
+ "web-sys",
 ]
 
 [[package]]
@@ -1512,7 +1498,9 @@ version = "0.1.0"
 dependencies = [
  "app",
  "console_error_panic_hook",
+ "console_log",
  "leptos",
+ "log",
  "wasm-bindgen",
 ]
 
@@ -2925,6 +2913,17 @@ name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
+
+[[package]]
+name = "markdown"
+version = "0.1.0"
+dependencies = [
+ "katex",
+ "leptos",
+ "pulldown-cmark",
+ "regex",
+ "syntect",
+]
 
 [[package]]
 name = "markup5ever"
@@ -4509,12 +4508,16 @@ dependencies = [
 name = "server"
 version = "0.1.0"
 dependencies = [
- "api",
  "app",
  "axum",
+ "chrono",
  "dotenvy",
  "leptos",
  "leptos_axum",
+ "markdown",
+ "rss",
+ "serde",
+ "surrealdb",
  "tokio",
  "tower",
  "tower-http",

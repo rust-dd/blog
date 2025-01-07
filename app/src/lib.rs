@@ -1,5 +1,5 @@
+use crate::components::{error_template, header, icons};
 use chrono::{Datelike, Utc};
-use components::{error_template, header, icons};
 use leptos::{
     html::{a, body, div, footer, head, html, main, meta, p},
     prelude::*,
@@ -10,10 +10,13 @@ use leptos_router::{
     ParamSegment, SsrMode, StaticSegment,
 };
 
+pub mod api;
+mod components;
 mod hireus;
 mod home;
 mod post;
 mod references;
+pub mod types;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     let html_ = html().lang("en").child((

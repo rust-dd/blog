@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["api", "app", "components", "frontend", "server"]
+members = ["app", "frontend", "markdown", "server"]
 
 [workspace.dependencies]
 axum = { version = "0.7", features = ["macros"] }
@@ -32,9 +32,7 @@ regex = { version = "1.10.6" }
 pulldown-cmark = { version = "0.12.0" }
 rss = { version = "2.0.9" }
 tracing-subscriber = { version = "0.3.18" }
-katex = { version = "0.4.6", default-features = false, features = [
-    "duktape",
-] }
+katex = { version = "0.4.6", default-features = false, features = ["duktape"] }
 web-sys = "0.3.72"
 lettre = { version = "0.11.9", default-features = false, features = [
     "builder",
@@ -45,7 +43,9 @@ lettre = { version = "0.11.9", default-features = false, features = [
 ] }
 leptos_icons = "0.4.0"
 icondata = "0.5.0"
-syntect = "5.2.0" 
+syntect = "5.2.0"
+console_log = "1"
+log = "0.4.20"
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
@@ -107,7 +107,7 @@ env = "DEV"
 # The features to use when compiling the bin target
 #
 # Optional. Can be over-ridden with the command line parameter --bin-features
-bin-features = ["ssr"]
+bin-features = []
 
 # If the --no-default-features flag should be used when compiling the bin target
 #
