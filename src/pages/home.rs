@@ -5,8 +5,7 @@ use leptos_icons::{Icon, IconProps};
 use leptos_meta::{Title, TitleProps};
 use leptos_router::components::{AProps, A};
 
-use crate::components::loader;
-use crate::ssr::api::{select_posts, select_tags};
+use crate::ssr::api::select_posts;
 
 pub fn component() -> impl IntoView {
     let selected_tags = RwSignal::new(Vec::<String>::new());
@@ -24,7 +23,7 @@ pub fn component() -> impl IntoView {
         Suspense(
             SuspenseProps::builder().fallback(|| ()).children(TypedChildren::to_children(move || {
                 div()
-                    .class("gap-4 columns-1 sm:columns-2")
+                    .class("flex flex-col gap-8")
                     .child(For(ForProps::builder()
                         .each(move || posts.get().and_then(Result::ok).unwrap_or_default())
                         .key(|post| post.id.id.to_string())
