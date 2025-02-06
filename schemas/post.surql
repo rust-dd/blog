@@ -15,3 +15,4 @@ DEFINE FIELD OVERWRITE created_at ON post TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE updated_at ON post TYPE datetime VALUE time::now();
 DEFINE FIELD OVERWRITE is_published ON post TYPE bool DEFAULT false;
 DEFINE FIELD OVERWRITE header_image ON post TYPE option<string>;
+DEFINE FIELD OVERWRITE show_cta ON post TYPE bool DEFAULT false;

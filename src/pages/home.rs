@@ -10,7 +10,6 @@ use crate::ssr::api::{select_posts, select_tags};
 
 pub fn component() -> impl IntoView {
     let selected_tags = RwSignal::new(Vec::<String>::new());
-    let tags = Resource::new_blocking(|| (), move |_| async move { select_tags().await.unwrap_or_default() });
     let posts = Resource::new(
         move || selected_tags.get(),
         move |selected_tags| async move { select_posts(selected_tags).await },
@@ -92,47 +91,5 @@ pub fn component() -> impl IntoView {
                 })
             ).build(),
         ),
-        Suspense(SuspenseProps::builder().fallback(|| loader::component).children(TypedChildren::to_children(move || {
-            div().class("flex flex-row flex-wrap gap-1 px-4 text-xs").child((
-                button().on(ev::click, move |_| selected_tags.update(|prev| prev.clear()))
-                    .class("py-1 px-2 text-white rounded-lg transition-all duration-500 cursor-pointer bg-primary")
-                    .class(("underline", move || selected_tags.get().is_empty()))
-                    .child("All"),
-                For(ForProps::builder()
-                    .each(move || tags.get().unwrap_or_default())
-                    .key(|tag| tag.clone())
-                    .children(move |(tag, count)| {
-                        button().on(ev::click, {
-                            let tag = tag.clone();
-                            move |_| {
-                                selected_tags.update(|prev| {
-                                    if prev.contains(&tag) {
-                                        *prev = prev.clone().into_iter().filter(|v| v != &tag).collect::<Vec<_>>();
-                                    } else {
-                                        *prev = prev.clone().into_iter().chain(std::iter::once(tag.clone())).collect();
-                                    }
-                                });
-                            }
-                        })
-                        .class("py-1 px-2 rounded-lg transition-all duration-500 cursor-pointer hover:text-black hover:bg-white")
-                        .class((
-                            "bg-white",
-                            {
-                                let tag = tag.clone();
-                                move || selected_tags.get().contains(&tag)
-                            }),
-                        )
-                        .class((
-                            "text-black",
-                            {
-                                let tag = tag.clone();
-                                move || selected_tags.get().contains(&tag)
-                            }),
-                        )
-                        .child(tag.clone() + " (" + &count.to_string() + ")")
-                    })
-                    .build())
-            ))
-        })).build())
     ))
 }

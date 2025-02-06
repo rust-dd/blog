@@ -1,0 +1,1 @@
+UPDATE POST SET show_cta = false;

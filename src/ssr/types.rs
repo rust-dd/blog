@@ -41,6 +41,7 @@ pub struct Post {
     pub updated_at: String,
     pub is_published: bool,
     pub header_image: Option<String>,
+    pub show_cta: bool,
 }
 
 impl Default for Post {
@@ -59,6 +60,7 @@ impl Default for Post {
             updated_at: String::new(),
             is_published: true,
             header_image: None,
+            show_cta: false,
         }
     }
 }

@@ -1,4 +1,4 @@
-use leptos::html::{article, div, img, p, span};
+use leptos::html::{article, button, div, img, p, span};
 use leptos::{ev, prelude::*};
 use leptos_meta::*;
 use leptos_router::hooks::use_params_map;
@@ -62,6 +62,33 @@ pub fn component() -> impl IntoView {
                 div().class("my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-h4:text-white prose-code:before:content-none prose-th:text-white prose-li:marker:text-white prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffef5c] prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffef5c]")
                   .inner_html(post.body.to_string())
             )),
+            Show(ShowProps::builder()
+            .when({
+                let show_cta = post.show_cta;
+                move || show_cta
+            })
+            .fallback(|| ()).children(ToChildren::to_children(move || div().class("my-10").child(
+                div()
+                    .class("flex flex-col md:flex-row items-center justify-between bg-[#2E2E2E] rounded-lg p-8")
+                    .child((
+                        div()
+                            .class("mb-6 md:mb-0 md:mr-8 text-center md:text-left")
+                            .child((
+                                p().class("text-2xl md:text-3xl font-bold text-[#ffef5c] mb-2")
+                                    .child("Need Rust Expertise?"),
+                                p().class("text-gray-300 max-w-md")
+                                    .child("Our team of Rust developers is ready to bring your high-performance projects to life."),
+                            )),
+                        button()
+                            .on(ev::click, move |e| {
+                                e.prevent_default();
+                                e.stop_propagation();
+                                let _ = window().open_with_url_and_target("https://rust-dd.com/hireus", "_blank");
+                            })
+                            .class("bg-[#ffef5c] text-gray-900 px-6 py-3 text-lg font-semibold rounded-full transition-colors duration-300")
+                            .child("Hire Rust Developers"),
+                    ))
+            ))).build())
         ))
     };
 
