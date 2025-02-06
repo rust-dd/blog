@@ -196,7 +196,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
     ));
 
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         {html_}
     }
 }
@@ -208,7 +208,7 @@ pub fn component() -> impl IntoView {
     Router(
         RouterProps::builder()
             .children(TypedChildren::to_children(move || {
-                div().class("overflow-auto text-white font-poppins").child((
+                div().class("overflow-auto text-white font-mono").child((
           header::component,
           main()
             .class("container flex flex-col gap-8 px-4 pt-10 pb-14 mx-auto mt-16 max-w-4xl md:px-0")

@@ -25,7 +25,7 @@ pub fn component() -> impl IntoView {
     });
 
     let children = move |post: Post| {
-        div().class("flex flex-col items-center font-mono").child(
+        div().class("flex flex-col items-center").child(
         (
             Show(ShowProps::builder()
                    .when({

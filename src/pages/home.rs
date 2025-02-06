@@ -23,7 +23,7 @@ pub fn component() -> impl IntoView {
         Suspense(
             SuspenseProps::builder().fallback(|| ()).children(TypedChildren::to_children(move || {
                 div()
-                    .class("flex flex-col gap-8")
+                    .class("flex flex-col gap-6")
                     .child(For(ForProps::builder()
                         .each(move || posts.get().and_then(Result::ok).unwrap_or_default())
                         .key(|post| post.id.id.to_string())
@@ -35,8 +35,8 @@ pub fn component() -> impl IntoView {
                                             div()
                                                 .child(
                                                 (div().class("flex flex-col gap-1 mb-4 font-medium").child((
-                                                p().class("text-base line-clamp-2").child(post.title.clone()),
-                                                p().class("italic text-xxs").child(post.summary.clone()),
+                                                p().class("text-lg font-semibold line-clamp-2").child(post.title.clone()),
+                                                p().class("font-light text-xs").child(post.summary.clone()),
                                             )),
                                             div().class("flex flex-row gap-3 justify-start items-center text-xxs").child(
                                                 div().class("flex flex-row gap-3").child((
