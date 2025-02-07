@@ -6,7 +6,7 @@ RUN apk update && \
     apk add --no-cache bash curl npm libc-dev binaryen clang
 
 # Install SASS globally
-RUN npm install -g tailwindcss
+RUN npm install -g tailwindcss@3.4.1
 
 # Install cargo-leptos
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
