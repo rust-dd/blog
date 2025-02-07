@@ -25,7 +25,7 @@ pub fn component() -> impl IntoView {
     });
 
     let children = move |post: Post| {
-        div().class("flex flex-col items-center").child(
+        div().class("flex flex-col items-center mx-auto max-w-3xl").child(
         (
             Show(ShowProps::builder()
                    .when({
@@ -59,7 +59,7 @@ pub fn component() -> impl IntoView {
                         p().child(format!("{} views", post.total_views)),
                     )),
                 )),
-                div().class("my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-h4:text-white prose-code:before:content-none prose-th:text-white prose-li:marker:text-white prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffef5c] prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffef5c] prose-pre:whitespace-pre-wrap prose-pre:break-words prose-pre:overflow-auto")
+                div().class("my-6 mx-auto max-w-3xl prose prose-h3:text-white prose-h4:text-white prose-code:before:content-none prose-th:text-white prose-li:marker:text-white prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffef5c] prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffef5c] prose-pre:whitespace-pre-wrap prose-pre:break-all prose-pre:overflow-auto")
                   .inner_html(post.body.to_string())
             )),
             Show(ShowProps::builder()
