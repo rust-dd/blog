@@ -8,7 +8,7 @@ pub fn component() -> impl IntoView {
     let references = Resource::new_blocking(|| (), move |_| async move { select_references().await });
 
     div().class("container py-12 px-4 mx-auto").child((
-        section().id("about").class("mx-auto mb-16 max-w-4xl text-center").child((
+        section().id("about").class("mx-auto mb-16 max-w-4xl text-left").child((
             h1().class("mb-8 text-5xl font-bold md:text-7xl text-[#ffef5c]").child("Our Project References"),
             p().class("mb-8 text-lg text-gray-300 md:text-xl").child("Explore our portfolio of successful projects. We specialize in building high-performance, reliable systems that make a real impact."),
         )),
