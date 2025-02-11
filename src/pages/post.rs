@@ -25,7 +25,7 @@ pub fn component() -> impl IntoView {
     });
 
     let children = move |post: Post| {
-        div().class("flex flex-col items-center mx-auto max-w-3xl").child(
+        div().class("flex flex-col w-full items-center mx-auto max-w-3xl").child(
         (
             Show(ShowProps::builder()
                    .when({
@@ -44,7 +44,7 @@ pub fn component() -> impl IntoView {
                    ).build(),
             ),
             Title(TitleProps::builder().text(post.title.to_string()).build()),
-            article().child((
+            article().class("w-full").child((
                 div().class("flex flex-col gap-4 mx-auto max-w-3xl").child((
                     p().class("text-4xl font-semibold").child(post.title.clone()),
                     div().class("flex gap-3 justify-start items-center text-sm text-muted-foreground").child((

@@ -211,7 +211,7 @@ pub fn component() -> impl IntoView {
                 div().class("overflow-auto text-white font-mono").child((
           header::component,
           main()
-            .class("container flex flex-col gap-8 px-4 pt-10 pb-14 mx-auto mt-16 max-w-4xl md:px-0")
+            .class("container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 max-w-4xl md:px-0")
             .child(FlatRoutes(
               FlatRoutesProps::builder()
                 .fallback(|| {
