@@ -53,7 +53,7 @@ pub async fn rss_handler(State(state): State<AppState>) -> Response<String> {
         .unwrap()
 }
 
-pub async fn generate_rss(db: Surreal<Client>) -> leptos::error::Result<String, ServerFnError> {
+pub async fn generate_rss(db: Surreal<Client>) -> Result<String, ServerFnError> {
     let query = db
         .query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;")
         .await;
