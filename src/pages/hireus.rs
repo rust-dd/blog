@@ -1,6 +1,6 @@
 use leptos::{
     ev,
-    html::{a, br, button, div, form, h1, h2, h3, img, input, p, section, textarea},
+    html::{a, br, button, div, form, h1, h2, h3, img, input, meta, p, section, textarea, title},
     prelude::*,
     svg::{path, svg},
 };
@@ -11,6 +11,7 @@ pub fn component() -> impl IntoView {
     let state = RwSignal::new(HireUsRequest::default());
     let (sent, set_sent) = signal(false);
     let (loader, set_loader) = signal(false);
+
     let submit = Action::new(move |data: &HireUsRequest| {
         set_loader(true);
         let data = data.clone();
@@ -24,54 +25,60 @@ pub fn component() -> impl IntoView {
     });
 
     div().class("min-h-screen text-white bg-[#1e1e1e]").child((
-    section().class("px-4 pt-12 pb-24 sm:px-6 lg:px-8").child(
-        div().class("mx-auto max-w-5xl").child((
-            h1().class("mb-6 text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl text-[#ffef5c]").child(("Rust Development", br(), "for the Modern Era")),
-            p().class("mb-8 max-w-2xl text-xl text-gray-300").child("We craft high-performance, reliable systems with Rust. Elevating your projects with cutting-edge technology and expert development."),
-            a().href("/references").class("inline-flex items-center text-lg font-semibold hover:underline text-[#ffef5c]").child((
-            "Explore Our Work",
-            svg().class("ml-2 size-5").attr("fill", "none").attr("stroke", "currentColor").attr("viewBox", "0 0 24 24").attr("xmlns", "http://www.w3.org/2000/svg").child(
-                path().attr("stroke-linecap", "round").attr("stroke-linejoin", "round").attr("stroke-width", 2).attr("d", "M17 8l4 4m0 0l-4 4m4-4H3"),
-            ),
-        )),
-    ))),
-    section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
-        div().class("mx-auto max-w-5xl").child((
-            h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Our Expertise"),
-            div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
-                div().child((
-                    h3().class("mb-4 text-2xl font-semibold text-white").child("Rust Development"),
-                    p().class("mb-6 text-gray-300").child("Specializing in efficient, safe, and concurrent systems. From low-level programming to high-performance web services, we leverage Rust's power to deliver exceptional solutions."),
-                )),
-                div().child((
-                    h3().class("mb-4 text-2xl font-semibold text-white").child("System Architecture"),
-                    p().class("mb-6 text-gray-300").child("Designing robust and scalable architectures that stand the test of time. Our expertise ensures your systems are built for performance, reliability, and future growth."),
+        title().child("Expert Rust Consulting Services | High-Performance Rust Development"),
+        meta().attr("name", "description").attr("content", "Professional Rust consulting services specializing in high-performance, reliable, and scalable Rust development."),
+        section().class("px-4 pt-12 pb-24 sm:px-6 lg:px-8").child(
+            div().class("mx-auto max-w-5xl").child((
+                h1().class("mb-6 text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl text-[#ffef5c]")
+                    .child(("Rust Consulting & Development", br(), "for the Modern Era")),
+                p().class("mb-8 max-w-2xl text-xl text-gray-300").child("Expert Rust consultants crafting high-performance, reliable, and scalable systems tailored to your business needs."),
+                a().href("/references").class("inline-flex items-center text-lg font-semibold hover:underline text-[#ffef5c]").child((
+                    "Explore Our Rust Projects",
+                    svg().class("ml-2 size-5").attr("fill", "none").attr("stroke", "currentColor").attr("viewBox", "0 0 24 24").attr("xmlns", "http://www.w3.org/2000/svg").child(
+                        path().attr("stroke-linecap", "round").attr("stroke-linejoin", "round").attr("stroke-width", 2).attr("d", "M17 8l4 4m0 0l-4 4m4-4H3"),
+                    ),
                 )),
             )),
-        ))
-    ),
-    section().class("py-20 px-4 sm:px-6 lg:px-8").child(
-        div().class("mx-auto max-w-5xl").child((
-            h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Meet Our Team"),
-            div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
-                div().class("flex items space-x-6").child((
-                    img().src("https://static.rust-dd.com/zelei.webp").alt("Daniel Zelei").width(100).height(100).class("rounded-full"),
+        ),
+        section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
+            div().class("mx-auto max-w-5xl").child((
+                h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Our Rust Expertise"),
+                div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
                     div().child((
-                        h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Zelei"),
-                        p().class("mb-2 text-gray-300").child("Senior Software Engineer"),
-                        a().href("https://www.linkedin.com/in/danielzelei/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
+                        h3().class("mb-4 text-2xl font-semibold text-white").child("Rust Consulting & Development"),
+                        p().class("mb-6 text-gray-300").child("Efficient, safe, and concurrent systems built with Rust. Specialized consulting for web services, embedded systems, and high-performance applications."),
+                    )),
+                    div().child((
+                        h3().class("mb-4 text-2xl font-semibold text-white").child("Advanced System Architecture"),
+                        p().class("mb-6 text-gray-300").child("Designing robust architectures to ensure your Rust applications are performant, scalable, and future-proof."),
                     )),
                 )),
-                div().class("flex items-center space-x-6").child((
-                    img().src("https://static.rust-dd.com/boros.webp").alt("Daniel Boros").width(100).height(100).class("rounded-full"),
-                    div().child((
-                        h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Boros"),
-                        p().class("mb-2 text-gray-300").child("Senior Software Engineer"),
-                        a().href("https://www.linkedin.com/in/daniel-boros-b86a5373/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
+            )),
+        ),
+        section().class("py-20 px-4 sm:px-6 lg:px-8").child(
+            div().class("mx-auto max-w-5xl").child((
+                h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Meet Our Rust Experts"),
+                div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
+                    div().class("flex items-center space-x-6").child((
+                        img().src("https://static.rust-dd.com/zelei.webp").alt("Daniel Zelei").width(100).height(100).class("rounded-full"),
+                        div().child((
+                            h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Zelei"),
+                            p().class("mb-2 text-gray-300").child("Senior Rust Consultant"),
+                            a().href("https://www.linkedin.com/in/danielzelei/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
+                        )),
                     )),
-                )),
-        ))
-    ))),
+                    div().class("flex items-center space-x-6").child((
+                        img().src("https://static.rust-dd.com/boros.webp").alt("Daniel Boros").width(100).height(100).class("rounded-full"),
+                        div().child((
+                            h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Boros"),
+                            p().class("mb-2 text-gray-300").child("Senior Rust Consultant"),
+                            a().href("https://www.linkedin.com/in/daniel-boros-b86a5373/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
+                        )),
+                    )),
+                ))
+            ))
+        ),
+
      section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
          div().class("mx-auto max-w-3xl").child((
              h2().class("mb-8 text-3xl font-bold text-[#ffef5c]").child("Get In Touch"),
@@ -107,6 +114,23 @@ pub fn component() -> impl IntoView {
              ),
             )),
          ))
+     ),
+     section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
+         div().class("mx-auto max-w-5xl").child((
+             h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Rust Consulting FAQ"),
+             div().class("space-y-6").child((
+                 h3().class("text-xl font-semibold").child("Why choose Rust for your next project?"),
+                 p().child("Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing."),
+                 h3().class("text-xl font-semibold").child("What Rust consulting services do we offer?"),
+                 p().child("We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions."),
+                 h3().class("text-xl font-semibold").child("How can Rust consulting benefit my business?"),
+                 p().child("Our expert Rust consultants help businesses build faster, safer, and more scalable software solutions, reducing technical debt and ensuring long-term reliability."),
+                 h3().class("text-xl font-semibold").child("Is Rust suitable for web development?"),
+                 p().child("Absolutely! Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput and reliability."),
+                 h3().class("text-xl font-semibold").child("Do you offer Rust training for our development team?"),
+                 p().child("Yes, we provide customized Rust training programs and workshops to quickly upskill your team in modern Rust development practices."),
+             )),
+         )),
      ),
   ))
 }

@@ -6,6 +6,15 @@ A blog engine written in Rust, powered by SurrealDB. This project is responsible
 
 ## Running the Project
 
+### Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [SurrealDB](https://surrealdb.com/install)
+- [TailwindCSS](https://tailwindcss.com/docs/installation)
+- [Leptos](https://leptos.dev/docs/installation)
+
+### Execution
+
 To get started with running the project locally, follow the steps below. These commands will compile your stylesheets and set up a development server that watches for changes.
 
 First, run the following script to set up your Surreal database:
