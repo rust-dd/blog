@@ -1,16 +1,58 @@
+use icondata as i;
 use leptos::{
     ev,
     html::{a, br, button, div, form, h1, h2, h3, img, input, meta, p, section, textarea, title},
     prelude::*,
     svg::{path, svg},
 };
+use leptos_icons::{Icon, IconProps};
 
 use crate::ssr::api::{hire_us, HireUsRequest};
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct Faq {
+    id: u32,
+    question: String,
+    answer: String,
+    is_open: RwSignal<bool>,
+}
 
 pub fn component() -> impl IntoView {
     let state = RwSignal::new(HireUsRequest::default());
     let (sent, set_sent) = signal(false);
     let (loader, set_loader) = signal(false);
+    let faqs = RwSignal::new(vec![
+        Faq {
+            id: 1,
+            question: "Why choose Rust for your next project?".to_string(),
+            answer: "Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing.".to_string(),
+            is_open: RwSignal::new(false),
+        },
+        Faq {
+            id: 2,
+            question: "What Rust consulting services do we offer?".to_string(),
+            answer: "We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions.".to_string(),
+            is_open: RwSignal::new(false),
+        },
+        Faq {
+            id: 3,
+            question: "How can Rust consulting benefit my business?".to_string(),
+            answer: "Our expert Rust consultants help businesses build faster, safer, and more scalable software solutions, reducing technical debt and ensuring long-term reliability.".to_string(),
+            is_open: RwSignal::new(false),
+        },
+        Faq {
+            id: 4,
+            question: "Is Rust suitable for web development?".to_string(),
+            answer: "Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput and reliability.".to_string(),
+            is_open: RwSignal::new(false),
+        },
+        Faq {
+            id: 5,
+            question: "Do you offer Rust training for our development team?".to_string(),
+            answer: "Yes, we provide customized Rust training programs and workshops to quickly upskill your team in modern Rust development practices.".to_string(),
+            is_open: RwSignal::new(false),
+        },
+    ]);
 
     let submit = Action::new(move |data: &HireUsRequest| {
         set_loader(true);
@@ -115,22 +157,82 @@ pub fn component() -> impl IntoView {
             )),
          ))
      ),
-     section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
-         div().class("mx-auto max-w-5xl").child((
-             h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Rust Consulting FAQ"),
-             div().class("space-y-6").child((
-                 h3().class("text-xl font-semibold").child("Why choose Rust for your next project?"),
-                 p().child("Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing."),
-                 h3().class("text-xl font-semibold").child("What Rust consulting services do we offer?"),
-                 p().child("We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions."),
-                 h3().class("text-xl font-semibold").child("How can Rust consulting benefit my business?"),
-                 p().child("Our expert Rust consultants help businesses build faster, safer, and more scalable software solutions, reducing technical debt and ensuring long-term reliability."),
-                 h3().class("text-xl font-semibold").child("Is Rust suitable for web development?"),
-                 p().child("Absolutely! Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput and reliability."),
-                 h3().class("text-xl font-semibold").child("Do you offer Rust training for our development team?"),
-                 p().child("Yes, we provide customized Rust training programs and workshops to quickly upskill your team in modern Rust development practices."),
-             )),
-         )),
-     ),
+
+     section()
+         .class("py-24 px-4 sm:px-6 mt-28 absolute left-0 right-0 lg:px-8 bg-[#2a2a2a]")
+         .child(
+             div()
+                 .class("mx-auto max-w-4xl")
+                 .child((
+                     div()
+                         .class("text-center mb-16")
+                         .child((
+                             h2()
+                                 .class("text-4xl font-bold text-[#ffef5c] mb-4")
+                                 .child("Rust Consulting FAQ"),
+                             p()
+                                 .class("text-xl text-gray-300")
+                                 .child("Common questions about our Rust consulting services"),
+                         )),
+                     div()
+                         .class("space-y-4")
+                         .child(
+                             For(
+                                 ForProps::builder()
+                                     .each(move || faqs.read().clone().into_iter())
+                                     .key(|item| item.id.to_string())
+                                     .children(move |item| {
+                                         div()
+                                             .class("bg-[#1e1e1e] border border-transparent overflow-hidden hover:border-[#ffef5c]/30 transition-colors")
+                                             .child((
+                                                 button()
+                                                     .on(ev::click,
+                                                         move |_| {
+                                                             item.is_open.update(|p| *p = !*p);
+                                                     })
+                                                     .class("w-full px-8 py-6 text-left flex items-center justify-between hover:bg-[#2a2a2a]/50 transition-colors")
+                                                     .child((
+                                                         h3()
+                                                             .class("text-xl font-semibold text-white pr-4")
+                                                             .child(item.question.clone()),
+                                                         Show(ShowProps::builder()
+                                                             .when(move || item.is_open.get())
+                                                             .fallback(|| div().child(Icon(IconProps::builder()
+                                                                 .icon(Signal::from(i::FaChevronUpSolid))
+                                                                 .width("1em")
+                                                                 .height("1em")
+                                                                 .style("color: white")
+                                                                 .build(),
+                                                            )))
+                                                             .children(ToChildren::to_children(move || {
+                                                                 div().child(Icon(IconProps::builder()
+                                                                     .icon(Signal::from(i::FaChevronDownSolid))
+                                                                     .width("1em")
+                                                                     .height("1em")
+                                                                     .style("color: white")
+                                                                     .build(),
+                                                                ))
+                                                             })).build()
+                                                         )
+                                                     )),
+                                                 Show(ShowProps::builder()
+                                                     .when(move || item.is_open.get())
+                                                     .fallback(|| ())
+                                                     .children(ToChildren::to_children(move || {
+                                                         div().class("px-8 pb-6").child(
+                                                             p()
+                                                                 .class("text-gray-300 leading-relaxed text-lg")
+                                                                 .child(item.answer.clone())
+                                                         )
+                                                     }))
+                                                     .build()
+                                                 ),
+                                             ))
+                                     })
+                                     .build(),
+                             )
+                         ),
+                 )),
+         )
   ))
 }
