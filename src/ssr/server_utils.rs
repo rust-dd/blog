@@ -332,3 +332,12 @@ pub async fn sitemap_handler(State(state): State<AppState>) -> Response<String> 
         .body(sitemap)
         .unwrap()
 }
+
+pub async fn robots_handler() -> Response<String> {
+    let mut robots = String::new();
+    robots.push_str("User-agent: *\nDisallow:\n\nAllow: /\n\nSitemap: https://rust-dd.com/sitemap.xml\n");
+    Response::builder()
+        .header("Content-Type", "text/plain")
+        .body(robots)
+        .unwrap()
+}
