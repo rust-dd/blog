@@ -136,7 +136,7 @@ pub async fn process_markdown(markdown: String) -> Result<String, ServerFnError>
     }
 
     // Initialize syntax highlighting
-    let ps = SyntaxSet::load_defaults_newlines();
+    let ps = SyntaxSet::load_defaults_nonewlines();
     let ts = ThemeSet::load_defaults();
     let theme = &ts.themes["base16-eighties.dark"];
 
