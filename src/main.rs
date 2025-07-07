@@ -5,7 +5,7 @@ async fn main() {
     use blog::app::{self, shell};
     use blog::ssr::app_state::AppState;
     use blog::ssr::redirect::redirect_www;
-    use blog::ssr::server_utils::{connect, rss_handler, sitemap_handler};
+    use blog::ssr::server_utils::{connect, robots_handler, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
     use leptos::logging;
     use leptos::prelude::*;
@@ -58,6 +58,7 @@ async fn main() {
         )
         .route("/rss.xml", get(rss_handler))
         .route("/sitemap.xml", get(sitemap_handler))
+        .route("/robots.txt", get(robots_handler))
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
