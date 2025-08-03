@@ -62,8 +62,7 @@ pub async fn generate_rss(db: Surreal<Client>) -> Result<String, ServerFnError> 
         let date_time = DateTime::parse_from_rfc3339(&post.created_at)
             .unwrap()
             .with_timezone(&Utc);
-        let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d").to_string();
+        let formatted_date = date_time.to_rfc2822();
         post.created_at = formatted_date.into();
     });
     let posts = Arc::new(Mutex::new(posts));
