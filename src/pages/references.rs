@@ -91,10 +91,16 @@ pub fn component() -> impl IntoView {
                                                     )),
                                                     Show(
                                                         ShowProps::builder()
-                                                            .when(move || !r.url.is_empty())
+                                                            .when({
+                                                                let url = r.url.clone();
+                                                                move || !url.is_empty()
+                                                            })
                                                             .fallback(|| ())
                                                             .children(ToChildren::to_children(
-                                                                || a().class("p-2 rounded-lg bg-white/5 hover:bg-[#ffef5c]/10 transition-colors duration-300 group/link")
+                                                                move || a()
+                                                                    .href(r.url.clone())
+                                                                    .target("_blank")
+                                                                    .rel("noopener noreferrer").class("p-2 rounded-lg bg-white/5 hover:bg-[#ffef5c]/10 transition-colors duration-300 group/link")
                                                                     .child(
                                                                         div().class("w-5 h-5 text-gray-400 group-hover/link:text-[#ffef5c] transition-colors duration-300").child(
                                                                         Icon(
