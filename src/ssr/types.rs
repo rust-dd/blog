@@ -77,7 +77,7 @@ pub struct Reference {
     pub created_at: String,
     pub updated_at: String,
     pub is_published: bool,
-    pub year: Option<u16>,
+    pub year: Option<String>,
     pub category: Option<String>,
     pub icon: Option<String>,
 }

@@ -160,7 +160,7 @@ pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
 
     let AppState { db, .. } = expect_context::<AppState>();
 
-    let query = "SELECT * from reference WHERE is_published = true ORDER BY created_at DESC;";
+    let query = "SELECT * from reference WHERE is_published = true ORDER BY year DESC;";
     let query = db.query(query).await;
 
     if let Err(e) = query {
