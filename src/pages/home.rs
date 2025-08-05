@@ -14,7 +14,7 @@ pub fn component() -> impl IntoView {
         move |selected_tags| async move { select_posts(selected_tags).await },
     );
 
-    div().child((
+    div().class("container max-w-4xl mx-auto").child((
         Title(
             TitleProps::builder()
                 .text("Rust-DD Blog – Tech Insights & Consulting")

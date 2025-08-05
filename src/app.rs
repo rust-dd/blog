@@ -211,7 +211,7 @@ pub fn component() -> impl IntoView {
                 div().class("overflow-auto text-white font-mono").child((
           header::component,
           main()
-            .class("container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 max-w-4xl md:px-0")
+            .class("container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 md:px-0")
             .child(FlatRoutes(
               FlatRoutesProps::builder()
                 .fallback(|| {
@@ -255,7 +255,7 @@ pub fn component() -> impl IntoView {
                 .build(),
             )),
           footer()
-            .class("fixed right-0 bottom-0 left-0 z-10 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md")
+            .class("fixed right-0 bottom-0 left-0 z-99 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md")
             .child(
               div().class("flex flex-col gap-1 justify-center items-center").child((
                 p().class("text-gray-400").child((

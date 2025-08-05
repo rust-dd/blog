@@ -7,7 +7,7 @@ use leptos::{
 
 pub fn component() -> impl IntoView {
     header()
-        .class("fixed top-0 right-0 left-0 z-10 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md")
+        .class("fixed top-0 right-0 left-0 z-99 py-6 px-4 md:px-6 bg-[#1e1e1e]/80 backdrop-blur-md")
         .child(
             div().class("container mx-auto max-w-5xl").child(
                 div()
