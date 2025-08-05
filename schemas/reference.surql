@@ -12,3 +12,5 @@ DEFINE FIELD OVERWRITE teck_stack_percentage ON reference TYPE array<int>;
 DEFINE FIELD OVERWRITE is_published ON reference TYPE bool DEFAULT false;
 DEFINE FIELD OVERWRITE created_at ON reference TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE updated_at ON reference TYPE datetime VALUE time::now();
+DEFINE FIELD OVERWRITE category ON reference TYPE string;
+DEFINE FIELD OVERWRITE year ON reference TYPE int;
