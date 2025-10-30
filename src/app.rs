@@ -231,18 +231,18 @@ pub fn component() -> impl IntoView {
                         .ssr(SsrMode::InOrder)
                         .build(),
                     ),
-                    Route(
-                      RouteProps::builder()
-                        .path(StaticSegment("references"))
-                        .view(references::component)
-                        .build(),
-                    ),
-                    Route(
-                      RouteProps::builder()
-                        .path(StaticSegment("hireus"))
-                        .view(hireus::component)
-                        .build(),
-                    ),
+                    // Route(
+                    //   RouteProps::builder()
+                    //     .path(StaticSegment("references"))
+                    //     .view(references::component)
+                    //     .build(),
+                    // ),
+                    // Route(
+                    //   RouteProps::builder()
+                    //     .path(StaticSegment("hireus"))
+                    //     .view(hireus::component)
+                    //     .build(),
+                    // ),
                     Route(
                       RouteProps::builder()
                         .path((StaticSegment("post"), ParamSegment("slug")))

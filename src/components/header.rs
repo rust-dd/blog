@@ -26,12 +26,12 @@ pub fn component() -> impl IntoView {
                                 })
                                 .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
                                 .child("blog"),
-                            a().href("/references")
-                                .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
-                                .child("references"),
-                            a().href("/hireus")
-                                .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
-                                .child("hire us!"),
+                            // a().href("/references")
+                            //     .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
+                            //     .child("references"),
+                            // a().href("/hireus")
+                            //     .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
+                            //     .child("hire us!"),
                         )),
                         div().class("hidden md:block").child(icons::component),
                     )),
