@@ -1,6 +1,6 @@
 use crate::{
     components::{error_template, header, icons},
-    pages::{hireus, home, post, references},
+    pages::{home, post},
 };
 use chrono::{Datelike, Utc};
 use leptos::{
