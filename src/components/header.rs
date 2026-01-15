@@ -26,9 +26,11 @@ pub fn component() -> impl IntoView {
                                 })
                                 .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
                                 .child("blog"),
-                            // a().href("/references")
-                            //     .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
-                            //     .child("references"),
+                            a().href("https://shrtn.ink/")
+                                .rel("noopener noreferrer")
+                                .target("_blank")
+                                .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
+                                .child("shrtn.ink"),
                             // a().href("/hireus")
                             //     .class("text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]")
                             //     .child("hire us!"),
