@@ -1,5 +1,5 @@
 # Stage 1: Build Environment with Rust nightly on Alpine
-FROM rustlang/rust:nightly-alpine as builder
+FROM rustlang/rust:nightly-alpine AS builder
 
 # Install required packages
 RUN apk update && \
@@ -25,7 +25,7 @@ RUN npm install
 RUN cargo leptos build --release -vv
 
 # Stage 2: Runtime Environment
-FROM rustlang/rust:nightly-alpine as runner
+FROM rustlang/rust:nightly-alpine AS runner
 
 WORKDIR /app
 

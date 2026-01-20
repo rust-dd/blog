@@ -32,7 +32,7 @@ surrealdb = { version = "2.3.10", features = ["protocol-http"] }
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
 dotenvy = "0.15.7"
-syntect = { version = "5.2.0", optional = true }
+syntect = { version = "5.2.0", optional = true, default-features = false, features = ["default-fancy", "html", "parsing", "plist-load", "regex-fancy", "yaml-load"] }
 regex = { version = "1.10.6", optional = true }
 pulldown-cmark = { version = "0.12.0", optional = true }
 rss = { version = "2.0.9", optional = true }
