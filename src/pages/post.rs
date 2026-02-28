@@ -73,12 +73,12 @@ pub fn Component(slug: String) -> Element {
                                     span { "Back to blog" }
                                 }
 
-                                div { class: "grid gap-6 mt-4 md:gap-8 lg:grid-cols-[minmax(0,1fr)_280px]",
-                                    article {
+                                div { class: "grid items-start gap-6 mt-4 md:gap-8 lg:grid-cols-[minmax(0,1fr)_280px]",
+                                    article { class: "min-w-0",
                                         section { class: "relative overflow-hidden p-5 rounded-3xl border border-slate-200 bg-white/92 shadow-sm sm:p-7 md:p-10",
                                             div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-slate-300/20 blur-3xl pointer-events-none" }
                                             p { class: "relative z-10 text-[11px] font-semibold tracking-[0.2em] text-slate-700 uppercase", "Article" }
-                                            h1 { class: "relative z-10 mt-3 max-w-4xl text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl", "{post.title}" }
+                                            h1 { class: "relative z-10 mt-3 max-w-4xl text-2xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl", "{post.title}" }
                                             p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base", "{post.summary}" }
 
                                             div { class: "relative z-10 flex flex-wrap gap-2 mt-4 text-xs text-slate-600",
@@ -111,15 +111,15 @@ pub fn Component(slug: String) -> Element {
                                             }
                                         }
 
-                                        div { class: "p-4 mt-6 rounded-3xl border border-slate-200 bg-white/95 shadow-sm sm:p-6 md:p-8",
+                                        div { class: "overflow-hidden p-4 mt-6 rounded-3xl border border-slate-200 bg-white/95 shadow-sm sm:p-6 md:p-8",
                                             div {
-                                                class: "prose prose-lg max-w-none prose-h3:text-slate-900 prose-h4:text-slate-900 prose-code:before:content-none prose-th:text-slate-900 prose-li:marker:text-slate-500 prose-code:after:content-none prose-pre:bg-slate-100 prose-pre:rounded-xl prose-pre:px-4 prose-pre:py-3 prose-code:text-slate-700 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-slate-900 prose-table:text-slate-800 prose-thead:text-slate-900 prose-li:text-slate-700 prose-ol:text-slate-700 prose-h1:text-slate-900 prose-h1:text-3xl prose-h2:text-slate-900 prose-h2:text-2xl prose-ul:text-slate-700 prose-p:text-slate-700 prose-a:text-slate-700 prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre prose-pre:overflow-x-auto",
+                                                class: "prose prose-base sm:prose-lg max-w-none break-words prose-h3:text-slate-900 prose-h4:text-slate-900 prose-code:before:content-none prose-th:text-slate-900 prose-li:marker:text-slate-500 prose-code:after:content-none prose-pre:bg-slate-100 prose-pre:rounded-xl prose-pre:px-4 prose-pre:py-3 prose-code:text-slate-700 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-slate-900 prose-table:text-slate-800 prose-thead:text-slate-900 prose-li:text-slate-700 prose-ol:text-slate-700 prose-h1:text-slate-900 prose-h1:text-3xl prose-h2:text-slate-900 prose-h2:text-2xl prose-ul:text-slate-700 prose-p:text-slate-700 prose-a:text-slate-700 prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:break-words prose-a:break-all [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
                                                 dangerous_inner_html: "{post.body}"
                                             }
                                         }
                                     }
 
-                                    aside { class: "space-y-4 h-fit lg:sticky lg:top-24",
+                                    aside { class: "min-w-0 space-y-4 h-fit lg:sticky lg:top-24",
                                         div { class: "overflow-hidden relative p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
                                             p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "meta" }
                                             div { class: "mt-3 space-y-2 text-xs text-slate-600",
