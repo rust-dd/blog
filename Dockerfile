@@ -2,7 +2,7 @@
 FROM rustlang/rust:nightly-alpine AS builder
 
 RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev binaryen clang
+    apk add --no-cache bash curl npm libc-dev binaryen clang openssl-dev pkgconfig
 
 RUN cargo install dioxus-cli --locked
 RUN rustup target add wasm32-unknown-unknown
