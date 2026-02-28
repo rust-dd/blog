@@ -1,62 +1,55 @@
 # Blog
 
-![example workflow](https://github.com/rust-dd/blog/actions/workflows/rust.yml/badge.svg)
+A blog engine written in Rust, powered by SurrealDB. This project runs [https://rust-dd.com](https://rust-dd.com).
 
-A blog engine written in Rust, powered by SurrealDB. This project is responsible for the [https://rust-dd.com](https://rust-dd.com) blog.
+## Stack
 
-## Running the Project
+- Dioxus `0.7.x` (fullstack + router)
+- Axum `0.8`
+- SurrealDB
+- TailwindCSS
+
+## Local Development
 
 ### Prerequisites
 
 - [Rust](https://www.rust-lang.org/tools/install)
+- [Dioxus CLI](https://dioxuslabs.com/learn/0.7/getting_started/)
 - [SurrealDB](https://surrealdb.com/install)
-- [TailwindCSS](https://tailwindcss.com/docs/installation)
-- [Leptos](https://leptos.dev/docs/installation)
+- [Node.js / npm](https://nodejs.org/)
 
-### Execution
+Install Dioxus CLI:
 
-To get started with running the project locally, follow the steps below. These commands will compile your stylesheets and set up a development server that watches for changes.
+```bash
+cargo install dioxus-cli
+```
 
-First, run the following script to set up your Surreal database:
+Prepare the database:
 
 ```bash
 ./db.sh
-```
-
-```bash
 cargo install surrealdb-migrations
-```
-
-```bash
 surrealdb-migrations apply
 ```
 
-Next, compile the CSS using TailwindCSS. This command will watch for changes in your CSS files and recompile them automatically:
-
+Install frontend tooling:
 
 ```bash
-npx tailwindcss -i input.css -o ./style/output.css --watch
+npm install
 ```
 
-Finally, run the Leptos development server. This will watch for changes in your project and automatically reload:
-
+Run Dioxus fullstack dev server with Subsecond hotpatch:
 
 ```bash
-cargo leptos watch
+dx serve --web --hotpatch
 ```
 
-# Deployment
+`dx` automatically compiles Tailwind when `tailwind.css` exists in the project root.
 
-We provide a Dockerfile that allows you to start the blog engine, connecting to an external SurrealDB. The connection details must be defined in the environment variables.
+## Build
 
-For containerizing the application, build the Docker image with the following command:
-
-```bash
-docker build . -t blog
-```
-
-Once the image is built, run it with:
+Bundle app:
 
 ```bash
-docker run --env-file .env -p 8080:8080 blog
+dx bundle --web --release
 ```

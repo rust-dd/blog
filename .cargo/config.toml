@@ -1,2 +1,2 @@
 [target.aarch64-apple-darwin]
-linker = "rust-lld"
+linker = "cc"

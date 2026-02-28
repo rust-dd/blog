@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    background-color: #f8fafc;
+    background-image: radial-gradient(circle, rgb(148 163 184 / 0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+    overscroll-behavior-y: none;
+  }
+
+  html {
+    min-height: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background-color: rgb(51 65 85 / 0.15);
+    color: #0f172a;
+  }
+}

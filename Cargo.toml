@@ -3,17 +3,10 @@ name = "blog"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
+dioxus = { version = "0.7.3", features = ["fullstack", "router"] }
 axum = { version = "0.8", optional = true, features = ["macros"] }
-console_error_panic_hook = "0.1"
-leptos = { version = "0.8.15", features = ["rustls", "nightly"] }
-leptos_axum = { version = "0.8.7", optional = true }
-leptos_meta = { version = "0.8.5" }
-leptos_router = { version = "0.8.11", features = ["nightly"] }
-tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
+tokio = { version = "1", optional = true, features = ["rt-multi-thread", "macros", "sync"] }
 tower = { version = "0.5.1", optional = true }
 tower-http = { version = "0.6.2", features = [
     "fs",
@@ -24,7 +17,6 @@ tower-http = { version = "0.6.2", features = [
     "compression-zstd",
     "compression-gzip",
 ], optional = true }
-wasm-bindgen = "0.2.108"
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
@@ -32,15 +24,19 @@ surrealdb = { version = "2.3.10", features = ["protocol-http"] }
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
 dotenvy = "0.15.7"
-syntect = { version = "5.2.0", optional = true, default-features = false, features = ["default-fancy", "html", "parsing", "plist-load", "regex-fancy", "yaml-load"] }
+syntect = { version = "5.2.0", optional = true, default-features = false, features = [
+    "default-fancy",
+    "html",
+    "parsing",
+    "plist-load",
+    "regex-fancy",
+    "yaml-load",
+] }
 regex = { version = "1.10.6", optional = true }
 pulldown-cmark = { version = "0.12.0", optional = true }
 rss = { version = "2.0.9", optional = true }
 tracing-subscriber = { version = "0.3.18", optional = true }
-katex = { version = "0.4.6", optional = true, default-features = false, features = [
-    "duktape",
-] }
-web-sys = "0.3.72"
+katex = { version = "0.4.6", optional = true, default-features = false, features = ["duktape"] }
 lettre = { version = "0.11.9", default-features = false, optional = true, features = [
     "builder",
     "smtp-transport",
@@ -48,21 +44,18 @@ lettre = { version = "0.11.9", default-features = false, optional = true, featur
     "tokio1",
     "tokio1-rustls-tls",
 ] }
-leptos_icons = "0.6.0"
-icondata = "0.6.0"
-getrandom = {version = "0.3.4", features = ["wasm_js"]}
+getrandom = { version = "0.3.4", features = ["wasm_js"] }
+dioxus-free-icons = { version = "0.10.0", features = ["font-awesome-brands", "font-awesome-solid"] }
 
 [features]
-hydrate = ["leptos/hydrate"]
-ssr = [
+default = []
+web = ["dioxus/web"]
+server = [
+    "dioxus/server",
     "dep:axum",
     "dep:tokio",
     "dep:tower",
     "dep:tower-http",
-    "dep:leptos_axum",
-    "leptos/ssr",
-    "leptos_meta/ssr",
-    "leptos_router/ssr",
     "dep:tracing",
     "dep:syntect",
     "dep:regex",
@@ -73,73 +66,9 @@ ssr = [
     "dep:lettre",
 ]
 
-# Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
 inherits = "release"
-opt-level = 'z'
+opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
-
-[package.metadata.leptos]
-# The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
-output-name = "blog"
-
-# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your ssr setup.
-site-root = "target/site"
-
-# The site-root relative folder where all compiled output (JS, WASM and CSS) is written
-# Defaults to pkg
-site-pkg-dir = "pkg"
-
-# [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
-tailwind-input-file = "input.css"
-
-# Assets source dir. All files found here will be copied and synchronized to site-root.
-# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
-#
-# Optional. Env: LEPTOS_ASSETS_DIR.
-assets-dir = "public"
-
-# The IP and port (ex: 127.0.0.1:3000) where the ssr serves the content. Use it in your ssr setup.
-site-addr = "127.0.0.1:3000"
-
-# The port to use for automatic reload monitoring
-reload-port = 3001
-
-# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
-#   [Windows] for non-WSL use "npx.cmd playwright test"
-#   This binary name can be checked in Powershell with Get-Command npx
-end2end-cmd = "npx playwright test"
-end2end-dir = "end2end"
-
-#  The browserlist query used for optimizing the CSS.
-browserquery = "defaults"
-
-# The environment Leptos will run in, usually either "DEV" or "PROD"
-env = "DEV"
-
-# The features to use when compiling the bin target
-#
-# Optional. Can be over-ridden with the command line parameter --bin-features
-bin-features = ["ssr"]
-
-# If the --no-default-features flag should be used when compiling the bin target
-#
-# Optional. Defaults to false.
-bin-default-features = false
-
-# The features to use when compiling the lib target
-#
-# Optional. Can be over-ridden with the command line parameter --lib-features
-lib-features = ["hydrate"]
-
-# If the --no-default-features flag should be used when compiling the lib target
-#
-# Optional. Defaults to false.
-lib-default-features = false
-
-# The profile to use for the lib target when compiling for release
-#
-# Optional. Defaults to "release".
-lib-profile-release = "wasm-release"

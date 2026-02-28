@@ -1,61 +1,30 @@
-#[cfg(feature = "ssr")]
+#[cfg(feature = "server")]
 #[tokio::main]
 async fn main() {
-    use axum::{routing::get, Router};
-    use blog::app::{self, shell};
-    use blog::ssr::app_state::AppState;
+    use axum::routing::get;
+    use blog::app::App;
+    use blog::ssr::app_state::init_db;
     use blog::ssr::redirect::redirect_www;
-    use blog::ssr::server_utils::{connect, robots_handler, rss_handler, sitemap_handler};
+    use blog::ssr::server_utils::{robots_handler, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
-    use leptos::logging;
-    use leptos::prelude::*;
-    use leptos_axum::{generate_route_list, LeptosRoutes};
     use tower_http::compression::predicate::{NotForContentType, SizeAbove};
     use tower_http::compression::{CompressionLayer, Predicate};
     use tower_http::trace::TraceLayer;
     use tower_http::CompressionLevel;
 
-    let tracing_level = if cfg!(debug_assertions) {
-        tracing::Level::INFO
-    } else {
-        tracing::Level::INFO
-    };
-
     tracing_subscriber::fmt()
         .with_file(true)
         .with_line_number(true)
-        .with_max_level(tracing_level)
+        .with_max_level(tracing::Level::INFO)
         .init();
 
-    let env_result = dotenv();
-    if env_result.is_err() {
-        logging::warn!("There is no corresponding .env file");
+    if dotenv().is_err() {
+        tracing::warn!("There is no corresponding .env file");
     }
 
-    let conf = get_configuration(None).unwrap();
-    let leptos_options = conf.leptos_options;
-    let addr = leptos_options.site_addr;
-    let routes = generate_route_list(app::component);
+    init_db().await;
 
-    let db = connect().await;
-    let app_state = AppState {
-        db,
-        leptos_options: leptos_options.clone(),
-    };
-
-    let app = Router::new()
-        .leptos_routes_with_context(
-            &app_state,
-            routes,
-            {
-                let app_state = app_state.clone();
-                move || provide_context(app_state.clone())
-            },
-            {
-                let leptos_options = leptos_options.clone();
-                move || shell(leptos_options.clone())
-            },
-        )
+    let app = dioxus::server::router(App)
         .route("/rss.xml", get(rss_handler))
         .route("/sitemap.xml", get(sitemap_handler))
         .route("/robots.txt", get(robots_handler))
@@ -76,18 +45,15 @@ async fn main() {
                         .and(NotForContentType::const_new("application/wasm"))
                         .and(NotForContentType::const_new("text/css")),
                 ),
-        )
-        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
-        .with_state(app_state);
+        );
 
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    logging::log!("listening on http://{}", &addr);
+    let addr = dioxus::cli_config::fullstack_address_or_localhost();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    tracing::info!("listening on http://{}", addr);
     axum::serve(listener, app.into_make_service()).await.unwrap();
 }
 
-#[cfg(not(feature = "ssr"))]
-pub fn main() {
-    // no client-side main function
-    // unless we want this to work with e.g., Trunk for a purely client-side app
-    // see lib.rs for hydration function instead
+#[cfg(not(feature = "server"))]
+fn main() {
+    dioxus::launch(blog::app::App);
 }
