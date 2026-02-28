@@ -27,66 +27,125 @@ pub fn Component() -> Element {
         document::Meta { name: "twitter:url", content: "{canonical}" }
         document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
         document::Link { rel: "canonical", href: "{canonical}" }
+
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
-            div { class: "relative container max-w-4xl mx-auto",
-                div { class: "overflow-hidden absolute inset-0 pointer-events-none",
-                    div { class: "absolute -top-10 -right-16 w-64 h-64 bg-[#ffef5c]/5 rounded-full blur-3xl" }
-                    div { class: "absolute top-1/3 -left-20 w-72 h-72 bg-white/[0.04] rounded-full blur-3xl" }
+            div { class: "mx-auto w-full max-w-6xl font-mono",
+                section { class: "relative overflow-hidden p-6 rounded-3xl border border-white/12 nerd-grid md:p-10",
+                    div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-[#67e8f9]/10 blur-3xl pointer-events-none" }
+                    p { class: "relative z-10 text-xs font-semibold tracking-[0.18em] text-[#67e8f9] uppercase", "Blog" }
+                    h1 { class: "relative z-10 mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl", "From The Grid" }
+                    p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-gray-300 md:text-base",
+                        "Practical engineering logs on Rust backend systems, architecture, and performance."
+                    }
                 }
-                section { class: "relative mb-8",
-                    p { class: "text-xs uppercase tracking-[0.18em] text-[#ffef5c]/80", "Latest from Rust-DD" }
-                    h1 { class: "mt-3 text-3xl font-bold text-white md:text-4xl", "Fresh Rust Articles & Notes" }
-                    p { class: "mt-2 max-w-2xl text-sm text-gray-300 md:text-base", "Short practical posts on Rust backend, architecture, and performance." }
-                }
+
                 if let Some(result) = posts.read().as_ref() {
                     match result {
-                        Ok(items) => rsx! {
-                            div { class: "relative flex flex-col gap-5",
-                                for post in items {
-                                    article { class: "group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ffef5c]/40 hover:shadow-[0_18px_45px_-28px_rgba(255,239,92,0.55)]",
-                                        div { class: "absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-[#ffef5c]/45 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" }
-                                        Link {
-                                            to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                            class: "block p-5 no-underline md:p-6",
-                                            div { class: "relative z-10 flex flex-col gap-4",
-                                                div { class: "flex gap-3 justify-between items-start",
-                                                    p { class: "text-xl font-semibold leading-tight text-white transition-colors duration-300 line-clamp-2 group-hover:text-[#ffef5c]", "{post.title}" }
-                                                    span { class: "shrink-0 rounded-full border border-[#ffef5c]/30 bg-[#ffef5c]/10 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-[#ffef5c] uppercase", "Post" }
-                                                }
-                                                p { class: "text-sm font-light leading-relaxed text-gray-300 md:text-[15px]", "{post.summary}" }
+                        Ok(items) => {
+                            let featured_posts: Vec<_> = items.iter().take(2).collect();
+                            let latest = items
+                                .first()
+                                .map(|post| post.created_at.clone())
+                                .unwrap_or_else(|| "-".to_string());
 
-                                                div { class: "flex flex-wrap gap-2.5 justify-start items-center text-[11px] text-gray-300",
-                                                    div { class: "inline-flex gap-1.5 items-center px-2.5 py-1 rounded-full border bg-white/5 border-white/10",
-                                                        Icon { icon: FaClock, width: 12, height: 12, fill: "currentColor" }
-                                                        p { "{post.read_time} min read" }
-                                                    }
-                                                    div { class: "inline-flex gap-1.5 items-center px-2.5 py-1 rounded-full border bg-white/5 border-white/10",
-                                                        Icon { icon: FaEye, width: 12, height: 12, fill: "currentColor" }
-                                                        p { "{post.total_views} views" }
-                                                    }
-                                                    div { class: "inline-flex gap-1.5 items-center px-2.5 py-1 rounded-full border bg-white/5 border-white/10",
-                                                        Icon { icon: FaCalendarDays, width: 12, height: 12, fill: "currentColor" }
-                                                        p { "{post.created_at}" }
-                                                    }
-                                                    div { class: "inline-flex gap-1.5 items-center px-2.5 py-1 rounded-full border bg-white/5 border-white/10",
-                                                        Icon { icon: FaUser, width: 12, height: 12, fill: "currentColor" }
-                                                        p { "{post.author.name}" }
+                            let mut tags: Vec<String> = items
+                                .iter()
+                                .flat_map(|post| post.tags.iter().cloned())
+                                .filter(|tag| !tag.trim().is_empty())
+                                .collect();
+                            tags.sort_by_key(|tag| tag.to_lowercase());
+                            tags.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
+                            let top_tags: Vec<_> = tags.into_iter().take(10).collect();
+
+                            rsx! {
+                                div { class: "grid gap-8 mt-8 lg:grid-cols-[minmax(0,1fr)_280px]",
+                                    div {
+                                        if !featured_posts.is_empty() {
+                                            section { class: "grid gap-4 md:grid-cols-2",
+                                                for post in featured_posts {
+                                                    article { class: "overflow-hidden rounded-2xl border border-white/12 bg-black/25 transition-colors duration-200 hover:border-[#67e8f9]/45",
+                                                        Link {
+                                                            to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
+                                                            class: "block p-5 no-underline",
+                                                            p { class: "text-[11px] tracking-[0.16em] text-[#67e8f9] uppercase", "Featured" }
+                                                            h2 { class: "mt-2 text-xl leading-tight text-white", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-gray-300", "{post.summary}" }
+                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-gray-300",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                    Icon { icon: FaUser, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.author.name}"
+                                                                }
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                    Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.read_time} min"
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
+                                            }
+                                        }
 
-                                                div { class: "inline-flex gap-2 items-center text-sm font-semibold text-[#ffef5c]",
-                                                    span { "Read article" }
-                                                    span { class: "transition-transform duration-300 group-hover:translate-x-1", "→" }
+                                        section { class: "mt-8 rounded-2xl border border-white/12 bg-black/20",
+                                            div { class: "px-5 py-4 border-b border-white/10",
+                                                p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "All Posts" }
+                                            }
+                                            div { class: "divide-y divide-white/10",
+                                                for post in items.iter() {
+                                                    article { class: "px-5 py-5",
+                                                        Link {
+                                                            to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
+                                                            class: "block no-underline",
+                                                            h3 { class: "text-lg leading-tight text-white transition-colors duration-200 hover:text-[#67e8f9] md:text-2xl", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-gray-300", "{post.summary}" }
+                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-gray-300",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                    Icon { icon: FaCalendarDays, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.created_at}"
+                                                                }
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                    Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.read_time} min"
+                                                                }
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                    Icon { icon: FaEye, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.total_views} views"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    aside { class: "space-y-4 h-fit lg:sticky lg:top-24",
+                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-white/12 nerd-grid",
+                                            p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "blog.sys" }
+                                            div { class: "mt-3 space-y-2 text-xs text-gray-300",
+                                                p { span { class: "text-[#67e8f9]", "$ " } "posts = " span { class: "text-white", "{items.len()}" } }
+                                                p { span { class: "text-[#67e8f9]", "$ " } "latest = " span { class: "text-white", "{latest}" } }
+                                                p { span { class: "text-[#67e8f9]", "$ " } "stack = " span { class: "text-white", "rust / dioxus / axum" } }
+                                            }
+                                        }
+
+                                        if !top_tags.is_empty() {
+                                            div { class: "p-4 rounded-2xl border border-white/12 bg-black/20",
+                                                p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "topics" }
+                                                div { class: "flex flex-wrap gap-2 mt-3",
+                                                    for tag in top_tags {
+                                                        span { class: "rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-gray-200", "#{tag}" }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                        },
+                        }
                         Err(err) => rsx! {
-                            div { class: "text-red-300", "Failed to load posts: {err}" }
+                            div { class: "mt-8 text-red-300", "Failed to load posts: {err}" }
                         },
                     }
                 }

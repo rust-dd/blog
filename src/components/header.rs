@@ -11,14 +11,14 @@ pub fn Component() -> Element {
                     div { class: "flex flex-row gap-4",
                         Link {
                             to: Route::Home {},
-                            class: "text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]",
+                            class: "text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#67e8f9]",
                             "blog"
                         }
                         a {
                             href: "https://shrtn.ink/",
                             rel: "noopener noreferrer",
                             target: "_blank",
-                            class: "text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#ffef5c]",
+                            class: "text-lg font-bold transition-all duration-500 sm:text-3xl hover:text-[#67e8f9]",
                             "shrtn.ink"
                         }
                     }

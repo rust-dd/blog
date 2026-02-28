@@ -45,6 +45,7 @@ pub fn Component(slug: String) -> Element {
                             .header_image
                             .clone()
                             .unwrap_or_else(|| seo::DEFAULT_OG_IMAGE.to_string());
+
                         rsx! {
                             document::Title { "{post.title}" }
                             document::Meta { name: "description", content: "{post.summary}" }
@@ -64,80 +65,91 @@ pub fn Component(slug: String) -> Element {
                             document::Meta { name: "twitter:image:alt", content: "{post.title}" }
                             document::Link { rel: "canonical", href: "{canonical}" }
 
-                            div { class: "relative w-full mx-auto max-w-4xl",
-                                div { class: "overflow-hidden absolute inset-0 pointer-events-none",
-                                    div { class: "absolute -top-10 -right-16 w-64 h-64 bg-[#ffef5c]/5 rounded-full blur-3xl" }
-                                    div { class: "absolute top-40 -left-16 w-72 h-72 bg-white/[0.04] rounded-full blur-3xl" }
+                            div { class: "mx-auto w-full max-w-6xl font-mono",
+                                Link {
+                                    to: Route::Home {},
+                                    class: "inline-flex gap-2 items-center text-sm text-gray-300 transition-colors duration-200 hover:text-[#67e8f9]",
+                                    span { "←" }
+                                    span { "Back to blog" }
                                 }
 
-                                article { class: "relative z-10 overflow-hidden p-5 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] md:p-8",
-                                    div { class: "inline-flex gap-2.5 items-center px-3 py-1 mb-4 text-[11px] font-semibold tracking-[0.14em] text-[#ffef5c] uppercase rounded-full border bg-[#ffef5c]/10 border-[#ffef5c]/30",
-                                        span { "Article" }
-                                    }
+                                div { class: "grid gap-8 mt-4 lg:grid-cols-[minmax(0,1fr)_280px]",
+                                    article {
+                                        section { class: "relative overflow-hidden p-6 rounded-3xl border border-white/12 nerd-grid md:p-10",
+                                            div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-[#67e8f9]/10 blur-3xl pointer-events-none" }
+                                            p { class: "relative z-10 text-xs font-semibold tracking-[0.18em] text-[#67e8f9] uppercase", "Article" }
+                                            h1 { class: "relative z-10 mt-4 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-6xl", "{post.title}" }
+                                            p { class: "relative z-10 mt-4 max-w-3xl text-sm leading-relaxed text-gray-300 md:text-base", "{post.summary}" }
 
-                                    p { class: "text-3xl font-semibold leading-tight text-white md:text-5xl", "{post.title}" }
-
-                                    div { class: "flex flex-wrap gap-2.5 items-center mt-5 text-xs text-gray-300",
-                                        if let Some(github) = post.author.github.clone() {
-                                            a {
-                                                href: "{github}",
-                                                target: "_blank",
-                                                rel: "noopener noreferrer",
-                                                class: "inline-flex gap-1.5 items-center px-3 py-1.5 rounded-full border bg-white/5 border-white/10 hover:border-[#ffef5c]/30 hover:text-[#ffef5c] transition-colors duration-300",
-                                                Icon { icon: FaUser, width: 13, height: 13, fill: "currentColor" }
-                                                span { "{post.author.name}" }
+                                            div { class: "relative z-10 flex flex-wrap gap-2 mt-5 text-xs text-gray-300",
+                                                div { class: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5",
+                                                    Icon { icon: FaUser, width: 12, height: 12, fill: "currentColor" }
+                                                    span { "{post.author.name}" }
+                                                }
+                                                div { class: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5",
+                                                    Icon { icon: FaCalendarDays, width: 12, height: 12, fill: "currentColor" }
+                                                    span { "{post.created_at}" }
+                                                }
+                                                div { class: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5",
+                                                    Icon { icon: FaClock, width: 12, height: 12, fill: "currentColor" }
+                                                    span { "{post.read_time} min read" }
+                                                }
+                                                div { class: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5",
+                                                    Icon { icon: FaEye, width: 12, height: 12, fill: "currentColor" }
+                                                    span { "{post.total_views} views" }
+                                                }
                                             }
-                                        } else {
-                                            div { class: "inline-flex gap-1.5 items-center px-3 py-1.5 rounded-full border bg-white/5 border-white/10",
-                                                Icon { icon: FaUser, width: 13, height: 13, fill: "currentColor" }
-                                                span { "{post.author.name}" }
+
+                                            if let Some(image) = post.header_image.clone() {
+                                                div { class: "overflow-hidden relative z-10 mt-8 rounded-3xl border border-white/12 bg-[#0f0f0f]",
+                                                    img {
+                                                        src: "{image}",
+                                                        alt: "{post.title}",
+                                                        class: "object-cover w-full max-h-[520px]"
+                                                    }
+                                                }
                                             }
                                         }
 
-                                        div { class: "inline-flex gap-1.5 items-center px-3 py-1.5 rounded-full border bg-white/5 border-white/10",
-                                            Icon { icon: FaCalendarDays, width: 13, height: 13, fill: "currentColor" }
-                                            span { "{post.created_at}" }
-                                        }
-                                        div { class: "inline-flex gap-1.5 items-center px-3 py-1.5 rounded-full border bg-white/5 border-white/10",
-                                            Icon { icon: FaClock, width: 13, height: 13, fill: "currentColor" }
-                                            span { "{post.read_time} min read" }
-                                        }
-                                        div { class: "inline-flex gap-1.5 items-center px-3 py-1.5 rounded-full border bg-white/5 border-white/10",
-                                            Icon { icon: FaEye, width: 13, height: 13, fill: "currentColor" }
-                                            span { "{post.total_views} views" }
-                                        }
-                                    }
-
-                                    if let Some(image) = post.header_image.clone() {
-                                        div { class: "overflow-hidden mt-7 rounded-2xl border border-white/10 bg-black/30",
-                                            img {
-                                                src: "{image}",
-                                                alt: "{post.title}",
-                                                class: "object-cover w-full max-h-[440px]"
+                                        div { class: "p-5 mt-8 rounded-3xl border border-white/12 bg-[#161616] md:p-8",
+                                            div {
+                                                class: "prose prose-lg max-w-none prose-h3:text-white prose-h4:text-white prose-code:before:content-none prose-th:text-white prose-li:marker:text-white prose-code:after:content-none prose-pre:bg-[#101010] prose-pre:rounded-xl prose-pre:px-4 prose-pre:py-3 prose-code:text-[#67e8f9] prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#67e8f9] prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre-wrap prose-pre:break-all prose-pre:overflow-auto",
+                                                dangerous_inner_html: "{post.body}"
                                             }
                                         }
                                     }
-                                }
 
-                                div {
-                                    class: "relative z-10 p-4 mt-6 rounded-3xl border border-white/10 bg-[#1f1f1f]/80 md:p-8",
-                                    div {
-                                        class: "prose mx-auto max-w-none prose-h3:text-white prose-h4:text-white prose-code:before:content-none prose-th:text-white prose-li:marker:text-white prose-code:after:content-none prose-pre:bg-transparent prose-pre:rounded-lg prose-pre:p-0 prose-code:text-[#ffef5c] prose-strong:text-white prose-table:text-white prose-thead:text-white prose-li:text-white prose-ol:text-white prose-h1:text-white prose-h1:text-3xl prose-h2:text-white prose-h2:text-2xl prose-ul:text-white prose-p:text-white prose-a:text-[#ffef5c] prose-pre:whitespace-pre-wrap prose-pre:break-all prose-pre:overflow-auto",
-                                        dangerous_inner_html: "{post.body}"
-                                    }
-                                }
-
-                                if post.show_cta {
-                                    div { class: "relative z-10 mt-8 mb-10",
-                                        div { class: "flex flex-col gap-6 justify-between items-center p-8 rounded-2xl border border-[#ffef5c]/30 bg-gradient-to-r from-[#2e2e2e] to-[#242424] md:flex-row",
-                                            div { class: "text-center md:text-left",
-                                                p { class: "mb-2 text-2xl font-bold text-[#ffef5c] md:text-3xl", "Need Rust Expertise?" }
-                                                p { class: "max-w-md text-gray-300", "Our team of Rust developers is ready to bring your high-performance projects to life." }
+                                    aside { class: "space-y-4 h-fit lg:sticky lg:top-24",
+                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-white/12 nerd-grid",
+                                            p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "meta" }
+                                            div { class: "mt-3 space-y-2 text-xs text-gray-300",
+                                                p { "author: " span { class: "text-white", "{post.author.name}" } }
+                                                p { "published: " span { class: "text-white", "{post.created_at}" } }
+                                                p { "read: " span { class: "text-white", "{post.read_time} min" } }
+                                                p { "views: " span { class: "text-white", "{post.total_views}" } }
                                             }
-                                            Link {
-                                                to: Route::HireUs {},
-                                                class: "rounded-full bg-[#ffef5c] px-6 py-3 text-lg font-semibold text-gray-900 transition-all duration-300 hover:brightness-95",
-                                                "Hire Rust Developers"
+                                        }
+
+                                        if !post.tags.is_empty() {
+                                            div { class: "p-4 rounded-2xl border border-white/12 bg-black/20",
+                                                p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "tags" }
+                                                div { class: "flex flex-wrap gap-2 mt-3",
+                                                    for tag in post.tags.iter().take(10) {
+                                                        span { class: "rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-gray-200", "#{tag}" }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if post.show_cta {
+                                            div { class: "p-4 rounded-2xl border border-[#67e8f9]/30 bg-[#0e2229]",
+                                                p { class: "text-lg font-semibold text-[#67e8f9]", "Need Rust Expertise?" }
+                                                p { class: "mt-2 text-sm text-gray-300", "Build your next production Rust system with us." }
+                                                Link {
+                                                    to: Route::HireUs {},
+                                                    class: "inline-flex mt-4 items-center justify-center rounded-full bg-[#67e8f9] px-4 py-2 text-sm font-semibold text-[#062029] transition-all duration-200 hover:brightness-95",
+                                                    "Hire Rust Developers"
+                                                }
                                             }
                                         }
                                     }
@@ -151,7 +163,7 @@ pub fn Component(slug: String) -> Element {
                             p { class: "mt-4 text-gray-300", "{err}" }
                             Link {
                                 to: Route::Home {},
-                                class: "inline-flex mt-8 text-[#ffef5c] hover:underline",
+                                class: "inline-flex mt-8 text-[#67e8f9] hover:underline",
                                 "Go back home"
                             }
                         }

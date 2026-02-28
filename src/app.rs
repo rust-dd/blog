@@ -57,7 +57,7 @@ pub fn App() -> Element {
         document::Link { rel: "preconnect", href: "https://fonts.googleapis.com" }
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
 
-        div { class: "overflow-auto min-h-screen bg-[#1e1e1e] text-white font-mono",
+        div { class: "overflow-auto min-h-screen text-white font-mono nerd-grid",
             Router::<Route> {}
         }
     }
@@ -79,7 +79,7 @@ fn Layout() -> Element {
                     "Powered by"
                     a {
                         href: "https://github.com/rust-dd",
-                        class: "hover:underline text-[#ffef5c]",
+                        class: "hover:underline text-[#67e8f9]",
                         " rust-dd"
                     }
                     " © {Utc::now().year()}"
@@ -136,11 +136,11 @@ fn PageNotFound(route: Vec<String>) -> Element {
         document::Meta { name: "twitter:url", content: "{canonical}" }
         document::Link { rel: "canonical", href: "{canonical}" }
         section { class: "mx-auto max-w-3xl text-center pt-24",
-            h1 { class: "text-4xl font-bold text-[#ffef5c]", "404" }
+            h1 { class: "text-4xl font-bold text-[#67e8f9]", "404" }
             p { class: "mt-4 text-lg text-gray-300", "Page not found: {attempted_path}" }
             Link {
                 to: Route::Home {},
-                class: "inline-flex mt-8 text-[#ffef5c] hover:underline",
+                class: "inline-flex mt-8 text-[#67e8f9] hover:underline",
                 "Go back home"
             }
         }

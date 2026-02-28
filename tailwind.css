@@ -5,11 +5,51 @@
 @layer base {
   html,
   body {
-    background-color: #1e1e1e;
+    background-color: #141414;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      radial-gradient(circle at 15% -10%, rgba(103, 232, 249, 0.14), transparent 42%);
+    background-size: 30px 30px, 30px 30px, 100% 100%;
+    background-attachment: fixed;
     overscroll-behavior-y: none;
   }
 
   body {
     min-height: 100dvh;
+  }
+}
+
+@layer components {
+  .nerd-grid {
+    position: relative;
+    background-color: rgba(23, 23, 23, 0.92);
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .nerd-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 18% 0%, rgba(103, 232, 249, 0.14), transparent 42%);
+  }
+
+  .nerd-grid::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.018) 0px,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.35;
   }
 }

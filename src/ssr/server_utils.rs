@@ -10,9 +10,8 @@ use std::env;
 use surrealdb::engine::remote::http::{Client, Http, Https};
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
-use syntect::easy::HighlightLines;
 use syntect::highlighting::ThemeSet;
-use syntect::html::{styled_line_to_highlighted_html, IncludeBackground};
+use syntect::html::highlighted_html_for_string;
 use syntect::parsing::SyntaxSet;
 
 use crate::ssr::app_state::db;
@@ -112,10 +111,16 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
         }
     }
 
-    let ps = SyntaxSet::load_defaults_nonewlines();
+    let ps = SyntaxSet::load_defaults_newlines();
     let ts = ThemeSet::load_defaults();
-    let theme = &ts.themes["base16-eighties.dark"];
+    let theme = ts
+        .themes
+        .get("base16-eighties.dark")
+        .or_else(|| ts.themes.values().next())
+        .expect("syntect default theme missing");
     let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)")?;
+    let re_bg_styles = Regex::new(r"background-color:\s*#[0-9a-fA-F]{6};?")?;
+    let re_empty_style = Regex::new(r#"style="\s*""#)?;
 
     let mut processed_markdown = String::new();
     let mut last_img_end = 0;
@@ -150,9 +155,9 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
     let iterator = TextMergeStream::new(parser).map(|event| mep.process_math_event(event));
 
     let mut events = Vec::new();
+    let mut in_code_block = false;
     let mut code_block_language: Option<String> = None;
     let mut code_block_content = String::new();
-    let mut in_code_block = false;
     let mut skip_image = false;
 
     for event in iterator {
@@ -167,10 +172,11 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
             Event::Start(Tag::CodeBlock(kind)) => {
                 in_code_block = true;
                 code_block_content.clear();
-
                 code_block_language = match kind {
-                    CodeBlockKind::Fenced(info) => Some(info.split_whitespace().next().unwrap_or("").to_string()),
-                    CodeBlockKind::Indented => None,
+                    CodeBlockKind::Fenced(info) => {
+                        Some(info.split_whitespace().next().unwrap_or("plaintext").to_string())
+                    }
+                    CodeBlockKind::Indented => Some("plaintext".to_string()),
                 };
             }
             Event::End(TagEnd::CodeBlock) => {
@@ -179,28 +185,20 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
                 let syntax = ps
                     .find_syntax_by_token(language)
                     .unwrap_or_else(|| ps.find_syntax_plain_text());
-                let mut h = HighlightLines::new(syntax, theme);
-                let mut highlighted_html = String::with_capacity(code_block_content.len() * 2);
-                highlighted_html
-                    .push_str(r#"<pre style="background-color: #2b303b; padding: 8px; border-radius: 8px"><code>"#);
-
-                for line in code_block_content.lines() {
-                    let ranges = h.highlight_line(line, &ps)?;
-                    let escaped = styled_line_to_highlighted_html(&ranges[..], IncludeBackground::No)?;
-                    highlighted_html.push_str(&escaped);
-                    highlighted_html.push('\n');
-                }
-                highlighted_html.push_str("</code></pre>");
-
+                let mut highlighted_html = highlighted_html_for_string(&code_block_content, &ps, syntax, theme)?;
+                highlighted_html = re_bg_styles.replace_all(&highlighted_html, "").to_string();
+                highlighted_html = re_empty_style.replace_all(&highlighted_html, "").to_string();
                 events.push(Event::Html(CowStr::from(highlighted_html)));
                 code_block_language = None;
             }
-            Event::Text(text) => {
-                if in_code_block {
-                    code_block_content.push_str(&text);
-                } else {
-                    events.push(Event::Text(text));
-                }
+            Event::Text(text) if in_code_block => {
+                code_block_content.push_str(&text);
+            }
+            Event::SoftBreak if in_code_block => {
+                code_block_content.push('\n');
+            }
+            Event::HardBreak if in_code_block => {
+                code_block_content.push('\n');
             }
             Event::Start(Tag::Image { dest_url, .. }) => {
                 let img_path = dest_url.into_string();
@@ -226,7 +224,8 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
                     events.push(Event::End(TagEnd::Image));
                 }
             }
-            other => events.push(other),
+            other if !in_code_block => events.push(other),
+            _ => {}
         }
     }
 
