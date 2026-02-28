@@ -16,7 +16,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "GitHub",
-                class: "transition-all text-white duration-500 size-6 hover:text-[#67e8f9]",
+                class: "transition-all text-slate-700 duration-300 size-6 hover:text-slate-600",
                 Icon { icon: FaGithub, width: 20, height: 20, fill: "currentColor" }
             }
             a {
@@ -24,7 +24,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "X",
-                class: "transition-all text-white duration-500 size-6 hover:text-[#67e8f9]",
+                class: "transition-all text-slate-700 duration-300 size-6 hover:text-slate-600",
                 svg {
                     view_box: "0 0 512 512",
                     fill: "currentColor",
@@ -38,7 +38,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "LinkedIn",
-                class: "transition-all text-white duration-500 size-6 hover:text-[#67e8f9]",
+                class: "transition-all text-slate-700 duration-300 size-6 hover:text-slate-600",
                 Icon { icon: FaLinkedin, width: 20, height: 20, fill: "currentColor" }
             }
             a {
@@ -46,7 +46,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "RSS",
-                class: "transition-all text-white duration-500 size-6 hover:text-[#67e8f9]",
+                class: "transition-all text-slate-700 duration-300 size-6 hover:text-slate-600",
                 Icon { icon: FaRss, width: 20, height: 20, fill: "currentColor" }
             }
         }

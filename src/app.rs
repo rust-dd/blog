@@ -34,7 +34,7 @@ pub fn App() -> Element {
             name: "keywords",
             content: "rust-dd, rust, ai, mathematics, embedded, web, systems, programming"
         }
-        document::Meta { name: "theme-color", content: "#1e1e1e" }
+        document::Meta { name: "theme-color", content: "#f8fafc" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
         document::Meta {
@@ -57,7 +57,7 @@ pub fn App() -> Element {
         document::Link { rel: "preconnect", href: "https://fonts.googleapis.com" }
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
 
-        div { class: "overflow-auto min-h-screen text-white font-mono nerd-grid",
+        div { class: "min-h-screen text-slate-900 font-mono",
             Router::<Route> {}
         }
     }
@@ -66,26 +66,28 @@ pub fn App() -> Element {
 #[component]
 fn Layout() -> Element {
     rsx! {
-        header::Component {}
-        main { class: "container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 md:px-0",
-            SuspenseBoundary {
-                fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
-                Outlet::<Route> {}
-            }
-        }
-        footer { class: "fixed right-0 bottom-0 left-0 z-50 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md",
-            div { class: "flex flex-col gap-1 justify-center items-center",
-                p { class: "text-gray-400",
-                    "Powered by"
-                    a {
-                        href: "https://github.com/rust-dd",
-                        class: "hover:underline text-[#67e8f9]",
-                        " rust-dd"
-                    }
-                    " © {Utc::now().year()}"
+        div { class: "flex min-h-screen flex-col",
+            header::Component {}
+            main { class: "container mx-auto flex flex-1 flex-col gap-8 px-4 pt-6 pb-20 sm:px-5 md:px-6 lg:px-0",
+                SuspenseBoundary {
+                    fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
+                    Outlet::<Route> {}
                 }
-                div { class: "block md:hidden",
-                    icons::Component {}
+            }
+            footer { class: "z-40 border-t bg-white/80 py-3 text-center backdrop-blur-md border-slate-200/80",
+                div { class: "container mx-auto flex flex-col items-center justify-center gap-1 px-4",
+                    p { class: "text-sm text-slate-500",
+                        "Powered by"
+                        a {
+                            href: "https://github.com/rust-dd",
+                            class: "text-slate-600 hover:underline",
+                            " rust-dd"
+                        }
+                        " © {Utc::now().year()}"
+                    }
+                    div { class: "block md:hidden",
+                        icons::Component {}
+                    }
                 }
             }
         }
@@ -136,11 +138,11 @@ fn PageNotFound(route: Vec<String>) -> Element {
         document::Meta { name: "twitter:url", content: "{canonical}" }
         document::Link { rel: "canonical", href: "{canonical}" }
         section { class: "mx-auto max-w-3xl text-center pt-24",
-            h1 { class: "text-4xl font-bold text-[#67e8f9]", "404" }
-            p { class: "mt-4 text-lg text-gray-300", "Page not found: {attempted_path}" }
+            h1 { class: "text-4xl font-bold text-slate-600", "404" }
+            p { class: "mt-4 text-lg text-slate-600", "Page not found: {attempted_path}" }
             Link {
                 to: Route::Home {},
-                class: "inline-flex mt-8 text-[#67e8f9] hover:underline",
+                class: "inline-flex mt-8 text-slate-600 hover:underline",
                 "Go back home"
             }
         }

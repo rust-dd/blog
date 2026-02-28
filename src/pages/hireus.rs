@@ -16,30 +16,28 @@ pub fn Component() -> Element {
     let mut status = use_signal(|| Option::<String>::None);
     let mut open_faq = use_signal(|| Option::<usize>::None);
 
-    let faqs = vec![
+    let faqs = [
         (
             "Why choose Rust for your next project?",
-            "Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing.",
+            "Rust gives high performance with strong memory safety, so teams can ship reliable systems with fewer production failures.",
         ),
         (
-            "What Rust consulting services do we offer?",
-            "We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions.",
+            "What Rust consulting services do you provide?",
+            "We cover architecture design, code audits, migrations, performance tuning, and end-to-end delivery of Rust services.",
         ),
         (
-            "How can Rust consulting benefit my business?",
-            "Our expert Rust consultants help businesses build faster, safer, and more scalable software, reducing technical debt and operational risk.",
+            "How quickly can we start?",
+            "After a short technical discovery call we can define scope, risks, and an execution plan in a few days.",
         ),
         (
-            "Is Rust suitable for web development?",
-            "Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput.",
-        ),
-        (
-            "Do you offer Rust training for our development team?",
-            "Yes, we provide customized Rust training programs and workshops to quickly upskill teams in modern Rust practices.",
+            "Can you help existing teams upskill in Rust?",
+            "Yes. We provide focused mentoring and review-driven training tailored to your codebase and engineering goals.",
         ),
     ];
+
     let title = "Expert Rust Consulting Services | High-Performance Rust Development";
-    let description = "Professional Rust consulting services specializing in high-performance, reliable, and scalable Rust development.";
+    let description =
+        "Professional Rust consulting services specializing in high-performance, reliable, and scalable Rust development.";
     let canonical = seo::absolute_url("/hireus");
 
     rsx! {
@@ -59,78 +57,67 @@ pub fn Component() -> Element {
         document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
         document::Link { rel: "canonical", href: "{canonical}" }
 
-        div { class: "min-h-screen text-white bg-[#1e1e1e]",
-            section { class: "px-4 pt-12 pb-24 sm:px-6 lg:px-8",
-                div { class: "mx-auto max-w-5xl",
-                    h1 { class: "mb-6 text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl text-[#ffef5c]",
-                        "Rust Consulting & Development"
-                        br {}
-                        "for the Modern Era"
-                    }
-                    p { class: "mb-8 max-w-2xl text-xl text-gray-300",
-                        "Expert Rust consultants crafting high-performance, reliable, and scalable systems tailored to your business needs."
-                    }
+        div { class: "mx-auto w-full max-w-6xl space-y-6 font-mono",
+            section { class: "relative overflow-hidden rounded-3xl border border-slate-200 bg-white/92 p-5 shadow-sm sm:p-7 md:p-10",
+                div { class: "pointer-events-none absolute -top-20 right-0 h-72 w-72 rounded-full bg-slate-300/20 blur-3xl" }
+                p { class: "relative z-10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700", "Consulting" }
+                h1 { class: "relative z-10 mt-3 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl",
+                    "Rust Consulting For Production Teams"
+                }
+                p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base",
+                    "We help teams ship reliable Rust systems, improve performance bottlenecks, and de-risk architecture decisions."
+                }
+                div { class: "relative z-10 mt-5 flex flex-wrap gap-2",
                     Link {
                         to: Route::References {},
-                        class: "inline-flex items-center text-lg font-semibold hover:underline text-[#ffef5c]",
-                        "Explore Our Rust Projects"
-                        svg {
-                            class: "ml-2 size-5",
-                            fill: "none",
-                            stroke: "currentColor",
-                            view_box: "0 0 24 24",
-                            path {
-                                stroke_linecap: "round",
-                                stroke_linejoin: "round",
-                                stroke_width: "2",
-                                d: "M17 8l4 4m0 0l-4 4m4-4H3"
-                            }
-                        }
+                        class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-100",
+                        "See references"
+                    }
+                    a {
+                        href: "#contact",
+                        class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-50",
+                        "Contact us"
                     }
                 }
             }
 
-            section { class: "py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
-                div { class: "mx-auto max-w-5xl",
-                    h2 { class: "mb-12 text-3xl font-bold text-[#ffef5c]", "Our Rust Expertise" }
-                    div { class: "grid grid-cols-1 gap-12 md:grid-cols-2",
-                        div {
-                            h3 { class: "mb-4 text-2xl font-semibold text-white", "Rust Consulting & Development" }
-                            p { class: "mb-6 text-gray-300", "Efficient, safe, and concurrent systems built with Rust. Specialized consulting for web services, embedded systems, and high-performance applications." }
-                        }
-                        div {
-                            h3 { class: "mb-4 text-2xl font-semibold text-white", "Advanced System Architecture" }
-                            p { class: "mb-6 text-gray-300", "Designing robust architectures to ensure your Rust applications are performant, scalable, and future-proof." }
-                        }
+            section { class: "grid gap-4 md:grid-cols-2",
+                ServiceCard {
+                    title: "Architecture & Delivery",
+                    text: "System design, migration strategy, and hands-on implementation for critical Rust services."
+                }
+                ServiceCard {
+                    title: "Performance & Reliability",
+                    text: "Profiling, observability, and targeted optimizations for throughput, latency, and runtime stability."
+                }
+            }
+
+            section { class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
+                p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "Team" }
+                h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Senior Rust Experts" }
+                div { class: "mt-4 grid gap-4 md:grid-cols-2",
+                    ExpertCard {
+                        name: "Daniel Zelei",
+                        role: "Senior Rust Consultant",
+                        image: "https://static.rust-dd.com/zelei.webp",
+                        linkedin: "https://www.linkedin.com/in/danielzelei/"
+                    }
+                    ExpertCard {
+                        name: "Daniel Boros",
+                        role: "Senior Rust Consultant",
+                        image: "https://static.rust-dd.com/boros.webp",
+                        linkedin: "https://www.linkedin.com/in/daniel-boros-b86a5373/"
                     }
                 }
             }
 
-            section { class: "py-20 px-4 sm:px-6 lg:px-8",
-                div { class: "mx-auto max-w-5xl",
-                    h2 { class: "mb-12 text-3xl font-bold text-[#ffef5c]", "Meet Our Rust Experts" }
-                    div { class: "grid grid-cols-1 gap-12 md:grid-cols-2",
-                        ExpertCard {
-                            name: "Daniel Zelei",
-                            role: "Senior Rust Consultant",
-                            image: "https://static.rust-dd.com/zelei.webp",
-                            linkedin: "https://www.linkedin.com/in/danielzelei/"
-                        }
-                        ExpertCard {
-                            name: "Daniel Boros",
-                            role: "Senior Rust Consultant",
-                            image: "https://static.rust-dd.com/boros.webp",
-                            linkedin: "https://www.linkedin.com/in/daniel-boros-b86a5373/"
-                        }
-                    }
-                }
-            }
+            section { class: "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
+                div { id: "contact", class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
+                    p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "Get In Touch" }
+                    h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Tell us what you are building" }
 
-            section { class: "py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
-                div { class: "mx-auto max-w-3xl",
-                    h2 { class: "mb-8 text-3xl font-bold text-[#ffef5c]", "Get In Touch" }
                     form {
-                        class: "space-y-6",
+                        class: "mt-5 space-y-4",
                         onsubmit: move |event| {
                             event.prevent_default();
                             if *sending.read() {
@@ -157,79 +144,77 @@ pub fn Component() -> Element {
                                         subject.set(String::new());
                                         message.set(String::new());
                                         status.set(Some(
-                                            "Message sent successfully! We'll get back to you shortly.".to_string(),
+                                            "Message sent successfully. We will get back shortly.".to_string(),
                                         ));
                                     }
                                     Err(err) => status.set(Some(format!("Failed to send message: {err}"))),
                                 }
                             });
                         },
-                        div { class: "grid grid-cols-1 gap-6 md:grid-cols-2",
+
+                        div { class: "grid gap-4 sm:grid-cols-2",
                             input {
                                 placeholder: "Your Name",
                                 r#type: "text",
+                                required: true,
                                 value: "{name()}",
                                 oninput: move |event| name.set(event.value()),
-                                class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                                class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                             }
                             input {
                                 placeholder: "Your Email",
                                 r#type: "email",
+                                required: true,
                                 value: "{email()}",
                                 oninput: move |event| email.set(event.value()),
-                                class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                                class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                             }
                         }
+
                         input {
                             placeholder: "Subject",
                             r#type: "text",
+                            required: true,
                             value: "{subject()}",
                             oninput: move |event| subject.set(event.value()),
-                            class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                            class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                         }
+
                         textarea {
                             placeholder: "Your Message",
                             rows: 6,
+                            required: true,
                             value: "{message()}",
                             oninput: move |event| message.set(event.value()),
-                            class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                            class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
                         }
+
                         button {
                             r#type: "submit",
                             disabled: *sending.read(),
-                            class: "flex justify-center items-center py-3 px-6 w-full text-lg font-semibold transition-colors bg-[#ffef5c] text-[#1e1e1e] hover:bg-[#ffef5c]/90 disabled:opacity-70",
+                            class: "inline-flex w-full items-center justify-center rounded-full bg-slate-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70",
                             if *sending.read() {
-                                svg {
-                                    class: "w-6 h-6 animate-spin fill-black",
-                                    view_box: "0 0 100 101",
-                                    fill: "none",
-                                    path {
-                                        d: "M93.97 39.04c2.42-.63 3.89-3.13 3.04-5.48-1.71-4.73-4.13-9.18-7.19-13.2-3.97-5.23-8.93-9.62-14.6-12.94-5.67-3.31-11.94-5.47-18.44-6.36-5-.69-10.07-.61-15.03.23-2.47.41-3.92 2.92-3.28 5.35.64 2.42 3.12 3.85 5.6 3.49 3.8-.56 7.67-.58 11.49-.06 5.32.73 10.45 2.5 15.09 5.21 4.64 2.71 8.7 6.31 11.95 10.59 2.33 3.07 4.21 6.45 5.59 10.04.9 2.34 3.36 3.8 5.79 3.13Z",
-                                        fill: "currentColor"
-                                    }
-                                }
+                                "Sending..."
                             } else {
                                 "Send Message"
                             }
                         }
+
                         if let Some(current_status) = status() {
-                            p { class: "text-[#ffef5c]", "{current_status}" }
+                            p { class: "text-sm text-slate-600", "{current_status}" }
                         }
                     }
                 }
-            }
 
-            section { class: "py-24 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
-                div { class: "mx-auto max-w-4xl",
-                    div { class: "text-center mb-16",
-                        h2 { class: "text-4xl font-bold text-[#ffef5c] mb-4", "Rust Consulting FAQ" }
-                        p { class: "text-xl text-gray-300", "Common questions about our Rust consulting services" }
-                    }
-                    div { class: "space-y-4",
+                div { class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
+                    p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "FAQ" }
+                    h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Common Questions" }
+
+                    div { class: "mt-5 space-y-2",
                         for (index, faq) in faqs.iter().enumerate() {
-                            article { class: "bg-[#1e1e1e] border border-transparent overflow-hidden hover:border-[#ffef5c]/30 transition-colors",
+                            article { class: "overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70",
                                 button {
-                                    class: "w-full px-8 py-6 text-left flex items-center justify-between hover:bg-[#2a2a2a]/50 transition-colors",
+                                    class: "flex w-full items-center justify-between gap-4 px-4 py-3 text-left",
                                     onclick: move |_| {
                                         if open_faq() == Some(index) {
                                             open_faq.set(None);
@@ -237,12 +222,13 @@ pub fn Component() -> Element {
                                             open_faq.set(Some(index));
                                         }
                                     },
-                                    h3 { class: "text-xl font-semibold text-white pr-4", "{faq.0}" }
-                                    span { class: "text-xl text-white", if open_faq() == Some(index) { "⌄" } else { "⌃" } }
+                                    h3 { class: "text-sm font-semibold text-slate-900 sm:text-base", "{faq.0}" }
+                                    span { class: "text-slate-500", if open_faq() == Some(index) { "−" } else { "+" } }
                                 }
+
                                 if open_faq() == Some(index) {
-                                    div { class: "px-8 pb-6",
-                                        p { class: "text-gray-300 leading-relaxed text-lg", "{faq.1}" }
+                                    div { class: "px-4 pb-4",
+                                        p { class: "text-sm leading-relaxed text-slate-600", "{faq.1}" }
                                     }
                                 }
                             }
@@ -255,19 +241,36 @@ pub fn Component() -> Element {
 }
 
 #[component]
+fn ServiceCard(title: &'static str, text: &'static str) -> Element {
+    rsx! {
+        article { class: "rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-5",
+            p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "service" }
+            h3 { class: "mt-2 text-xl font-semibold text-slate-900", "{title}" }
+            p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{text}" }
+        }
+    }
+}
+
+#[component]
 fn ExpertCard(name: &'static str, role: &'static str, image: &'static str, linkedin: &'static str) -> Element {
     rsx! {
-        div { class: "flex items-center space-x-6",
-            img { src: "{image}", alt: "{name}", width: 100, height: 100, class: "rounded-full" }
-            div {
-                h3 { class: "mb-1 text-xl font-semibold text-white", "{name}" }
-                p { class: "mb-2 text-gray-300", "{role}" }
+        article { class: "flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3",
+            img {
+                src: "{image}",
+                alt: "{name}",
+                width: 72,
+                height: 72,
+                class: "h-[72px] w-[72px] rounded-full border border-slate-200 object-cover"
+            }
+            div { class: "min-w-0",
+                h3 { class: "truncate text-lg font-semibold text-slate-900", "{name}" }
+                p { class: "mt-1 text-sm text-slate-600", "{role}" }
                 a {
                     href: "{linkedin}",
                     target: "_blank",
                     rel: "noopener noreferrer",
-                    class: "text-sm hover:underline text-[#ffef5c]",
-                    "LinkedIn Profile"
+                    class: "mt-2 inline-flex text-xs font-semibold text-slate-700 hover:underline",
+                    "LinkedIn"
                 }
             }
         }

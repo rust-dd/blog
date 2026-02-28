@@ -3,6 +3,7 @@ use dioxus_free_icons::{
     icons::fa_solid_icons::{FaCalendarDays, FaClock, FaEye, FaUser},
     Icon,
 };
+use std::collections::BTreeMap;
 
 use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
 
@@ -31,11 +32,11 @@ pub fn Component() -> Element {
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
             div { class: "mx-auto w-full max-w-6xl font-mono",
-                section { class: "relative overflow-hidden p-6 rounded-3xl border border-white/12 nerd-grid md:p-10",
-                    div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-[#67e8f9]/10 blur-3xl pointer-events-none" }
-                    p { class: "relative z-10 text-xs font-semibold tracking-[0.18em] text-[#67e8f9] uppercase", "Blog" }
-                    h1 { class: "relative z-10 mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl", "From The Grid" }
-                    p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-gray-300 md:text-base",
+                section { class: "relative overflow-hidden p-5 rounded-3xl border border-slate-200 bg-white/92 shadow-sm sm:p-7 md:p-10",
+                    div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-slate-300/20 blur-3xl pointer-events-none" }
+                    p { class: "relative z-10 text-[11px] font-semibold tracking-[0.2em] text-slate-700 uppercase", "Blog" }
+                    h1 { class: "relative z-10 mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl md:text-5xl", "Engineering Notes" }
+                    p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base",
                         "Practical engineering logs on Rust backend systems, architecture, and performance."
                     }
                 }
@@ -49,36 +50,46 @@ pub fn Component() -> Element {
                                 .map(|post| post.created_at.clone())
                                 .unwrap_or_else(|| "-".to_string());
 
-                            let mut tags: Vec<String> = items
-                                .iter()
-                                .flat_map(|post| post.tags.iter().cloned())
-                                .filter(|tag| !tag.trim().is_empty())
-                                .collect();
-                            tags.sort_by_key(|tag| tag.to_lowercase());
-                            tags.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
-                            let top_tags: Vec<_> = tags.into_iter().take(10).collect();
+                            let mut tag_counts: BTreeMap<String, usize> = BTreeMap::new();
+                            for post in items.iter() {
+                                for tag in post.tags.iter() {
+                                    let normalized = tag.trim().to_lowercase();
+                                    if normalized.is_empty() {
+                                        continue;
+                                    }
+                                    *tag_counts.entry(normalized).or_insert(0) += 1;
+                                }
+                            }
+
+                            let mut top_tags: Vec<(String, usize)> = tag_counts.into_iter().collect();
+                            top_tags.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+                            let top_tags: Vec<_> = top_tags.into_iter().take(18).collect();
 
                             rsx! {
-                                div { class: "grid gap-8 mt-8 lg:grid-cols-[minmax(0,1fr)_280px]",
+                                div { class: "grid gap-6 mt-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_280px]",
                                     div {
                                         if !featured_posts.is_empty() {
                                             section { class: "grid gap-4 md:grid-cols-2",
                                                 for post in featured_posts {
-                                                    article { class: "overflow-hidden rounded-2xl border border-white/12 bg-black/25 transition-colors duration-200 hover:border-[#67e8f9]/45",
+                                                    article { class: "overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm transition-colors duration-200 hover:border-slate-400",
                                                         Link {
                                                             to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                            class: "block p-5 no-underline",
-                                                            p { class: "text-[11px] tracking-[0.16em] text-[#67e8f9] uppercase", "Featured" }
-                                                            h2 { class: "mt-2 text-xl leading-tight text-white", "{post.title}" }
-                                                            p { class: "mt-2 text-sm leading-relaxed text-gray-300", "{post.summary}" }
-                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-gray-300",
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                            class: "block p-4 no-underline sm:p-5",
+                                                            p { class: "text-[10px] font-semibold tracking-[0.16em] text-slate-700 uppercase", "Featured" }
+                                                            h2 { class: "mt-2 text-lg leading-tight text-slate-900 sm:text-xl", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
+                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-slate-600",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
                                                                     Icon { icon: FaUser, width: 11, height: 11, fill: "currentColor" }
                                                                     "{post.author.name}"
                                                                 }
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
                                                                     Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
                                                                     "{post.read_time} min"
+                                                                }
+                                                                span { class: "hidden sm:inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
+                                                                    Icon { icon: FaEye, width: 11, height: 11, fill: "currentColor" }
+                                                                    "{post.total_views} views"
                                                                 }
                                                             }
                                                         }
@@ -87,28 +98,28 @@ pub fn Component() -> Element {
                                             }
                                         }
 
-                                        section { class: "mt-8 rounded-2xl border border-white/12 bg-black/20",
-                                            div { class: "px-5 py-4 border-b border-white/10",
-                                                p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "All Posts" }
+                                        section { class: "mt-6 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
+                                            div { class: "px-4 py-3 border-b border-slate-200 sm:px-5 sm:py-4",
+                                                p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "All Posts" }
                                             }
-                                            div { class: "divide-y divide-white/10",
+                                            div { class: "divide-y divide-slate-200",
                                                 for post in items.iter() {
-                                                    article { class: "px-5 py-5",
+                                                    article { class: "px-4 py-4 sm:px-5 sm:py-5",
                                                         Link {
                                                             to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
                                                             class: "block no-underline",
-                                                            h3 { class: "text-lg leading-tight text-white transition-colors duration-200 hover:text-[#67e8f9] md:text-2xl", "{post.title}" }
-                                                            p { class: "mt-2 text-sm leading-relaxed text-gray-300", "{post.summary}" }
-                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-gray-300",
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                            h3 { class: "text-lg leading-tight text-slate-900 transition-colors duration-200 hover:text-slate-700 sm:text-xl md:text-2xl", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
+                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-slate-600",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
                                                                     Icon { icon: FaCalendarDays, width: 11, height: 11, fill: "currentColor" }
                                                                     "{post.created_at}"
                                                                 }
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
                                                                     Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
                                                                     "{post.read_time} min"
                                                                 }
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-white/15 bg-white/5",
+                                                                span { class: "hidden sm:inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
                                                                     Icon { icon: FaEye, width: 11, height: 11, fill: "currentColor" }
                                                                     "{post.total_views} views"
                                                                 }
@@ -121,22 +132,56 @@ pub fn Component() -> Element {
                                     }
 
                                     aside { class: "space-y-4 h-fit lg:sticky lg:top-24",
-                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-white/12 nerd-grid",
-                                            p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "blog.sys" }
-                                            div { class: "mt-3 space-y-2 text-xs text-gray-300",
-                                                p { span { class: "text-[#67e8f9]", "$ " } "posts = " span { class: "text-white", "{items.len()}" } }
-                                                p { span { class: "text-[#67e8f9]", "$ " } "latest = " span { class: "text-white", "{latest}" } }
-                                                p { span { class: "text-[#67e8f9]", "$ " } "stack = " span { class: "text-white", "rust / dioxus / axum" } }
+                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
+                                            p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "blog.sys" }
+                                            div { class: "mt-3 space-y-2 text-xs text-slate-600",
+                                                p { span { class: "text-slate-700", "$ " } "posts = " span { class: "text-slate-900", "{items.len()}" } }
+                                                p { span { class: "text-slate-700", "$ " } "latest = " span { class: "text-slate-900", "{latest}" } }
+                                                p { span { class: "text-slate-700", "$ " } "stack = " span { class: "text-slate-900", "rust / dioxus / axum" } }
                                             }
                                         }
 
                                         if !top_tags.is_empty() {
-                                            div { class: "p-4 rounded-2xl border border-white/12 bg-black/20",
-                                                p { class: "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase", "topics" }
+                                            div { class: "p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
+                                                p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "topics" }
                                                 div { class: "flex flex-wrap gap-2 mt-3",
-                                                    for tag in top_tags {
-                                                        span { class: "rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-gray-200", "#{tag}" }
+                                                    for (tag, count) in top_tags {
+                                                        span { class: "inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700",
+                                                            "#{tag}"
+                                                            span { class: "text-[10px] text-slate-500", "({count})" }
+                                                        }
                                                     }
+                                                }
+                                            }
+                                        }
+
+                                        div { class: "overflow-hidden relative p-4 rounded-2xl border-2 border-slate-900 bg-slate-900 text-white shadow-md",
+                                            div { class: "absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_52%)] pointer-events-none" }
+                                            p { class: "relative text-[11px] font-semibold tracking-[0.18em] text-slate-300 uppercase", "Try out our fun projects" }
+                                            div { class: "mt-3 space-y-2 text-sm",
+                                                a {
+                                                    href: "https://shrtn.ink/",
+                                                    target: "_blank",
+                                                    rel: "noopener noreferrer",
+                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
+                                                    span { "shrtn.ink" }
+                                                    span { class: "text-slate-400", "↗" }
+                                                }
+                                                a {
+                                                    href: "https://stochasticlab.cloud/",
+                                                    target: "_blank",
+                                                    rel: "noopener noreferrer",
+                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
+                                                    span { "stochasticlab.cloud" }
+                                                    span { class: "text-slate-400", "↗" }
+                                                }
+                                                a {
+                                                    href: "https://tryrust.org/",
+                                                    target: "_blank",
+                                                    rel: "noopener noreferrer",
+                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
+                                                    span { "tryrust.org" }
+                                                    span { class: "text-slate-400", "↗" }
                                                 }
                                             }
                                         }
@@ -145,7 +190,7 @@ pub fn Component() -> Element {
                             }
                         }
                         Err(err) => rsx! {
-                            div { class: "mt-8 text-red-300", "Failed to load posts: {err}" }
+                            div { class: "mt-8 text-red-600", "Failed to load posts: {err}" }
                         },
                     }
                 }
