@@ -68,25 +68,25 @@ fn Layout() -> Element {
     rsx! {
         div { class: "flex min-h-screen flex-col",
             header::Component {}
-            main { class: "container mx-auto flex flex-1 flex-col gap-8 px-4 pt-6 pb-20 sm:px-5 md:px-6 lg:px-0",
+            main { class: "mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 pt-6 pb-20 sm:px-6",
                 SuspenseBoundary {
                     fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
                     Outlet::<Route> {}
                 }
             }
-            footer { class: "z-40 border-t bg-white/80 py-3 text-center backdrop-blur-md border-slate-200/80",
-                div { class: "container mx-auto flex flex-col items-center justify-center gap-1 px-4",
-                    p { class: "text-sm text-slate-500",
-                        "Powered by"
+            footer { class: "z-40 border-t border-dashed border-slate-300 py-3",
+                div { class: "flex flex-col items-center gap-2",
+                    div { class: "block sm:hidden",
+                        icons::Component {}
+                    }
+                    p { class: "text-xs text-slate-400",
+                        "// powered by "
                         a {
                             href: "https://github.com/rust-dd",
-                            class: "text-slate-600 hover:underline",
-                            " rust-dd"
+                            class: "text-slate-500 hover:text-slate-700",
+                            "rust-dd"
                         }
-                        " © {Utc::now().year()}"
-                    }
-                    div { class: "block md:hidden",
-                        icons::Component {}
+                        " | {Utc::now().year()}"
                     }
                 }
             }

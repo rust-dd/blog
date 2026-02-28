@@ -57,30 +57,31 @@ pub fn Component() -> Element {
         document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
         document::Link { rel: "canonical", href: "{canonical}" }
 
-        div { class: "mx-auto w-full max-w-6xl space-y-6 font-mono",
-            section { class: "relative overflow-hidden rounded-3xl border border-slate-200 bg-white/92 p-5 shadow-sm sm:p-7 md:p-10",
-                div { class: "pointer-events-none absolute -top-20 right-0 h-72 w-72 rounded-full bg-slate-300/20 blur-3xl" }
-                p { class: "relative z-10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700", "Consulting" }
-                h1 { class: "relative z-10 mt-3 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl",
+        div { class: "w-full space-y-6 font-mono",
+            // Hero
+            section { class: "py-4",
+                p { class: "text-xs text-slate-400", "// consulting" }
+                h1 { class: "mt-2 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl",
                     "Rust Consulting For Production Teams"
                 }
-                p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base",
+                p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-slate-600",
                     "We help teams ship reliable Rust systems, improve performance bottlenecks, and de-risk architecture decisions."
                 }
-                div { class: "relative z-10 mt-5 flex flex-wrap gap-2",
+                div { class: "mt-4 flex flex-wrap gap-3",
                     Link {
                         to: Route::References {},
-                        class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-100",
-                        "See references"
+                        class: "inline-flex items-center rounded border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors duration-200 hover:border-slate-400",
+                        "see references"
                     }
                     a {
                         href: "#contact",
-                        class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-50",
-                        "Contact us"
+                        class: "inline-flex items-center rounded border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors duration-200 hover:border-slate-400",
+                        "contact us"
                     }
                 }
             }
 
+            // Services
             section { class: "grid gap-4 md:grid-cols-2",
                 ServiceCard {
                     title: "Architecture & Delivery",
@@ -92,8 +93,9 @@ pub fn Component() -> Element {
                 }
             }
 
-            section { class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
-                p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "Team" }
+            // Team
+            section { class: "rounded-lg border border-slate-200 bg-white p-4 sm:p-6",
+                p { class: "text-xs text-slate-400", "// team" }
                 h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Senior Rust Experts" }
                 div { class: "mt-4 grid gap-4 md:grid-cols-2",
                     ExpertCard {
@@ -111,9 +113,10 @@ pub fn Component() -> Element {
                 }
             }
 
-            section { class: "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
-                div { id: "contact", class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
-                    p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "Get In Touch" }
+            // Contact + FAQ
+            section { class: "grid gap-6 lg:grid-cols-2",
+                div { id: "contact", class: "rounded-lg border border-slate-200 bg-white p-4 sm:p-6",
+                    p { class: "text-xs text-slate-400", "// contact" }
                     h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Tell us what you are building" }
 
                     form {
@@ -159,7 +162,7 @@ pub fn Component() -> Element {
                                 required: true,
                                 value: "{name()}",
                                 oninput: move |event| name.set(event.value()),
-                                class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                                class: "w-full rounded border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                             }
                             input {
                                 placeholder: "Your Email",
@@ -167,7 +170,7 @@ pub fn Component() -> Element {
                                 required: true,
                                 value: "{email()}",
                                 oninput: move |event| email.set(event.value()),
-                                class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                                class: "w-full rounded border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                             }
                         }
 
@@ -177,7 +180,7 @@ pub fn Component() -> Element {
                             required: true,
                             value: "{subject()}",
                             oninput: move |event| subject.set(event.value()),
-                            class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                            class: "w-full rounded border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                         }
 
                         textarea {
@@ -186,13 +189,13 @@ pub fn Component() -> Element {
                             required: true,
                             value: "{message()}",
                             oninput: move |event| message.set(event.value()),
-                            class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
+                            class: "w-full rounded border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                         }
 
                         button {
                             r#type: "submit",
                             disabled: *sending.read(),
-                            class: "inline-flex w-full items-center justify-center rounded-full bg-slate-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70",
+                            class: "inline-flex w-full items-center justify-center rounded bg-slate-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70",
                             if *sending.read() {
                                 "Sending..."
                             } else {
@@ -206,13 +209,13 @@ pub fn Component() -> Element {
                     }
                 }
 
-                div { class: "rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-6",
-                    p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "FAQ" }
+                div { class: "rounded-lg border border-slate-200 bg-white p-4 sm:p-6",
+                    p { class: "text-xs text-slate-400", "// faq" }
                     h2 { class: "mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl", "Common Questions" }
 
                     div { class: "mt-5 space-y-2",
                         for (index, faq) in faqs.iter().enumerate() {
-                            article { class: "overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70",
+                            article { class: "rounded border border-slate-200 bg-slate-50/50",
                                 button {
                                     class: "flex w-full items-center justify-between gap-4 px-4 py-3 text-left",
                                     onclick: move |_| {
@@ -222,8 +225,8 @@ pub fn Component() -> Element {
                                             open_faq.set(Some(index));
                                         }
                                     },
-                                    h3 { class: "text-sm font-semibold text-slate-900 sm:text-base", "{faq.0}" }
-                                    span { class: "text-slate-500", if open_faq() == Some(index) { "−" } else { "+" } }
+                                    h3 { class: "text-sm font-semibold text-slate-900", "{faq.0}" }
+                                    span { class: "text-xs text-slate-400", if open_faq() == Some(index) { "-" } else { "+" } }
                                 }
 
                                 if open_faq() == Some(index) {
@@ -243,8 +246,8 @@ pub fn Component() -> Element {
 #[component]
 fn ServiceCard(title: &'static str, text: &'static str) -> Element {
     rsx! {
-        article { class: "rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:p-5",
-            p { class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500", "service" }
+        article { class: "rounded-lg border border-slate-200 bg-white p-4 sm:p-5",
+            p { class: "text-xs text-slate-400", "// service" }
             h3 { class: "mt-2 text-xl font-semibold text-slate-900", "{title}" }
             p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{text}" }
         }
@@ -254,7 +257,7 @@ fn ServiceCard(title: &'static str, text: &'static str) -> Element {
 #[component]
 fn ExpertCard(name: &'static str, role: &'static str, image: &'static str, linkedin: &'static str) -> Element {
     rsx! {
-        article { class: "flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3",
+        article { class: "flex items-center gap-4 rounded-lg border border-slate-200 bg-slate-50/50 p-3",
             img {
                 src: "{image}",
                 alt: "{name}",
@@ -269,8 +272,8 @@ fn ExpertCard(name: &'static str, role: &'static str, image: &'static str, linke
                     href: "{linkedin}",
                     target: "_blank",
                     rel: "noopener noreferrer",
-                    class: "mt-2 inline-flex text-xs font-semibold text-slate-700 hover:underline",
-                    "LinkedIn"
+                    class: "mt-2 inline-flex text-xs text-slate-500 hover:text-slate-700",
+                    "LinkedIn >"
                 }
             }
         }

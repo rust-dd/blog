@@ -1,8 +1,4 @@
 use dioxus::prelude::*;
-use dioxus_free_icons::{
-    icons::fa_solid_icons::{FaCalendarDays, FaClock, FaEye, FaUser},
-    Icon,
-};
 use std::collections::BTreeMap;
 
 use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
@@ -31,13 +27,15 @@ pub fn Component() -> Element {
 
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
-            div { class: "mx-auto w-full max-w-6xl font-mono",
-                section { class: "relative overflow-hidden p-5 rounded-3xl border border-slate-200 bg-white/92 shadow-sm sm:p-7 md:p-10",
-                    div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-slate-300/20 blur-3xl pointer-events-none" }
-                    p { class: "relative z-10 text-[11px] font-semibold tracking-[0.2em] text-slate-700 uppercase", "Blog" }
-                    h1 { class: "relative z-10 mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl md:text-5xl", "Engineering Notes" }
-                    p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base",
-                        "Practical engineering logs on Rust backend systems, architecture, and performance."
+            div { class: "w-full font-mono",
+                // Hero
+                section { class: "py-4",
+                    p { class: "text-xs text-slate-400", "// engineering notes" }
+                    h1 { class: "mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl md:text-5xl",
+                        "Practical Rust Engineering"
+                    }
+                    p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-slate-600",
+                        "Logs on Rust backend systems, architecture, and performance."
                     }
                 }
 
@@ -63,127 +61,111 @@ pub fn Component() -> Element {
 
                             let mut top_tags: Vec<(String, usize)> = tag_counts.into_iter().collect();
                             top_tags.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
-                            let top_tags: Vec<_> = top_tags.into_iter().take(18).collect();
+                            let top_tags: Vec<_> = top_tags.into_iter().take(12).collect();
+                            let tag_names: Vec<String> = top_tags.iter().map(|(name, _)| name.clone()).collect();
 
                             rsx! {
-                                div { class: "grid gap-6 mt-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_280px]",
-                                    div {
-                                        if !featured_posts.is_empty() {
-                                            section { class: "grid gap-4 md:grid-cols-2",
-                                                for post in featured_posts {
-                                                    article { class: "overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm transition-colors duration-200 hover:border-slate-400",
-                                                        Link {
-                                                            to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                            class: "block p-4 no-underline sm:p-5",
-                                                            p { class: "text-[10px] font-semibold tracking-[0.16em] text-slate-700 uppercase", "Featured" }
-                                                            h2 { class: "mt-2 text-lg leading-tight text-slate-900 sm:text-xl", "{post.title}" }
-                                                            p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
-                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-slate-600",
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaUser, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.author.name}"
-                                                                }
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.read_time} min"
-                                                                }
-                                                                span { class: "hidden sm:inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaEye, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.total_views} views"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                // Status bar
+                                div { class: "mt-4 border-y border-dashed border-slate-300 py-3 text-xs text-slate-500",
+                                    div { class: "flex flex-wrap gap-x-4 gap-y-1",
+                                        span { "posts: " span { class: "text-slate-700", "{items.len()}" } }
+                                        span { class: "hidden sm:inline", "|" }
+                                        span { "latest: " span { class: "text-slate-700", "{latest}" } }
+                                        span { class: "hidden sm:inline", "|" }
+                                        span { "stack: " span { class: "text-slate-700", "rust/dioxus/axum" } }
+                                    }
+                                }
 
-                                        section { class: "mt-6 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
-                                            div { class: "px-4 py-3 border-b border-slate-200 sm:px-5 sm:py-4",
-                                                p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "All Posts" }
-                                            }
-                                            div { class: "divide-y divide-slate-200",
-                                                for post in items.iter() {
-                                                    article { class: "px-4 py-4 sm:px-5 sm:py-5",
-                                                        Link {
-                                                            to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                            class: "block no-underline",
-                                                            h3 { class: "text-lg leading-tight text-slate-900 transition-colors duration-200 hover:text-slate-700 sm:text-xl md:text-2xl", "{post.title}" }
-                                                            p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
-                                                            div { class: "flex flex-wrap gap-2 mt-3 text-[11px] text-slate-600",
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaCalendarDays, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.created_at}"
-                                                                }
-                                                                span { class: "inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaClock, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.read_time} min"
-                                                                }
-                                                                span { class: "hidden sm:inline-flex gap-1.5 items-center px-2 py-1 rounded-full border border-slate-200 bg-slate-50",
-                                                                    Icon { icon: FaEye, width: 11, height: 11, fill: "currentColor" }
-                                                                    "{post.total_views} views"
-                                                                }
-                                                            }
+                                // Topics
+                                if !tag_names.is_empty() {
+                                    div { class: "mt-4 text-xs text-slate-500",
+                                        span { class: "text-slate-400", "use " }
+                                        span { class: "text-slate-500", "topics" }
+                                        span { class: "text-slate-400", "::" }
+                                        span { class: "text-slate-400", "{{" }
+                                        span { class: "text-slate-600",
+                                            {tag_names.join(", ")}
+                                        }
+                                        span { class: "text-slate-400", "}};" }
+                                    }
+                                }
+
+                                // Featured posts
+                                if !featured_posts.is_empty() {
+                                    section { class: "mt-8",
+                                        p { class: "text-xs text-slate-400", "// featured" }
+                                        div { class: "mt-3 grid gap-4 md:grid-cols-2",
+                                            for post in featured_posts {
+                                                article { class: "rounded-lg border border-slate-200 bg-white p-4 transition-colors duration-200 hover:border-slate-400 sm:p-5",
+                                                    Link {
+                                                        to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
+                                                        class: "block no-underline",
+                                                        h2 { class: "text-lg leading-tight text-slate-900 sm:text-xl", "{post.title}" }
+                                                        p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
+                                                        p { class: "mt-3 text-xs text-slate-400",
+                                                            "author={post.author.name} read={post.read_time}min views={post.total_views}"
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                }
 
-                                    aside { class: "space-y-4 h-fit lg:sticky lg:top-24",
-                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
-                                            p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "blog.sys" }
-                                            div { class: "mt-3 space-y-2 text-xs text-slate-600",
-                                                p { span { class: "text-slate-700", "$ " } "posts = " span { class: "text-slate-900", "{items.len()}" } }
-                                                p { span { class: "text-slate-700", "$ " } "latest = " span { class: "text-slate-900", "{latest}" } }
-                                                p { span { class: "text-slate-700", "$ " } "stack = " span { class: "text-slate-900", "rust / dioxus / axum" } }
-                                            }
+                                // All posts (ls -la style)
+                                section { class: "mt-8",
+                                    p { class: "text-xs text-slate-400", "// all posts" }
+                                    div { class: "mt-3 rounded-lg border border-slate-200 bg-white",
+                                        // Table header
+                                        div { class: "hidden border-b border-dashed border-slate-200 px-4 py-2 text-[11px] font-semibold text-slate-400 sm:grid sm:grid-cols-[120px_1fr_70px_70px]",
+                                            span { "date" }
+                                            span { "title" }
+                                            span { class: "text-right", "read" }
+                                            span { class: "text-right", "views" }
                                         }
-
-                                        if !top_tags.is_empty() {
-                                            div { class: "p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
-                                                p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "topics" }
-                                                div { class: "flex flex-wrap gap-2 mt-3",
-                                                    for (tag, count) in top_tags {
-                                                        span { class: "inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700",
-                                                            "#{tag}"
-                                                            span { class: "text-[10px] text-slate-500", "({count})" }
+                                        div { class: "divide-y divide-slate-100",
+                                            for post in items.iter() {
+                                                Link {
+                                                    to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
+                                                    class: "block px-4 py-3 no-underline transition-colors duration-150 hover:bg-slate-50",
+                                                    // Desktop row
+                                                    div { class: "hidden sm:grid sm:grid-cols-[120px_1fr_70px_70px] sm:items-center",
+                                                        span { class: "text-xs text-slate-400", "{post.created_at}" }
+                                                        span { class: "text-sm text-slate-900 truncate pr-4", "{post.title}" }
+                                                        span { class: "text-xs text-slate-400 text-right", "{post.read_time}min" }
+                                                        span { class: "text-xs text-slate-400 text-right", "{post.total_views}" }
+                                                    }
+                                                    // Mobile
+                                                    div { class: "sm:hidden",
+                                                        p { class: "text-sm text-slate-900", "{post.title}" }
+                                                        p { class: "mt-1 text-xs text-slate-400",
+                                                            "{post.created_at} · {post.read_time}min · {post.total_views} views"
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                    }
+                                }
 
-                                        div { class: "overflow-hidden relative p-4 rounded-2xl border-2 border-slate-900 bg-slate-900 text-white shadow-md",
-                                            div { class: "absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_52%)] pointer-events-none" }
-                                            p { class: "relative text-[11px] font-semibold tracking-[0.18em] text-slate-300 uppercase", "Try out our fun projects" }
-                                            div { class: "mt-3 space-y-2 text-sm",
-                                                a {
-                                                    href: "https://shrtn.ink/",
-                                                    target: "_blank",
-                                                    rel: "noopener noreferrer",
-                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
-                                                    span { "shrtn.ink" }
-                                                    span { class: "text-slate-400", "↗" }
-                                                }
-                                                a {
-                                                    href: "https://stochasticlab.cloud/",
-                                                    target: "_blank",
-                                                    rel: "noopener noreferrer",
-                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
-                                                    span { "stochasticlab.cloud" }
-                                                    span { class: "text-slate-400", "↗" }
-                                                }
-                                                a {
-                                                    href: "https://tryrust.org/",
-                                                    target: "_blank",
-                                                    rel: "noopener noreferrer",
-                                                    class: "relative flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 transition-colors duration-200 hover:bg-slate-700",
-                                                    span { "tryrust.org" }
-                                                    span { class: "text-slate-400", "↗" }
-                                                }
-                                            }
+                                // Projects
+                                section { class: "mt-8",
+                                    p { class: "text-xs text-slate-400", "// projects" }
+                                    div { class: "mt-3 grid gap-4 sm:grid-cols-3",
+                                        ProjectCard {
+                                            name: "shrtn.ink",
+                                            description: "Fast URL shortener",
+                                            url: "https://shrtn.ink/"
+                                        }
+                                        ProjectCard {
+                                            name: "stochasticlab",
+                                            description: "Cloud compute platform",
+                                            url: "https://stochasticlab.cloud/"
+                                        }
+                                        ProjectCard {
+                                            name: "tryrust.org",
+                                            description: "Interactive Rust playground",
+                                            url: "https://tryrust.org/"
                                         }
                                     }
                                 }
@@ -195,6 +177,23 @@ pub fn Component() -> Element {
                     }
                 }
             }
+        }
+    }
+}
+
+#[component]
+fn ProjectCard(name: &'static str, description: &'static str, url: &'static str) -> Element {
+    rsx! {
+        a {
+            href: "{url}",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            class: "group flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors duration-200 hover:border-slate-400",
+            div {
+                p { class: "font-medium text-slate-900", "{name}" }
+                p { class: "text-xs text-slate-500", "{description}" }
+            }
+            span { class: "text-slate-300 transition-colors duration-200 group-hover:text-slate-500", ">" }
         }
     }
 }

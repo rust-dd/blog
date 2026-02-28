@@ -1,8 +1,4 @@
 use dioxus::prelude::*;
-use dioxus_free_icons::{
-    icons::fa_solid_icons::{FaCalendarDays, FaClock, FaEye, FaUser},
-    Icon,
-};
 
 use crate::{
     app::Route,
@@ -65,90 +61,74 @@ pub fn Component(slug: String) -> Element {
                             document::Meta { name: "twitter:image:alt", content: "{post.title}" }
                             document::Link { rel: "canonical", href: "{canonical}" }
 
-                            div { class: "mx-auto w-full max-w-6xl font-mono",
+                            div { class: "w-full font-mono",
                                 Link {
                                     to: Route::Home {},
-                                    class: "inline-flex gap-2 items-center text-sm text-slate-600 transition-colors duration-200 hover:text-slate-700",
-                                    span { "←" }
-                                    span { "Back to blog" }
+                                    class: "inline-flex gap-1 text-xs text-slate-400 transition-colors duration-200 hover:text-slate-600",
+                                    span { "<-" }
+                                    span { "back" }
                                 }
 
-                                div { class: "grid items-start gap-6 mt-4 md:gap-8 lg:grid-cols-[minmax(0,1fr)_280px]",
-                                    article { class: "min-w-0",
-                                        section { class: "relative overflow-hidden p-5 rounded-3xl border border-slate-200 bg-white/92 shadow-sm sm:p-7 md:p-10",
-                                            div { class: "absolute -top-20 right-0 w-72 h-72 rounded-full bg-slate-300/20 blur-3xl pointer-events-none" }
-                                            p { class: "relative z-10 text-[11px] font-semibold tracking-[0.2em] text-slate-700 uppercase", "Article" }
-                                            h1 { class: "relative z-10 mt-3 max-w-4xl text-2xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl", "{post.title}" }
-                                            p { class: "relative z-10 mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base", "{post.summary}" }
+                                article { class: "mt-4",
+                                    // Header
+                                    section { class: "rounded-lg border border-slate-200 bg-white p-5 sm:p-7 md:p-10",
+                                        p { class: "text-xs text-slate-400", "// article" }
+                                        h1 { class: "mt-2 text-2xl font-semibold leading-tight text-slate-900 sm:text-3xl md:text-4xl", "{post.title}" }
+                                        p { class: "mt-3 text-sm leading-relaxed text-slate-600", "{post.summary}" }
 
-                                            div { class: "relative z-10 flex flex-wrap gap-2 mt-4 text-xs text-slate-600",
-                                                div { class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5",
-                                                    Icon { icon: FaUser, width: 12, height: 12, fill: "currentColor" }
-                                                    span { "{post.author.name}" }
-                                                }
-                                                div { class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5",
-                                                    Icon { icon: FaCalendarDays, width: 12, height: 12, fill: "currentColor" }
-                                                    span { "{post.created_at}" }
-                                                }
-                                                div { class: "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5",
-                                                    Icon { icon: FaClock, width: 12, height: 12, fill: "currentColor" }
-                                                    span { "{post.read_time} min read" }
-                                                }
-                                                div { class: "hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5",
-                                                    Icon { icon: FaEye, width: 12, height: 12, fill: "currentColor" }
-                                                    span { "{post.total_views} views" }
-                                                }
-                                            }
+                                        // Metadata inline
+                                        p { class: "mt-4 text-xs text-slate-400",
+                                            "author={post.author.name} date={post.created_at} read={post.read_time}min views={post.total_views}"
+                                        }
 
-                                            if let Some(image) = post.header_image.clone() {
-                                                div { class: "overflow-hidden relative z-10 mt-6 rounded-3xl border border-slate-200 bg-slate-100",
-                                                    img {
-                                                        src: "{image}",
-                                                        alt: "{post.title}",
-                                                        class: "object-cover w-full max-h-[520px]"
+                                        // Tags
+                                        if !post.tags.is_empty() {
+                                            {
+                                                let tags_str = post.tags.iter().take(10).cloned().collect::<Vec<_>>().join(", ");
+                                                rsx! {
+                                                    p { class: "mt-2 text-xs text-slate-400",
+                                                        span { class: "text-slate-300", "use " }
+                                                        span { class: "text-slate-400", "tags" }
+                                                        span { class: "text-slate-300", "::" }
+                                                        span { class: "text-slate-300", "{{" }
+                                                        span { class: "text-slate-500", "{tags_str}" }
+                                                        span { class: "text-slate-300", "}};" }
                                                     }
                                                 }
                                             }
                                         }
 
-                                        div { class: "overflow-hidden p-4 mt-6 rounded-3xl border border-slate-200 bg-white/95 shadow-sm sm:p-6 md:p-8",
-                                            div {
-                                                class: "prose prose-base sm:prose-lg max-w-none break-words prose-h3:text-slate-900 prose-h4:text-slate-900 prose-code:before:content-none prose-th:text-slate-900 prose-li:marker:text-slate-500 prose-code:after:content-none prose-pre:bg-slate-100 prose-pre:rounded-xl prose-pre:px-4 prose-pre:py-3 prose-code:text-slate-700 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-slate-900 prose-table:text-slate-800 prose-thead:text-slate-900 prose-li:text-slate-700 prose-ol:text-slate-700 prose-h1:text-slate-900 prose-h1:text-3xl prose-h2:text-slate-900 prose-h2:text-2xl prose-ul:text-slate-700 prose-p:text-slate-700 prose-a:text-slate-700 prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:break-words prose-a:break-all [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
-                                                dangerous_inner_html: "{post.body}"
+                                        if let Some(image) = post.header_image.clone() {
+                                            div { class: "mt-6 overflow-hidden rounded-lg border border-slate-200 bg-slate-100",
+                                                img {
+                                                    src: "{image}",
+                                                    alt: "{post.title}",
+                                                    class: "object-cover w-full max-h-[520px]"
+                                                }
                                             }
                                         }
                                     }
 
-                                    aside { class: "min-w-0 space-y-4 h-fit lg:sticky lg:top-24",
-                                        div { class: "overflow-hidden relative p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
-                                            p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "meta" }
-                                            div { class: "mt-3 space-y-2 text-xs text-slate-600",
-                                                p { span { class: "text-slate-700", "$ " } "author = " span { class: "text-slate-900", "{post.author.name}" } }
-                                                p { span { class: "text-slate-700", "$ " } "published = " span { class: "text-slate-900", "{post.created_at}" } }
-                                                p { span { class: "text-slate-700", "$ " } "read = " span { class: "text-slate-900", "{post.read_time} min" } }
-                                                p { span { class: "text-slate-700", "$ " } "views = " span { class: "text-slate-900", "{post.total_views}" } }
-                                            }
+                                    // Body
+                                    div { class: "mt-4 rounded-lg border border-slate-200 bg-white p-4 sm:p-6 md:p-8",
+                                        div {
+                                            class: "prose prose-base sm:prose-lg max-w-none break-words prose-h3:text-slate-900 prose-h4:text-slate-900 prose-code:before:content-none prose-th:text-slate-900 prose-li:marker:text-slate-500 prose-code:after:content-none prose-pre:bg-slate-100 prose-pre:rounded-lg prose-pre:px-4 prose-pre:py-3 prose-code:text-slate-700 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-slate-900 prose-table:text-slate-800 prose-thead:text-slate-900 prose-li:text-slate-700 prose-ol:text-slate-700 prose-h1:text-slate-900 prose-h1:text-3xl prose-h2:text-slate-900 prose-h2:text-2xl prose-ul:text-slate-700 prose-p:text-slate-700 prose-a:text-slate-700 prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:break-words prose-a:break-all [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
+                                            dangerous_inner_html: "{post.body}"
                                         }
+                                    }
 
-                                        if !post.tags.is_empty() {
-                                            div { class: "p-4 rounded-2xl border border-slate-200 bg-white/90 shadow-sm",
-                                                p { class: "text-[11px] font-semibold tracking-[0.18em] text-slate-500 uppercase", "tags" }
-                                                div { class: "flex flex-wrap gap-2 mt-3",
-                                                    for tag in post.tags.iter().take(10) {
-                                                        span { class: "rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700", "#{tag}" }
-                                                    }
+                                    // CTA
+                                    if post.show_cta {
+                                        div { class: "mt-4 rounded-lg border border-dashed border-slate-300 bg-white p-4 sm:p-5",
+                                            div { class: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+                                                div {
+                                                    p { class: "text-sm font-semibold text-slate-700", "Need Rust expertise?" }
+                                                    p { class: "text-xs text-slate-500", "Build your next production Rust system with us." }
                                                 }
-                                            }
-                                        }
-
-                                        if post.show_cta {
-                                            div { class: "p-4 rounded-2xl border border-slate-300 bg-slate-50/80 shadow-sm",
-                                                p { class: "text-lg font-semibold text-slate-700", "Need Rust Expertise?" }
-                                                p { class: "mt-2 text-sm text-slate-600", "Build your next production Rust system with us." }
                                                 Link {
                                                     to: Route::HireUs {},
-                                                    class: "inline-flex mt-4 items-center justify-center rounded-full bg-slate-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-700",
-                                                    "Hire Rust Developers"
+                                                    class: "inline-flex items-center justify-center rounded bg-slate-700 px-4 py-2 text-xs font-semibold text-white transition-colors duration-200 hover:bg-slate-800",
+                                                    "hire us"
                                                 }
                                             }
                                         }
