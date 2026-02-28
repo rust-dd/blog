@@ -1,276 +1,148 @@
-use crate::{
-    components::{error_template, header, icons},
-    pages::{home, post},
-};
 use chrono::{Datelike, Utc};
-use leptos::{
-    html::{a, body, div, footer, head, html, main, meta, p},
-    prelude::*,
-};
-use leptos_meta::*;
-use leptos_router::{
-    components::{FlatRoutes, FlatRoutesProps, Route, RouteChildren, RouteProps, Router, RouterProps},
-    ParamSegment, SsrMode, StaticSegment,
+use dioxus::prelude::*;
+
+use crate::{
+    components::{header, icons, loader},
+    pages::{hireus, home, post, references},
+    seo,
 };
 
-pub fn shell(options: LeptosOptions) -> impl IntoView {
-    let html_ = html().lang("en").child((
-        head().child((
-            meta().charset("utf-8"),
-            meta()
-                .name("viewport")
-                .content("width=device-width, initial-scale=1"))).child(
-            AutoReload(AutoReloadProps::builder().options(options.clone()).build())).child(
-            HydrationScripts(HydrationScriptsProps::builder().options(options).build())).child(
-            MetaTags()).child((
-            Stylesheet(
-                StylesheetProps::builder()
-                    .id("leptos")
-                    .href("/pkg/blog.css")
-                    .build(),
-            ),
-            Stylesheet(
-                StylesheetProps::builder()
-                    .id("katex")
-                    .href("/katex.min.css")
-                    .build(),
-            ))).child(
-            Title(
-                TitleProps::builder()
-                    .text("Rust-DD Blog – Tech Insights & Consulting")
-                    .build(),
-            )).child((
-            Meta(
-                MetaProps::builder()
-                    .name("hostname")
-                    .content("rust-dd.com")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("expected-hostname")
-                    .content("rust-dd.com")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("description")
-                    .content(
-                        "Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services.",
-                    )
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("keywords")
-                    .content("rust-dd, rust, ai, mathematics, embedded, web, systems, programming")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("robots")
-                    .content("index, follow")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("googlebot")
-                    .content("index, follow")
-                    .build(),
-            ))).child((
-            // Facebook
-            Meta(
-                MetaProps::builder()
-                    .property("og:type")
-                    .content("website")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:title")
-                    .content("Rust-DD Blog – Tech Insights & Consulting")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:site_name")
-                    .content("Rust-DD Blog – Tech Insights & Consulting")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:description")
-                    .content(
-                        "Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services.",
-                    )
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:url")
-                    .content("https://rust-dd.com/")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:image")
-                    .content("https://static.rust-dd.com/rust-dd_custom_bg.png")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:image:type")
-                    .content("image/png")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:image:width")
-                    .content("1200")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .property("og:image:height")
-                    .content("627")
-                    .build(),
-            ))).child((
-            // Twitter
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:card")
-                    .content("summary_large_image")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:title")
-                    .content("Rust-DD Blog – Tech Insights & Consulting")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:description")
-                    .content(
-                        "Explore open-source Rust projects, learn innovative techniques, and connect with a passionate community. Get expert Rust development and consulting services.",
-                    )
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:site")
-                    .content("@rust_dd")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:url")
-                    .content("https://rust-dd.com/")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:image")
-                    .content("https://static.rust-dd.com/rust-dd_custom_bg.png")
-                    .build(),
-            ),
-            Meta(
-                MetaProps::builder()
-                    .name("twitter:image:alt")
-                    .content("Rust-DD logo")
-                    .build(),
-            ))).child((
-            Link(
-                LinkProps::builder()
-                    .rel("preconnect")
-                    .href("https://fonts.googleapis.com")
-                    .build(),
-            ),
-            Link(
-                LinkProps::builder()
-                    .rel("preconnect")
-                    .href("https://fonts.gstatic.com")
-                    .build(),
-        ))),
-        body().class("bg-[#1e1e1e]").child(self::component),
-    ));
+#[derive(Routable, Clone, PartialEq, Debug)]
+pub enum Route {
+    #[layout(Layout)]
+    #[route("/")]
+    Home {},
+    #[route("/post/:slug")]
+    Post { slug: String },
+    #[route("/references")]
+    References {},
+    #[route("/hireus")]
+    HireUs {},
+    #[end_layout]
+    #[route("/:..route")]
+    PageNotFound { route: Vec<String> },
+}
 
-    view! {
-        <!DOCTYPE html>
-        {html_}
+#[component]
+pub fn App() -> Element {
+    rsx! {
+        document::Stylesheet { href: asset!("/assets/tailwind.css") }
+        document::Stylesheet { href: "/katex.min.css" }
+        document::Meta { charset: "utf-8" }
+        document::Meta { name: "viewport", content: "width=device-width, initial-scale=1" }
+        document::Meta {
+            name: "keywords",
+            content: "rust-dd, rust, ai, mathematics, embedded, web, systems, programming"
+        }
+        document::Meta { name: "theme-color", content: "#1e1e1e" }
+        document::Meta { property: "og:site_name", content: seo::SITE_NAME }
+        document::Meta { property: "og:locale", content: "en_US" }
+        document::Meta {
+            property: "og:image",
+            content: seo::DEFAULT_OG_IMAGE
+        }
+        document::Meta { property: "og:image:type", content: "image/png" }
+        document::Meta { property: "og:image:width", content: "1200" }
+        document::Meta { property: "og:image:height", content: "627" }
+        document::Meta { name: "twitter:site", content: seo::X_HANDLE }
+        document::Meta { name: "twitter:creator", content: seo::X_HANDLE }
+        document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
+        document::Meta { name: "twitter:image:alt", content: "Rust-DD logo" }
+        document::Link {
+            rel: "alternate",
+            r#type: "application/rss+xml",
+            title: "Rust-DD RSS Feed",
+            href: seo::absolute_url("/rss.xml")
+        }
+        document::Link { rel: "preconnect", href: "https://fonts.googleapis.com" }
+        document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
+
+        div { class: "overflow-auto min-h-screen bg-[#1e1e1e] text-white font-mono",
+            Router::<Route> {}
+        }
     }
 }
 
-pub fn component() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
-    provide_meta_context();
+#[component]
+fn Layout() -> Element {
+    rsx! {
+        header::Component {}
+        main { class: "container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 md:px-0",
+            SuspenseBoundary {
+                fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
+                Outlet::<Route> {}
+            }
+        }
+        footer { class: "fixed right-0 bottom-0 left-0 z-50 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md",
+            div { class: "flex flex-col gap-1 justify-center items-center",
+                p { class: "text-gray-400",
+                    "Powered by"
+                    a {
+                        href: "https://github.com/rust-dd",
+                        class: "hover:underline text-[#ffef5c]",
+                        " rust-dd"
+                    }
+                    " © {Utc::now().year()}"
+                }
+                div { class: "block md:hidden",
+                    icons::Component {}
+                }
+            }
+        }
+    }
+}
 
-    Router(
-        RouterProps::builder()
-            .children(TypedChildren::to_children(move || {
-                div().class("overflow-auto text-white font-mono").child((
-          header::component,
-          main()
-            .class("container flex flex-col gap-8 px-4 pt-10 pb-20 mx-auto mt-16 md:px-0")
-            .child(FlatRoutes(
-              FlatRoutesProps::builder()
-                .fallback(|| {
-                  let mut outside_errors = Errors::default();
-                  outside_errors.insert_with_default_key(error_template::AppError::NotFound);
-                  error_template::component(
-                      Some(outside_errors),
-                      None
-                  )
-                })
-                .children(RouteChildren::to_children(move || {
-                  (
-                    Route(
-                      RouteProps::builder()
-                        .path(StaticSegment(""))
-                        .view(home::component)
-                        .ssr(SsrMode::InOrder)
-                        .build(),
-                    ),
-                    // Route(
-                    //   RouteProps::builder()
-                    //     .path(StaticSegment("references"))
-                    //     .view(references::component)
-                    //     .build(),
-                    // ),
-                    // Route(
-                    //   RouteProps::builder()
-                    //     .path(StaticSegment("hireus"))
-                    //     .view(hireus::component)
-                    //     .build(),
-                    // ),
-                    Route(
-                      RouteProps::builder()
-                        .path((StaticSegment("post"), ParamSegment("slug")))
-                        .view(post::component)
-                        .ssr(SsrMode::Async)
-                        .build(),
-                    ),
-                  )
-                }))
-                .build(),
-            )),
-          footer()
-            .class("fixed right-0 bottom-0 left-0 z-99 py-2 text-center md:py-4 bg-[#1e1e1e]/80 backdrop-blur-md")
-            .child(
-              div().class("flex flex-col gap-1 justify-center items-center").child((
-                p().class("text-gray-400").child((
-                  "Powered by",
-                  a()
-                    .href("https://github.com/rust-dd")
-                    .class("hover:underline text-[#ffef5c]")
-                    .child(" rust-dd"),
-                  format!(" © {}", Utc::now().year()),
-                )),
-                div().class("block md:hidden").child(icons::component),
-              )),
-            ),
-        ))
-            }))
-            .build(),
-    )
+#[component]
+fn Home() -> Element {
+    rsx! { home::Component {} }
+}
+
+#[component]
+fn Post(slug: String) -> Element {
+    rsx! { post::Component { slug } }
+}
+
+#[component]
+fn References() -> Element {
+    rsx! { references::Component {} }
+}
+
+#[component]
+fn HireUs() -> Element {
+    rsx! { hireus::Component {} }
+}
+
+#[component]
+fn PageNotFound(route: Vec<String>) -> Element {
+    let attempted_path = if route.is_empty() {
+        "/".to_string()
+    } else {
+        format!("/{}", route.join("/"))
+    };
+    let canonical = seo::absolute_url(&attempted_path);
+
+    rsx! {
+        document::Title { "404 | Rust-DD" }
+        document::Meta { name: "description", content: "This page could not be found on Rust-DD." }
+        document::Meta { name: "robots", content: "noindex, nofollow" }
+        document::Meta { name: "googlebot", content: "noindex, nofollow" }
+        document::Meta { property: "og:type", content: "website" }
+        document::Meta { property: "og:title", content: "404 | Rust-DD" }
+        document::Meta { property: "og:description", content: "This page could not be found on Rust-DD." }
+        document::Meta { property: "og:url", content: "{canonical}" }
+        document::Meta { name: "twitter:card", content: "summary" }
+        document::Meta { name: "twitter:title", content: "404 | Rust-DD" }
+        document::Meta { name: "twitter:description", content: "This page could not be found on Rust-DD." }
+        document::Meta { name: "twitter:url", content: "{canonical}" }
+        document::Link { rel: "canonical", href: "{canonical}" }
+        section { class: "mx-auto max-w-3xl text-center pt-24",
+            h1 { class: "text-4xl font-bold text-[#ffef5c]", "404" }
+            p { class: "mt-4 text-lg text-gray-300", "Page not found: {attempted_path}" }
+            Link {
+                to: Route::Home {},
+                class: "inline-flex mt-8 text-[#ffef5c] hover:underline",
+                "Go back home"
+            }
+        }
+    }
 }

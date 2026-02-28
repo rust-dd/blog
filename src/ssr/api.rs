@@ -1,116 +1,118 @@
 use std::collections::BTreeMap;
 
-use leptos::prelude::{server, ServerFnError};
+use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::ssr::types::{Post, Reference};
 
-#[server(endpoint = "/posts")]
-pub async fn select_posts(#[server(default)] tags: Vec<String>) -> Result<Vec<Post>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
-    use chrono::{DateTime, Utc};
-    use leptos::prelude::expect_context;
+#[get("/api/posts")]
+pub async fn select_posts() -> Result<Vec<Post>> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
+        use chrono::{DateTime, Utc};
 
-    let AppState { db, .. } = expect_context::<AppState>();
-    let mut query = String::from("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;");
-    if !tags.is_empty() {
-        let tags = tags.iter().map(|tag| format!(r#""{}""#, tag)).collect::<Vec<_>>();
-        query = format!(
-            "SELECT *, author.* from post WHERE tags CONTAINSANY [{0}] ORDER BY created_at DESC;",
-            tags.join(", ")
-        );
+        let db = db().await;
+        let mut query = db
+            .query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;")
+            .await?;
+
+        let mut posts = query.take::<Vec<Post>>(0)?;
+        posts.iter_mut().for_each(|post| {
+            let date_time = DateTime::parse_from_rfc3339(&post.created_at)
+                .unwrap()
+                .with_timezone(&Utc);
+            let naive_date = date_time.date_naive();
+            let formatted_date = naive_date.format("%b %-d, %Y").to_string();
+            post.created_at = formatted_date;
+        });
+
+        Ok(posts)
     }
-
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
     }
+}
 
-    let mut posts = query?.take::<Vec<Post>>(0)?;
-    posts.iter_mut().for_each(|post| {
-        let date_time = DateTime::parse_from_rfc3339(&post.created_at)
-            .unwrap()
-            .with_timezone(&Utc);
+#[get("/api/tags")]
+pub async fn select_tags() -> Result<BTreeMap<String, usize>> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
+
+        let db = db().await;
+        let mut query = db
+            .query(
+                "
+        LET $tags = SELECT tags FROM post;
+        array::flatten($tags.map(|$t| $t.tags));
+        ",
+            )
+            .await?;
+
+        let tags = query.take::<Vec<String>>(1)?;
+        let mut tag_map = BTreeMap::<String, usize>::new();
+        for tag in tags {
+            *tag_map.entry(tag).or_insert(0) += 1;
+        }
+
+        Ok(tag_map)
+    }
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
+    }
+}
+
+#[get("/api/post/{slug}")]
+pub async fn select_post(slug: String) -> Result<Post> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
+        use crate::ssr::server_utils::process_markdown;
+        use chrono::{DateTime, Utc};
+
+        let db = db().await;
+        let mut query = db
+            .query(format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#))
+            .await?;
+        let post = query.take::<Vec<Post>>(0)?;
+        let mut post = match post.first().cloned() {
+            Some(post) => post,
+            None => return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "post not found").into()),
+        };
+
+        let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
         let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d, %Y").to_string();
-        post.created_at = formatted_date.into();
-    });
+        let formatted_date = naive_date.format("%b %-d").to_string();
+        post.created_at = formatted_date;
+        post.body = process_markdown(post.body.clone()).await?;
 
-    Ok(posts)
+        Ok(post)
+    }
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
+    }
 }
 
-#[server(endpoint = "/tags")]
-pub async fn select_tags() -> Result<BTreeMap<String, usize>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
-    use leptos::prelude::expect_context;
+#[post("/api/posts/{id}/increment_views")]
+pub async fn increment_views(id: String) -> Result<()> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
 
-    let AppState { db, .. } = expect_context::<AppState>();
+        let db = db().await;
+        db.query(format!("UPDATE post:{0} SET total_views = total_views + 1;", id))
+            .await?;
 
-    let query = format!(
-        "
-    LET $tags = SELECT tags FROM post;
-    array::flatten($tags.map(|$t| $t.tags));
-    "
-    );
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
+        Ok(())
     }
-
-    let tags = query?.take::<Vec<String>>(1)?;
-    let mut tag_map = BTreeMap::<String, usize>::new();
-    for tag in tags {
-        *tag_map.entry(tag).or_insert(0) += 1;
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
     }
-
-    Ok(tag_map)
-}
-
-#[server(endpoint = "/post")]
-pub async fn select_post(slug: String) -> Result<Post, ServerFnError> {
-    use super::server_utils::process_markdown;
-    use crate::ssr::app_state::AppState;
-    use chrono::{DateTime, Utc};
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-
-    let query = format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#);
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
-    }
-
-    let post = query?.take::<Vec<Post>>(0)?;
-    let mut post = post.first().unwrap().clone();
-
-    let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
-    let naive_date = date_time.date_naive();
-    let formatted_date = naive_date.format("%b %-d").to_string();
-    post.created_at = formatted_date.into();
-    post.body = process_markdown(post.body.to_string()).await?.into();
-
-    Ok(post)
-}
-
-#[server(endpoint = "/increment_views")]
-pub async fn increment_views(id: String) -> Result<(), ServerFnError> {
-    use crate::ssr::app_state::AppState;
-    use leptos::prelude::expect_context;
-
-    let AppState { db, .. } = expect_context::<AppState>();
-
-    let query = format!("UPDATE post:{0} SET total_views = total_views + 1;", id);
-    let query = db.query(&query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
-    }
-
-    Ok(())
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -121,52 +123,57 @@ pub struct HireUsRequest {
     pub message: String,
 }
 
-#[server(endpoint = "/hire_us")]
-pub async fn hire_us(data: HireUsRequest) -> Result<(), ServerFnError> {
-    use lettre::{
-        message::header::ContentType, transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport,
-        Message, Tokio1Executor,
-    };
-    use std::env;
+#[post("/api/hire_us")]
+pub async fn hire_us(data: HireUsRequest) -> Result<()> {
+    #[cfg(feature = "server")]
+    {
+        use lettre::{
+            message::header::ContentType, transport::smtp::authentication::Credentials, AsyncSmtpTransport,
+            AsyncTransport, Message, Tokio1Executor,
+        };
+        use std::env;
 
-    let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&env::var("SMTP_HOST")?)?
-        .credentials(Credentials::new(env::var("SMTP_USER")?, env::var("SMTP_PASSWORD")?))
-        .build::<Tokio1Executor>();
+        let smtp_host = env::var("SMTP_HOST")?;
+        let smtp_user = env::var("SMTP_USER")?;
+        let smtp_password = env::var("SMTP_PASSWORD")?;
 
-    let email = Message::builder()
-        .from(env::var("SMTP_USER")?.parse()?)
-        .to(env::var("SMTP_USER")?.parse()?)
-        .subject(format!("{} - {}", data.email, data.subject))
-        .header(ContentType::TEXT_HTML)
-        .body(data.message)
-        .expect("failed to build email");
+        let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&smtp_host)?
+            .credentials(Credentials::new(smtp_user.clone(), smtp_password))
+            .build::<Tokio1Executor>();
 
-    match mailer.send(email).await {
-        Ok(_) => {
-            tracing::info!("Email sent successfully");
-            return Ok(());
-        }
-        Err(e) => {
-            tracing::error!("Failed to send email: {:?}", e);
-            return Err(ServerFnError::from(e));
-        }
+        let email = Message::builder()
+            .from(smtp_user.parse()?)
+            .to(env::var("SMTP_USER")?.parse()?)
+            .subject(format!("{} - {}", data.email, data.subject))
+            .header(ContentType::TEXT_HTML)
+            .body(data.message)?;
+
+        mailer.send(email).await?;
+        tracing::info!("Email sent successfully");
+        Ok(())
+    }
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
     }
 }
 
-#[server(endpoint = "/references")]
-pub async fn select_references() -> Result<Vec<Reference>, ServerFnError> {
-    use crate::ssr::app_state::AppState;
-    use leptos::prelude::expect_context;
+#[get("/api/references")]
+pub async fn select_references() -> Result<Vec<Reference>> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
 
-    let AppState { db, .. } = expect_context::<AppState>();
+        let db = db().await;
+        let mut query = db
+            .query("SELECT * from reference WHERE is_published = true ORDER BY year DESC;")
+            .await?;
+        let references = query.take::<Vec<Reference>>(0)?;
 
-    let query = "SELECT * from reference WHERE is_published = true ORDER BY year DESC;";
-    let query = db.query(query).await;
-
-    if let Err(e) = query {
-        return Err(ServerFnError::from(e));
+        Ok(references)
     }
-
-    let references = query?.take::<Vec<Reference>>(0)?;
-    Ok(references)
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
+    }
 }

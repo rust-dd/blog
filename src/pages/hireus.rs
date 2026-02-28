@@ -1,238 +1,275 @@
-use icondata as i;
-use leptos::{
-    ev,
-    html::{a, br, button, div, form, h1, h2, h3, img, input, meta, p, section, textarea, title},
-    prelude::*,
-    svg::{path, svg},
+use dioxus::prelude::*;
+
+use crate::{
+    app::Route,
+    seo,
+    ssr::api::{hire_us, HireUsRequest},
 };
-use leptos_icons::{Icon, IconProps};
 
-use crate::ssr::api::{hire_us, HireUsRequest};
+#[component]
+pub fn Component() -> Element {
+    let mut name = use_signal(String::new);
+    let mut email = use_signal(String::new);
+    let mut subject = use_signal(String::new);
+    let mut message = use_signal(String::new);
+    let mut sending = use_signal(|| false);
+    let mut status = use_signal(|| Option::<String>::None);
+    let mut open_faq = use_signal(|| Option::<usize>::None);
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct Faq {
-    id: u32,
-    question: String,
-    answer: String,
-    is_open: RwSignal<bool>,
+    let faqs = vec![
+        (
+            "Why choose Rust for your next project?",
+            "Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing.",
+        ),
+        (
+            "What Rust consulting services do we offer?",
+            "We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions.",
+        ),
+        (
+            "How can Rust consulting benefit my business?",
+            "Our expert Rust consultants help businesses build faster, safer, and more scalable software, reducing technical debt and operational risk.",
+        ),
+        (
+            "Is Rust suitable for web development?",
+            "Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput.",
+        ),
+        (
+            "Do you offer Rust training for our development team?",
+            "Yes, we provide customized Rust training programs and workshops to quickly upskill teams in modern Rust practices.",
+        ),
+    ];
+    let title = "Expert Rust Consulting Services | High-Performance Rust Development";
+    let description = "Professional Rust consulting services specializing in high-performance, reliable, and scalable Rust development.";
+    let canonical = seo::absolute_url("/hireus");
+
+    rsx! {
+        document::Title { "{title}" }
+        document::Meta { name: "description", content: "{description}" }
+        document::Meta { name: "robots", content: "index, follow" }
+        document::Meta { name: "googlebot", content: "index, follow" }
+        document::Meta { property: "og:type", content: "website" }
+        document::Meta { property: "og:title", content: "{title}" }
+        document::Meta { property: "og:description", content: "{description}" }
+        document::Meta { property: "og:url", content: "{canonical}" }
+        document::Meta { property: "og:image", content: seo::DEFAULT_OG_IMAGE }
+        document::Meta { name: "twitter:card", content: "summary_large_image" }
+        document::Meta { name: "twitter:title", content: "{title}" }
+        document::Meta { name: "twitter:description", content: "{description}" }
+        document::Meta { name: "twitter:url", content: "{canonical}" }
+        document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
+        document::Link { rel: "canonical", href: "{canonical}" }
+
+        div { class: "min-h-screen text-white bg-[#1e1e1e]",
+            section { class: "px-4 pt-12 pb-24 sm:px-6 lg:px-8",
+                div { class: "mx-auto max-w-5xl",
+                    h1 { class: "mb-6 text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl text-[#ffef5c]",
+                        "Rust Consulting & Development"
+                        br {}
+                        "for the Modern Era"
+                    }
+                    p { class: "mb-8 max-w-2xl text-xl text-gray-300",
+                        "Expert Rust consultants crafting high-performance, reliable, and scalable systems tailored to your business needs."
+                    }
+                    Link {
+                        to: Route::References {},
+                        class: "inline-flex items-center text-lg font-semibold hover:underline text-[#ffef5c]",
+                        "Explore Our Rust Projects"
+                        svg {
+                            class: "ml-2 size-5",
+                            fill: "none",
+                            stroke: "currentColor",
+                            view_box: "0 0 24 24",
+                            path {
+                                stroke_linecap: "round",
+                                stroke_linejoin: "round",
+                                stroke_width: "2",
+                                d: "M17 8l4 4m0 0l-4 4m4-4H3"
+                            }
+                        }
+                    }
+                }
+            }
+
+            section { class: "py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
+                div { class: "mx-auto max-w-5xl",
+                    h2 { class: "mb-12 text-3xl font-bold text-[#ffef5c]", "Our Rust Expertise" }
+                    div { class: "grid grid-cols-1 gap-12 md:grid-cols-2",
+                        div {
+                            h3 { class: "mb-4 text-2xl font-semibold text-white", "Rust Consulting & Development" }
+                            p { class: "mb-6 text-gray-300", "Efficient, safe, and concurrent systems built with Rust. Specialized consulting for web services, embedded systems, and high-performance applications." }
+                        }
+                        div {
+                            h3 { class: "mb-4 text-2xl font-semibold text-white", "Advanced System Architecture" }
+                            p { class: "mb-6 text-gray-300", "Designing robust architectures to ensure your Rust applications are performant, scalable, and future-proof." }
+                        }
+                    }
+                }
+            }
+
+            section { class: "py-20 px-4 sm:px-6 lg:px-8",
+                div { class: "mx-auto max-w-5xl",
+                    h2 { class: "mb-12 text-3xl font-bold text-[#ffef5c]", "Meet Our Rust Experts" }
+                    div { class: "grid grid-cols-1 gap-12 md:grid-cols-2",
+                        ExpertCard {
+                            name: "Daniel Zelei",
+                            role: "Senior Rust Consultant",
+                            image: "https://static.rust-dd.com/zelei.webp",
+                            linkedin: "https://www.linkedin.com/in/danielzelei/"
+                        }
+                        ExpertCard {
+                            name: "Daniel Boros",
+                            role: "Senior Rust Consultant",
+                            image: "https://static.rust-dd.com/boros.webp",
+                            linkedin: "https://www.linkedin.com/in/daniel-boros-b86a5373/"
+                        }
+                    }
+                }
+            }
+
+            section { class: "py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
+                div { class: "mx-auto max-w-3xl",
+                    h2 { class: "mb-8 text-3xl font-bold text-[#ffef5c]", "Get In Touch" }
+                    form {
+                        class: "space-y-6",
+                        onsubmit: move |event| {
+                            event.prevent_default();
+                            if *sending.read() {
+                                return;
+                            }
+
+                            sending.set(true);
+                            status.set(None);
+                            let payload = HireUsRequest {
+                                name: name(),
+                                email: email(),
+                                subject: subject(),
+                                message: message(),
+                            };
+
+                            spawn(async move {
+                                let result = hire_us(payload).await;
+                                sending.set(false);
+
+                                match result {
+                                    Ok(_) => {
+                                        name.set(String::new());
+                                        email.set(String::new());
+                                        subject.set(String::new());
+                                        message.set(String::new());
+                                        status.set(Some(
+                                            "Message sent successfully! We'll get back to you shortly.".to_string(),
+                                        ));
+                                    }
+                                    Err(err) => status.set(Some(format!("Failed to send message: {err}"))),
+                                }
+                            });
+                        },
+                        div { class: "grid grid-cols-1 gap-6 md:grid-cols-2",
+                            input {
+                                placeholder: "Your Name",
+                                r#type: "text",
+                                value: "{name()}",
+                                oninput: move |event| name.set(event.value()),
+                                class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                            }
+                            input {
+                                placeholder: "Your Email",
+                                r#type: "email",
+                                value: "{email()}",
+                                oninput: move |event| email.set(event.value()),
+                                class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                            }
+                        }
+                        input {
+                            placeholder: "Subject",
+                            r#type: "text",
+                            value: "{subject()}",
+                            oninput: move |event| subject.set(event.value()),
+                            class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                        }
+                        textarea {
+                            placeholder: "Your Message",
+                            rows: 6,
+                            value: "{message()}",
+                            oninput: move |event| message.set(event.value()),
+                            class: "py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"
+                        }
+                        button {
+                            r#type: "submit",
+                            disabled: *sending.read(),
+                            class: "flex justify-center items-center py-3 px-6 w-full text-lg font-semibold transition-colors bg-[#ffef5c] text-[#1e1e1e] hover:bg-[#ffef5c]/90 disabled:opacity-70",
+                            if *sending.read() {
+                                svg {
+                                    class: "w-6 h-6 animate-spin fill-black",
+                                    view_box: "0 0 100 101",
+                                    fill: "none",
+                                    path {
+                                        d: "M93.97 39.04c2.42-.63 3.89-3.13 3.04-5.48-1.71-4.73-4.13-9.18-7.19-13.2-3.97-5.23-8.93-9.62-14.6-12.94-5.67-3.31-11.94-5.47-18.44-6.36-5-.69-10.07-.61-15.03.23-2.47.41-3.92 2.92-3.28 5.35.64 2.42 3.12 3.85 5.6 3.49 3.8-.56 7.67-.58 11.49-.06 5.32.73 10.45 2.5 15.09 5.21 4.64 2.71 8.7 6.31 11.95 10.59 2.33 3.07 4.21 6.45 5.59 10.04.9 2.34 3.36 3.8 5.79 3.13Z",
+                                        fill: "currentColor"
+                                    }
+                                }
+                            } else {
+                                "Send Message"
+                            }
+                        }
+                        if let Some(current_status) = status() {
+                            p { class: "text-[#ffef5c]", "{current_status}" }
+                        }
+                    }
+                }
+            }
+
+            section { class: "py-24 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]",
+                div { class: "mx-auto max-w-4xl",
+                    div { class: "text-center mb-16",
+                        h2 { class: "text-4xl font-bold text-[#ffef5c] mb-4", "Rust Consulting FAQ" }
+                        p { class: "text-xl text-gray-300", "Common questions about our Rust consulting services" }
+                    }
+                    div { class: "space-y-4",
+                        for (index, faq) in faqs.iter().enumerate() {
+                            article { class: "bg-[#1e1e1e] border border-transparent overflow-hidden hover:border-[#ffef5c]/30 transition-colors",
+                                button {
+                                    class: "w-full px-8 py-6 text-left flex items-center justify-between hover:bg-[#2a2a2a]/50 transition-colors",
+                                    onclick: move |_| {
+                                        if open_faq() == Some(index) {
+                                            open_faq.set(None);
+                                        } else {
+                                            open_faq.set(Some(index));
+                                        }
+                                    },
+                                    h3 { class: "text-xl font-semibold text-white pr-4", "{faq.0}" }
+                                    span { class: "text-xl text-white", if open_faq() == Some(index) { "⌄" } else { "⌃" } }
+                                }
+                                if open_faq() == Some(index) {
+                                    div { class: "px-8 pb-6",
+                                        p { class: "text-gray-300 leading-relaxed text-lg", "{faq.1}" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-pub fn component() -> impl IntoView {
-    let state = RwSignal::new(HireUsRequest::default());
-    let (sent, set_sent) = signal(false);
-    let (loader, set_loader) = signal(false);
-    let faqs = RwSignal::new(vec![
-        Faq {
-            id: 1,
-            question: "Why choose Rust for your next project?".to_string(),
-            answer: "Rust ensures performance, safety, and reliability, ideal for system-critical applications, embedded solutions, and high-performance computing.".to_string(),
-            is_open: RwSignal::new(false),
-        },
-        Faq {
-            id: 2,
-            question: "What Rust consulting services do we offer?".to_string(),
-            answer: "We offer Rust consulting, architecture design, performance optimization, code audits, training, and custom Rust development solutions.".to_string(),
-            is_open: RwSignal::new(false),
-        },
-        Faq {
-            id: 3,
-            question: "How can Rust consulting benefit my business?".to_string(),
-            answer: "Our expert Rust consultants help businesses build faster, safer, and more scalable software solutions, reducing technical debt and ensuring long-term reliability.".to_string(),
-            is_open: RwSignal::new(false),
-        },
-        Faq {
-            id: 4,
-            question: "Is Rust suitable for web development?".to_string(),
-            answer: "Rust's performance, memory safety, and concurrency make it ideal for web applications, APIs, and backend services requiring high throughput and reliability.".to_string(),
-            is_open: RwSignal::new(false),
-        },
-        Faq {
-            id: 5,
-            question: "Do you offer Rust training for our development team?".to_string(),
-            answer: "Yes, we provide customized Rust training programs and workshops to quickly upskill your team in modern Rust development practices.".to_string(),
-            is_open: RwSignal::new(false),
-        },
-    ]);
-
-    let submit = Action::new(move |data: &HireUsRequest| {
-        set_loader(true);
-        let data = data.clone();
-
-        async move {
-            let _ = hire_us(data).await;
-            state.set(HireUsRequest::default());
-            set_sent(true);
-            set_loader(false);
+#[component]
+fn ExpertCard(name: &'static str, role: &'static str, image: &'static str, linkedin: &'static str) -> Element {
+    rsx! {
+        div { class: "flex items-center space-x-6",
+            img { src: "{image}", alt: "{name}", width: 100, height: 100, class: "rounded-full" }
+            div {
+                h3 { class: "mb-1 text-xl font-semibold text-white", "{name}" }
+                p { class: "mb-2 text-gray-300", "{role}" }
+                a {
+                    href: "{linkedin}",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    class: "text-sm hover:underline text-[#ffef5c]",
+                    "LinkedIn Profile"
+                }
+            }
         }
-    });
-
-    div().class("min-h-screen text-white bg-[#1e1e1e]").child((
-        title().child("Expert Rust Consulting Services | High-Performance Rust Development"),
-        meta().attr("name", "description").attr("content", "Professional Rust consulting services specializing in high-performance, reliable, and scalable Rust development."),
-        section().class("px-4 pt-12 pb-24 sm:px-6 lg:px-8").child(
-            div().class("mx-auto max-w-5xl").child((
-                h1().class("mb-6 text-5xl font-extrabold leading-tight sm:text-6xl md:text-7xl text-[#ffef5c]")
-                    .child(("Rust Consulting & Development", br(), "for the Modern Era")),
-                p().class("mb-8 max-w-2xl text-xl text-gray-300").child("Expert Rust consultants crafting high-performance, reliable, and scalable systems tailored to your business needs."),
-                a().href("/references").class("inline-flex items-center text-lg font-semibold hover:underline text-[#ffef5c]").child((
-                    "Explore Our Rust Projects",
-                    svg().class("ml-2 size-5").attr("fill", "none").attr("stroke", "currentColor").attr("viewBox", "0 0 24 24").attr("xmlns", "http://www.w3.org/2000/svg").child(
-                        path().attr("stroke-linecap", "round").attr("stroke-linejoin", "round").attr("stroke-width", 2).attr("d", "M17 8l4 4m0 0l-4 4m4-4H3"),
-                    ),
-                )),
-            )),
-        ),
-        section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
-            div().class("mx-auto max-w-5xl").child((
-                h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Our Rust Expertise"),
-                div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
-                    div().child((
-                        h3().class("mb-4 text-2xl font-semibold text-white").child("Rust Consulting & Development"),
-                        p().class("mb-6 text-gray-300").child("Efficient, safe, and concurrent systems built with Rust. Specialized consulting for web services, embedded systems, and high-performance applications."),
-                    )),
-                    div().child((
-                        h3().class("mb-4 text-2xl font-semibold text-white").child("Advanced System Architecture"),
-                        p().class("mb-6 text-gray-300").child("Designing robust architectures to ensure your Rust applications are performant, scalable, and future-proof."),
-                    )),
-                )),
-            )),
-        ),
-        section().class("py-20 px-4 sm:px-6 lg:px-8").child(
-            div().class("mx-auto max-w-5xl").child((
-                h2().class("mb-12 text-3xl font-bold text-[#ffef5c]").child("Meet Our Rust Experts"),
-                div().class("grid grid-cols-1 gap-12 md:grid-cols-2").child((
-                    div().class("flex items-center space-x-6").child((
-                        img().src("https://static.rust-dd.com/zelei.webp").alt("Daniel Zelei").width(100).height(100).class("rounded-full"),
-                        div().child((
-                            h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Zelei"),
-                            p().class("mb-2 text-gray-300").child("Senior Rust Consultant"),
-                            a().href("https://www.linkedin.com/in/danielzelei/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
-                        )),
-                    )),
-                    div().class("flex items-center space-x-6").child((
-                        img().src("https://static.rust-dd.com/boros.webp").alt("Daniel Boros").width(100).height(100).class("rounded-full"),
-                        div().child((
-                            h3().class("mb-1 text-xl font-semibold text-white").child("Daniel Boros"),
-                            p().class("mb-2 text-gray-300").child("Senior Rust Consultant"),
-                            a().href("https://www.linkedin.com/in/daniel-boros-b86a5373/").target("_blank").rel("noopener noreferrer").class("text-sm hover:underline text-[#ffef5c]").child("LinkedIn Profile"),
-                        )),
-                    )),
-                ))
-            ))
-        ),
-
-     section().class("py-20 px-4 sm:px-6 lg:px-8 bg-[#2a2a2a]").child(
-         div().class("mx-auto max-w-3xl").child((
-             h2().class("mb-8 text-3xl font-bold text-[#ffef5c]").child("Get In Touch"),
-             form().class("space-y-6").on(ev::submit ,move |e| {
-                 e.prevent_default();
-                 let _ = submit.dispatch(state.get());
-             }).child((
-                 div().class("grid grid-cols-1 gap-6 md:grid-cols-2").child((
-                     input().placeholder("Your Name").attr("type", "text").prop("value", move || state.get().name).on(ev::input, move |e| {
-                         let name = event_target_value(&e);
-                         state.update(|prev| { prev.name = name });
-                     }).class("py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"),
-                     input().placeholder("Your Email").attr("type", "text").prop("value", move || state.get().email).on(ev::input, move |e| {
-                         let email = event_target_value(&e);
-                         state.update(|prev| { prev.email = email });
-                     }).class("py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"),
-                 )),
-                 input().placeholder("Subject").attr("type", "text").prop("value", move || state.get().subject).on(ev::input, move |e| {
-                     let subject = event_target_value(&e);
-                     state.update(|prev| { prev.subject = subject });
-                 }).class("py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"),
-                 textarea().placeholder("Your Message").prop("value", move || state.get().message).on(ev::input, move |e| {
-                     let message = event_target_value(&e);
-                     state.update(|prev| { prev.message = message });
-                 }).rows(6).class("py-3 px-4 w-full placeholder-gray-400 text-white transition-shadow focus:ring-2 focus:outline-none bg-[#1e1e1e] focus:ring-[#ffef5c]"),
-                 button().attr("type", "submit").class("flex justify-center items-center py-3 px-6 w-full text-lg font-semibold transition-colors bg-[#ffef5c] text-[#1e1e1e] hover:bg-[#ffef5c]/90").child(
-                     Show(ShowProps::builder().when(loader).fallback(|| "Send Message").children(ToChildren::to_children(move || {
-                         svg().class("w-8 h-8 animate-spin fill-black").attr("aria-hidden", "true").attr("viewBox", "0 0 100 101").attr("fill", "none").attr("xmlns", "http://www.w3.org/2000/svg").child(
-                             path().attr("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z").attr("fill", "currentFill")
-                         )
-                     })).build())),
-                Show(ShowProps::builder().when(sent).fallback(|| ()).children(ToChildren::to_children(|| p().class("text-[#ffef5c]").child("Message sent successfully! We\'ll get back to you shortly."))).build()
-             ),
-            )),
-         ))
-     ),
-
-     section()
-         .class("py-24 px-4 sm:px-6 mt-28 absolute left-0 right-0 lg:px-8 bg-[#2a2a2a]")
-         .child(
-             div()
-                 .class("mx-auto max-w-4xl")
-                 .child((
-                     div()
-                         .class("text-center mb-16")
-                         .child((
-                             h2()
-                                 .class("text-4xl font-bold text-[#ffef5c] mb-4")
-                                 .child("Rust Consulting FAQ"),
-                             p()
-                                 .class("text-xl text-gray-300")
-                                 .child("Common questions about our Rust consulting services"),
-                         )),
-                     div()
-                         .class("space-y-4")
-                         .child(
-                             For(
-                                 ForProps::builder()
-                                     .each(move || faqs.read().clone().into_iter())
-                                     .key(|item| item.id.to_string())
-                                     .children(move |item| {
-                                         div()
-                                             .class("bg-[#1e1e1e] border border-transparent overflow-hidden hover:border-[#ffef5c]/30 transition-colors")
-                                             .child((
-                                                 button()
-                                                     .on(ev::click,
-                                                         move |_| {
-                                                             item.is_open.update(|p| *p = !*p);
-                                                     })
-                                                     .class("w-full px-8 py-6 text-left flex items-center justify-between hover:bg-[#2a2a2a]/50 transition-colors")
-                                                     .child((
-                                                         h3()
-                                                             .class("text-xl font-semibold text-white pr-4")
-                                                             .child(item.question.clone()),
-                                                         Show(ShowProps::builder()
-                                                             .when(move || item.is_open.get())
-                                                             .fallback(|| div().child(Icon(IconProps::builder()
-                                                                 .icon(Signal::from(i::FaChevronUpSolid))
-                                                                 .width("1em")
-                                                                 .height("1em")
-                                                                 .style("color: white")
-                                                                 .build(),
-                                                            )))
-                                                             .children(ToChildren::to_children(move || {
-                                                                 div().child(Icon(IconProps::builder()
-                                                                     .icon(Signal::from(i::FaChevronDownSolid))
-                                                                     .width("1em")
-                                                                     .height("1em")
-                                                                     .style("color: white")
-                                                                     .build(),
-                                                                ))
-                                                             })).build()
-                                                         )
-                                                     )),
-                                                 Show(ShowProps::builder()
-                                                     .when(move || item.is_open.get())
-                                                     .fallback(|| ())
-                                                     .children(ToChildren::to_children(move || {
-                                                         div().class("px-8 pb-6").child(
-                                                             p()
-                                                                 .class("text-gray-300 leading-relaxed text-lg")
-                                                                 .child(item.answer.clone())
-                                                         )
-                                                     }))
-                                                     .build()
-                                                 ),
-                                             ))
-                                     })
-                                     .build(),
-                             )
-                         ),
-                 )),
-         )
-  ))
+    }
 }
