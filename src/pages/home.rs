@@ -148,7 +148,7 @@ pub fn Component() -> Element {
                                     }
                                 }
 
-                                // Projects
+                                // Fun Projects
                                 section { class: "mt-8",
                                     p { class: "text-xs text-slate-400", "// projects" }
                                     div { class: "mt-3 grid gap-4 sm:grid-cols-3",
@@ -167,13 +167,6 @@ pub fn Component() -> Element {
                                             description: "Interactive Rust playground",
                                             url: "https://tryrust.org/"
                                         }
-                                    }
-                                }
-
-                                // Fun projects
-                                section { class: "mt-8",
-                                    p { class: "text-xs text-slate-400", "// fun projects" }
-                                    div { class: "mt-3 grid gap-4 sm:grid-cols-3",
                                         ProjectCard {
                                             name: "doom.rust-dd",
                                             description: "DOOM in the browser",
