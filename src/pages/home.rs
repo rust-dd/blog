@@ -169,6 +169,18 @@ pub fn Component() -> Element {
                                         }
                                     }
                                 }
+
+                                // Fun projects
+                                section { class: "mt-8",
+                                    p { class: "text-xs text-slate-400", "// fun projects" }
+                                    div { class: "mt-3 grid gap-4 sm:grid-cols-3",
+                                        ProjectCard {
+                                            name: "doom.rust-dd",
+                                            description: "DOOM in the browser",
+                                            url: "https://doom.rust-dd.com/"
+                                        }
+                                    }
+                                }
                             }
                         }
                         Err(err) => rsx! {
