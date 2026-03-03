@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 use crate::{
     components::{header, icons, loader},
-    pages::{contact, home, opensource, post},
+    pages::{home, opensource, post},
     seo,
 };
 
@@ -16,8 +16,6 @@ pub enum Route {
     Post { slug: String },
     #[route("/opensource")]
     OpenSource {},
-    #[route("/contact")]
-    ContactUs {},
     #[end_layout]
     #[route("/:..route")]
     PageNotFound { route: Vec<String> },
@@ -107,11 +105,6 @@ fn Post(slug: String) -> Element {
 #[component]
 fn OpenSource() -> Element {
     rsx! { opensource::Component {} }
-}
-
-#[component]
-fn ContactUs() -> Element {
-    rsx! { contact::Component {} }
 }
 
 #[component]

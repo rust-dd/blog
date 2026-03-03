@@ -1,9 +1,7 @@
 use std::collections::BTreeMap;
 
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
-
-use crate::ssr::types::{Post, Reference};
+use crate::ssr::types::Post;
 
 #[get("/api/posts")]
 pub async fn select_posts() -> Result<Vec<Post>> {
@@ -108,69 +106,6 @@ pub async fn increment_views(id: String) -> Result<()> {
             .await?;
 
         Ok(())
-    }
-    #[cfg(not(feature = "server"))]
-    {
-        unreachable!()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct HireUsRequest {
-    pub name: String,
-    pub email: String,
-    pub subject: String,
-    pub message: String,
-}
-
-#[post("/api/hire_us")]
-pub async fn hire_us(data: HireUsRequest) -> Result<()> {
-    #[cfg(feature = "server")]
-    {
-        use lettre::{
-            message::header::ContentType, transport::smtp::authentication::Credentials, AsyncSmtpTransport,
-            AsyncTransport, Message, Tokio1Executor,
-        };
-        use std::env;
-
-        let smtp_host = env::var("SMTP_HOST")?;
-        let smtp_user = env::var("SMTP_USER")?;
-        let smtp_password = env::var("SMTP_PASSWORD")?;
-
-        let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(&smtp_host)?
-            .credentials(Credentials::new(smtp_user.clone(), smtp_password))
-            .build::<Tokio1Executor>();
-
-        let email = Message::builder()
-            .from(smtp_user.parse()?)
-            .to(env::var("SMTP_USER")?.parse()?)
-            .subject(format!("{} - {}", data.email, data.subject))
-            .header(ContentType::TEXT_HTML)
-            .body(data.message)?;
-
-        mailer.send(email).await?;
-        tracing::info!("Email sent successfully");
-        Ok(())
-    }
-    #[cfg(not(feature = "server"))]
-    {
-        unreachable!()
-    }
-}
-
-#[get("/api/references")]
-pub async fn select_references() -> Result<Vec<Reference>> {
-    #[cfg(feature = "server")]
-    {
-        use crate::ssr::app_state::db;
-
-        let db = db().await;
-        let mut query = db
-            .query("SELECT * from reference WHERE is_published = true ORDER BY year DESC;")
-            .await?;
-        let references = query.take::<Vec<Reference>>(0)?;
-
-        Ok(references)
     }
     #[cfg(not(feature = "server"))]
     {

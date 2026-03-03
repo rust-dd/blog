@@ -125,8 +125,8 @@ pub fn Component(slug: String) -> Element {
                                                     p { class: "text-sm font-semibold text-slate-700", "Need Rust expertise?" }
                                                     p { class: "text-xs text-slate-500", "Build your next production Rust system with us." }
                                                 }
-                                                Link {
-                                                    to: Route::ContactUs {},
+                                                a {
+                                                    href: "mailto:info@rust-dd.com",
                                                     class: "inline-flex items-center justify-center rounded bg-slate-700 px-4 py-2 text-xs font-semibold text-white transition-colors duration-200 hover:bg-slate-800",
                                                     "contact us"
                                                 }

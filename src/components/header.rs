@@ -18,19 +18,14 @@ pub fn Component() -> Element {
 
                     div { class: "flex items-center gap-6",
                         Link {
-                            to: Route::Home {},
-                            class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
-                            "posts"
-                        }
-                        Link {
                             to: Route::OpenSource {},
                             class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
                             "open source"
                         }
-                        Link {
-                            to: Route::ContactUs {},
+                        a {
+                            href: "mailto:info@rust-dd.com",
                             class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
-                            "contact us"
+                            "info@rust-dd.com"
                         }
                         span { class: "hidden sm:block h-4 w-px bg-slate-200" }
                         div { class: "hidden sm:block",
