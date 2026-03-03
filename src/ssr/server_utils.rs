@@ -255,8 +255,8 @@ pub async fn sitemap_handler() -> Response<String> {
 
     let static_urls = vec![
         ("https://rust-dd.com/", "daily", "0.9"),
-        ("https://rust-dd.com/hireus", "weekly", "1.0"),
-        ("https://rust-dd.com/references", "weekly", "0.6"),
+        ("https://rust-dd.com/contact", "weekly", "1.0"),
+        ("https://rust-dd.com/opensource", "weekly", "0.6"),
         ("https://rust-dd.com/rss.xml", "daily", "0.5"),
         ("https://rust-dd.com/sitemap.xml", "monthly", "0.5"),
     ];

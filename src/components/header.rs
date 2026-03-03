@@ -22,6 +22,16 @@ pub fn Component() -> Element {
                             class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
                             "posts"
                         }
+                        Link {
+                            to: Route::OpenSource {},
+                            class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                            "open source"
+                        }
+                        Link {
+                            to: Route::ContactUs {},
+                            class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                            "contact us"
+                        }
                         span { class: "hidden sm:block h-4 w-px bg-slate-200" }
                         div { class: "hidden sm:block",
                             icons::Component {}

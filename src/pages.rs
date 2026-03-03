@@ -1,4 +1,4 @@
-pub mod hireus;
+pub mod contact;
 pub mod home;
+pub mod opensource;
 pub mod post;
-pub mod references;
