@@ -37,12 +37,12 @@ const PROJECTS: &[OssProject] = &[
         topics: &["axum", "graphql", "postgres", "redis"],
     },
     OssProject {
-        name: "rust-sql",
-        description: "A Tauri application for efficient and secure database management.",
-        url: "https://github.com/rust-dd/rust-sql",
-        stars: 35,
+        name: "rsql",
+        description: "Fast PostgreSQL client built with Rust, Tauri, and React for querying data, running EXPLAIN, and exploring large result sets.",
+        url: "https://rsql.rust-dd.com/#demo",
+        stars: 37,
         language: "TypeScript",
-        topics: &["database", "rust", "tauri"],
+        topics: &["postgresql", "rust", "tauri", "react"],
     },
     OssProject {
         name: "embedded-dht-rs",

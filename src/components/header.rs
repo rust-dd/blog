@@ -16,16 +16,16 @@ pub fn Component() -> Element {
                         span { class: "ml-0.5 inline-block w-2 h-4 bg-slate-700 animate-pulse" }
                     }
 
-                    div { class: "flex items-center gap-6",
+                    div { class: "flex items-center gap-4 sm:gap-6",
+                        Link {
+                            to: Route::Projects {},
+                            class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                            "projects"
+                        }
                         Link {
                             to: Route::OpenSource {},
                             class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
                             "open source"
-                        }
-                        a {
-                            href: "mailto:info@rust-dd.com",
-                            class: "text-sm text-slate-500 transition-colors duration-200 hover:text-slate-800",
-                            "info@rust-dd.com"
                         }
                         span { class: "hidden sm:block h-4 w-px bg-slate-200" }
                         div { class: "hidden sm:block",

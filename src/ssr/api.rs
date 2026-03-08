@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
-use dioxus::prelude::*;
 use crate::ssr::types::Post;
+use dioxus::prelude::*;
 
 #[get("/api/posts")]
 pub async fn select_posts() -> Result<Vec<Post>> {

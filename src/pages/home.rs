@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use std::collections::BTreeMap;
 
-use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
+use crate::{app::Route, components::loader, pages::projects::FEATURED_PROJECT, seo, ssr::api::select_posts};
 
 #[component]
 pub fn Component() -> Element {
@@ -90,6 +90,44 @@ pub fn Component() -> Element {
                                     }
                                 }
 
+                                // Projects
+                                section { class: "mt-8",
+                                    p { class: "text-xs text-slate-400", "// projects" }
+                                    div { class: "mt-3 rounded-xl border border-slate-900 bg-slate-950 p-5 text-slate-50 sm:p-6",
+                                        div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
+                                            div { class: "max-w-2xl",
+                                                p { class: "text-[11px] uppercase tracking-[0.24em] text-emerald-300", "featured project" }
+                                                h2 { class: "mt-3 text-2xl font-semibold tracking-tight sm:text-3xl",
+                                                    "{FEATURED_PROJECT.name}"
+                                                }
+                                                p { class: "mt-3 text-sm leading-relaxed text-slate-300",
+                                                    "{FEATURED_PROJECT.description}"
+                                                }
+                                                div { class: "mt-4 flex flex-wrap gap-2 text-[11px] text-slate-300",
+                                                    for tag in FEATURED_PROJECT.tags.iter() {
+                                                        span { class: "rounded-full border border-white/15 px-2 py-1", "{tag}" }
+                                                    }
+                                                }
+                                            }
+                                            div { class: "flex shrink-0 flex-col gap-3 sm:items-end",
+                                                a {
+                                                    href: "{FEATURED_PROJECT.url}",
+                                                    target: "_blank",
+                                                    rel: "noopener noreferrer",
+                                                    class: "inline-flex items-center justify-center rounded-md bg-emerald-300 px-4 py-2 text-sm font-medium text-slate-950 transition-colors duration-200 hover:bg-emerald-200",
+                                                    "Open demo"
+                                                }
+                                                Link {
+                                                    to: Route::Projects {},
+                                                    class: "inline-flex items-center justify-center rounded-md border border-white/15 px-4 py-2 text-sm text-slate-200 transition-colors duration-200 hover:border-white/30 hover:text-white",
+                                                    "Browse all projects"
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+
                                 // Featured posts
                                 if !featured_posts.is_empty() {
                                     section { class: "mt-8",
@@ -147,33 +185,6 @@ pub fn Component() -> Element {
                                         }
                                     }
                                 }
-
-                                // Fun Projects
-                                section { class: "mt-8",
-                                    p { class: "text-xs text-slate-400", "// projects" }
-                                    div { class: "mt-3 grid gap-4 sm:grid-cols-3",
-                                        ProjectCard {
-                                            name: "shrtn.ink",
-                                            description: "Fast URL shortener",
-                                            url: "https://shrtn.ink/"
-                                        }
-                                        ProjectCard {
-                                            name: "stochasticlab",
-                                            description: "Cloud compute platform",
-                                            url: "https://stochasticlab.cloud/"
-                                        }
-                                        ProjectCard {
-                                            name: "tryrust.org",
-                                            description: "Interactive Rust playground",
-                                            url: "https://tryrust.org/"
-                                        }
-                                        ProjectCard {
-                                            name: "doom.rust-dd",
-                                            description: "DOOM in the browser",
-                                            url: "https://doom.rust-dd.com/"
-                                        }
-                                    }
-                                }
                             }
                         }
                         Err(err) => rsx! {
@@ -182,23 +193,6 @@ pub fn Component() -> Element {
                     }
                 }
             }
-        }
-    }
-}
-
-#[component]
-fn ProjectCard(name: &'static str, description: &'static str, url: &'static str) -> Element {
-    rsx! {
-        a {
-            href: "{url}",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            class: "group flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors duration-200 hover:border-slate-400",
-            div {
-                p { class: "font-medium text-slate-900", "{name}" }
-                p { class: "text-xs text-slate-500", "{description}" }
-            }
-            span { class: "text-slate-300 transition-colors duration-200 group-hover:text-slate-500", ">" }
         }
     }
 }

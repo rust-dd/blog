@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use dioxus_free_icons::{
     icons::{
         fa_brands_icons::{FaGithub, FaLinkedin},
-        fa_solid_icons::FaRss,
+        fa_solid_icons::{FaRss, FaSquareEnvelope},
     },
     Icon,
 };
@@ -11,6 +11,12 @@ use dioxus_free_icons::{
 pub fn Component() -> Element {
     rsx! {
         div { class: "flex flex-row gap-3 items-center",
+            a {
+                href: "mailto:info@rust-dd.com",
+                aria_label: "Email",
+                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                Icon { icon: FaSquareEnvelope, width: 18, height: 18, fill: "currentColor" }
+            }
             a {
                 href: "https://github.com/rust-dd/",
                 rel: "noopener noreferrer",
