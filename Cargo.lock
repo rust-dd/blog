@@ -602,6 +602,7 @@ dependencies = [
  "lettre",
  "pulldown-cmark",
  "regex",
+ "reqwest",
  "rss",
  "serde",
  "surrealdb",
