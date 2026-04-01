@@ -4,14 +4,23 @@ FROM rustlang/rust:nightly-alpine AS builder
 RUN apk update && \
     apk add --no-cache bash curl npm libc-dev binaryen clang openssl-dev openssl-libs-static pkgconfig
 
-RUN cargo install dioxus-cli --locked
+RUN cargo install dioxus-cli --locked --version 0.7.3
 RUN rustup target add wasm32-unknown-unknown
 
 WORKDIR /work
 COPY . .
 
 RUN npm install
-RUN dx bundle --web --release
+RUN dx bundle --web --release && \
+    if [ -x /work/target/dx/blog/release/web/blog ]; then \
+        :; \
+    elif [ -x /work/target/dx/blog/release/web/server ]; then \
+        cp /work/target/dx/blog/release/web/server /work/target/dx/blog/release/web/blog; \
+    else \
+        echo "Bundled server binary not found" >&2; \
+        ls -la /work/target/dx/blog/release/web >&2; \
+        exit 1; \
+    fi
 
 # Stage 2: Runtime
 FROM rustlang/rust:nightly-alpine AS runner
