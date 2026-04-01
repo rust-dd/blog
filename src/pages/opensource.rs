@@ -123,6 +123,15 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         language: "Rust",
         topics: &["async", "defer", "embedded"],
     },
+    OssProject {
+        name: "react-native-qdrant-edge",
+        description: "Embedded vector search for React Native powered by Qdrant Edge, running fully offline on-device.",
+        url: "https://github.com/rust-dd/react-native-qdrant-edge",
+        github_repo: "rust-dd/react-native-qdrant-edge",
+        stars: 0,
+        language: "TypeScript",
+        topics: &["react-native", "qdrant", "vector-search", "embedded"],
+    },
 ];
 
 #[component]
