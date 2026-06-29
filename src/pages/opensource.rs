@@ -132,6 +132,15 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         language: "TypeScript",
         topics: &["react-native", "qdrant", "vector-search", "embedded"],
     },
+    OssProject {
+        name: "ito",
+        description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
+        url: "https://github.com/rust-dd/ito",
+        github_repo: "rust-dd/ito",
+        stars: 2,
+        language: "Rust",
+        topics: &["rust", "tui", "stochastic", "quant"],
+    },
 ];
 
 #[component]
@@ -172,6 +181,13 @@ pub fn Component() -> Element {
                         .iter()
                         .map(|project| project_stars(project, repo_stars))
                         .sum();
+
+                    let mut sorted_projects: Vec<&OssProject> = PROJECTS.iter().collect();
+                    sorted_projects.sort_by(|a, b| {
+                        project_stars(b, repo_stars)
+                            .cmp(&project_stars(a, repo_stars))
+                            .then_with(|| a.name.cmp(b.name))
+                    });
 
                     rsx! {
                         div { class: "w-full font-mono",
@@ -222,7 +238,7 @@ pub fn Component() -> Element {
                             }
 
                             section { class: "mt-6 grid gap-4 md:gap-5 lg:grid-cols-2",
-                                for (index, project) in PROJECTS.iter().enumerate() {
+                                for (index, project) in sorted_projects.into_iter().enumerate() {
                                     a {
                                         href: "{project.url}",
                                         target: "_blank",
