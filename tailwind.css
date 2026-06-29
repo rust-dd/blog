@@ -1,63 +1,46 @@
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
-
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-:root {
-  color-scheme: light;
-  --bg: #fafaf9;
-  --surface: #ffffff;
-  --surface-2: #f5f5f4;
-  --border-c: #e7e5e4;
-  --border-strong: #d6d3d1;
-  --fg: #1c1917;
-  --muted: #78716c;
-  --faint: #a8a29e;
-  --accent: #d2511f;
-  --accent-fg: #ffffff;
-  --grid-dot: rgb(120 113 108 / 0.10);
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #0b0b0c;
-  --surface: #141417;
-  --surface-2: #1c1c20;
-  --border-c: #26262b;
-  --border-strong: #3a3a42;
-  --fg: #ededee;
-  --muted: #9b9ba3;
-  --faint: #6b6b73;
-  --accent: #f0653a;
-  --accent-fg: #0b0b0c;
-  --grid-dot: rgb(255 255 255 / 0.05);
-}
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-border: var(--border-c);
-  --color-border-strong: var(--border-strong);
-  --color-fg: var(--fg);
-  --color-muted: var(--muted);
-  --color-faint: var(--faint);
-  --color-accent: var(--accent);
-  --color-accent-fg: var(--accent-fg);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --text-xxs: 0.625rem;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --bg: 250 250 249;
+    --surface: 255 255 255;
+    --surface-2: 245 245 244;
+    --border-c: 231 229 228;
+    --border-strong: 214 211 209;
+    --fg: 28 25 23;
+    --muted: 120 113 108;
+    --faint: 168 162 158;
+    --accent: 210 81 31;
+    --accent-fg: 255 255 255;
+    --grid-dot: rgb(120 113 108 / 0.10);
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: 11 11 12;
+    --surface: 20 20 23;
+    --surface-2: 28 28 32;
+    --border-c: 38 38 43;
+    --border-strong: 58 58 66;
+    --fg: 237 237 238;
+    --muted: 155 155 163;
+    --faint: 107 107 115;
+    --accent: 240 101 58;
+    --accent-fg: 11 11 12;
+    --grid-dot: rgb(255 255 255 / 0.05);
+  }
+
   html {
     min-height: 100%;
   }
 
   html,
   body {
-    background-color: var(--bg);
-    color: var(--fg);
+    background-color: rgb(var(--bg));
+    color: rgb(var(--fg));
     background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
     background-size: 24px 24px;
     overscroll-behavior-y: none;
@@ -65,12 +48,12 @@
 
   body {
     min-height: 100dvh;
-    font-family: var(--font-mono);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--accent) 30%, transparent);
-    color: var(--fg);
+    background-color: rgb(var(--accent) / 0.3);
+    color: rgb(var(--fg));
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -92,7 +75,7 @@
     right: 0;
     bottom: -3px;
     height: 1px;
-    background: var(--accent);
+    background: rgb(var(--accent));
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.2s ease;
@@ -104,22 +87,22 @@
   }
 
   .prose {
-    --tw-prose-body: var(--fg);
-    --tw-prose-headings: var(--fg);
-    --tw-prose-lead: var(--muted);
-    --tw-prose-links: var(--accent);
-    --tw-prose-bold: var(--fg);
-    --tw-prose-counters: var(--muted);
-    --tw-prose-bullets: var(--faint);
-    --tw-prose-hr: var(--border-c);
-    --tw-prose-quotes: var(--muted);
-    --tw-prose-quote-borders: var(--border-c);
-    --tw-prose-captions: var(--muted);
-    --tw-prose-code: var(--accent);
-    --tw-prose-pre-code: var(--fg);
-    --tw-prose-pre-bg: var(--surface-2);
-    --tw-prose-th-borders: var(--border-c);
-    --tw-prose-td-borders: var(--border-c);
+    --tw-prose-body: rgb(var(--fg));
+    --tw-prose-headings: rgb(var(--fg));
+    --tw-prose-lead: rgb(var(--muted));
+    --tw-prose-links: rgb(var(--accent));
+    --tw-prose-bold: rgb(var(--fg));
+    --tw-prose-counters: rgb(var(--muted));
+    --tw-prose-bullets: rgb(var(--faint));
+    --tw-prose-hr: rgb(var(--border-c));
+    --tw-prose-quotes: rgb(var(--muted));
+    --tw-prose-quote-borders: rgb(var(--border-c));
+    --tw-prose-captions: rgb(var(--muted));
+    --tw-prose-code: rgb(var(--accent));
+    --tw-prose-pre-code: rgb(var(--fg));
+    --tw-prose-pre-bg: rgb(var(--surface-2));
+    --tw-prose-th-borders: rgb(var(--border-c));
+    --tw-prose-td-borders: rgb(var(--border-c));
   }
 }
 
@@ -154,7 +137,7 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--accent);
+    background: rgb(var(--accent));
     transform: scaleX(0);
     transform-origin: 0 50%;
     z-index: 60;
