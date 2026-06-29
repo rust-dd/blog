@@ -61,7 +61,7 @@ pub fn App() -> Element {
             href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         }
         document::Script {
-            "try{{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','dark')}}"
+            "try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','dark')}}"
         }
 
         div { class: "min-h-screen bg-bg text-fg font-mono",

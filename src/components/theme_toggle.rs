@@ -22,13 +22,19 @@ pub fn Component() -> Element {
     });
 
     let toggle = move |_| {
-        let next = if theme() == "dark" { "light" } else { "dark" };
-        theme.set(next.to_string());
-        let js = format!(
-            "document.documentElement.setAttribute('data-theme','{next}');try{{localStorage.setItem('theme','{next}')}}catch(e){{}}"
-        );
         spawn(async move {
-            let _ = document::eval(&js).await;
+            let eval = document::eval(
+                "var c=document.documentElement.getAttribute('data-theme')||'dark';\
+                 var n=c==='dark'?'light':'dark';\
+                 document.documentElement.setAttribute('data-theme',n);\
+                 try{localStorage.setItem('theme',n)}catch(e){}\
+                 return n;",
+            );
+            if let Ok(value) = eval.await {
+                if let Some(next) = value.as_str() {
+                    theme.set(next.to_string());
+                }
+            }
         });
     };
 
