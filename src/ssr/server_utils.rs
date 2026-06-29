@@ -115,8 +115,8 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
     let ts = ThemeSet::load_defaults();
     let theme = ts
         .themes
-        .get("InspiredGitHub")
-        .or_else(|| ts.themes.get("base16-ocean.light"))
+        .get("base16-ocean.dark")
+        .or_else(|| ts.themes.get("Solarized (dark)"))
         .or_else(|| ts.themes.values().next())
         .expect("syntect default theme missing");
     let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)")?;

@@ -99,8 +99,8 @@
     --tw-prose-quote-borders: rgb(var(--border-c));
     --tw-prose-captions: rgb(var(--muted));
     --tw-prose-code: rgb(var(--accent));
-    --tw-prose-pre-code: rgb(var(--fg));
-    --tw-prose-pre-bg: rgb(var(--surface-2));
+    --tw-prose-pre-code: #c0c5ce;
+    --tw-prose-pre-bg: #2b303b;
     --tw-prose-th-borders: rgb(var(--border-c));
     --tw-prose-td-borders: rgb(var(--border-c));
   }
