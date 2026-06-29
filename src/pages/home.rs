@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use std::collections::BTreeMap;
 
-use crate::{app::Route, components::loader, pages::projects::FEATURED_PROJECT, seo, ssr::api::select_posts};
+use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
 
 #[component]
 pub fn Component() -> Element {
@@ -28,12 +28,18 @@ pub fn Component() -> Element {
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
             div { class: "w-full font-mono",
-                section { class: "animate-rise py-4",
-                    p { class: "text-xs text-faint", "// engineering notes" }
-                    h1 { class: "mt-2 text-3xl font-semibold tracking-tight text-fg sm:text-4xl md:text-5xl",
-                        "Practical Rust Engineering"
+                section { class: "animate-rise py-6 sm:py-8",
+                    p { class: "text-xs text-faint",
+                        span { class: "text-accent", "//" }
+                        " engineering notes"
                     }
-                    p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-muted",
+                    h1 { class: "mt-3 text-4xl font-semibold leading-[1.05] tracking-tight text-fg sm:text-5xl md:text-6xl",
+                        "Practical "
+                        span { class: "text-accent", "Rust" }
+                        " Engineering"
+                        span { class: "ml-1.5 inline-block h-7 w-2.5 animate-pulse bg-accent align-middle sm:h-9 sm:w-3" }
+                    }
+                    p { class: "mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base",
                         "Logs on Rust backend systems, architecture, and performance."
                     }
                 }
@@ -87,55 +93,21 @@ pub fn Component() -> Element {
                                     }
                                 }
 
-                                section { class: "mt-8",
-                                    p { class: "text-xs text-faint", "// projects" }
-                                    div { class: "mt-3 rounded-xl border border-accent/40 bg-surface p-5 text-fg sm:p-6",
-                                        div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-                                            div { class: "max-w-2xl",
-                                                p { class: "text-[11px] uppercase tracking-[0.24em] text-accent", "featured project" }
-                                                h2 { class: "mt-3 text-2xl font-semibold tracking-tight sm:text-3xl",
-                                                    "{FEATURED_PROJECT.name}"
-                                                }
-                                                p { class: "mt-3 text-sm leading-relaxed text-muted",
-                                                    "{FEATURED_PROJECT.description}"
-                                                }
-                                                div { class: "mt-4 flex flex-wrap gap-2 text-[11px] text-muted",
-                                                    for tag in FEATURED_PROJECT.tags.iter() {
-                                                        span { class: "rounded-full border border-border px-2 py-1", "{tag}" }
-                                                    }
-                                                }
-                                            }
-                                            div { class: "flex shrink-0 flex-col gap-3 sm:items-end",
-                                                a {
-                                                    href: "{FEATURED_PROJECT.url}",
-                                                    target: "_blank",
-                                                    rel: "noopener noreferrer",
-                                                    class: "inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition-colors duration-200 hover:bg-accent/90",
-                                                    "Open demo"
-                                                }
-                                                Link {
-                                                    to: Route::Projects {},
-                                                    class: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm text-fg transition-colors duration-200 hover:border-accent hover:text-accent",
-                                                    "Browse all projects"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
                                 if !featured_posts.is_empty() {
                                     section { class: "mt-8",
                                         p { class: "text-xs text-faint", "// featured" }
-                                        div { class: "mt-3 grid gap-4 md:grid-cols-2",
+                                        div { class: "mt-3 flex flex-col gap-4",
                                             for post in featured_posts {
-                                                article { class: "rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
+                                                article { class: "group rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
                                                     Link {
                                                         to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                        class: "block no-underline",
-                                                        h2 { class: "text-lg leading-tight text-fg sm:text-xl", "{post.title}" }
-                                                        p { class: "mt-2 text-sm leading-relaxed text-muted", "{post.summary}" }
-                                                        p { class: "mt-3 text-xs text-faint",
-                                                            "author={post.author.name} read={post.read_time}min views={post.total_views}"
+                                                        class: "flex flex-col gap-3 no-underline sm:flex-row sm:items-baseline sm:justify-between",
+                                                        div { class: "min-w-0",
+                                                            h2 { class: "text-lg leading-tight text-fg transition-colors duration-200 group-hover:text-accent sm:text-xl", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-muted", "{post.summary}" }
+                                                        }
+                                                        p { class: "shrink-0 text-xs text-faint sm:text-right",
+                                                            "{post.read_time}min · {post.total_views} views"
                                                         }
                                                     }
                                                 }
