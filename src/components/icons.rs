@@ -14,7 +14,7 @@ pub fn Component() -> Element {
             a {
                 href: "mailto:info@rust-dd.com",
                 aria_label: "Email",
-                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                class: "text-muted transition-colors duration-200 hover:text-accent",
                 Icon { icon: FaSquareEnvelope, width: 18, height: 18, fill: "currentColor" }
             }
             a {
@@ -22,7 +22,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "GitHub",
-                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                class: "text-muted transition-colors duration-200 hover:text-accent",
                 Icon { icon: FaGithub, width: 16, height: 16, fill: "currentColor" }
             }
             a {
@@ -30,7 +30,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "X",
-                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                class: "text-muted transition-colors duration-200 hover:text-accent",
                 svg {
                     view_box: "0 0 512 512",
                     fill: "currentColor",
@@ -44,7 +44,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "LinkedIn",
-                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                class: "text-muted transition-colors duration-200 hover:text-accent",
                 Icon { icon: FaLinkedin, width: 16, height: 16, fill: "currentColor" }
             }
             a {
@@ -52,7 +52,7 @@ pub fn Component() -> Element {
                 rel: "noopener noreferrer",
                 target: "_blank",
                 aria_label: "RSS",
-                class: "text-slate-500 transition-colors duration-200 hover:text-slate-800",
+                class: "text-muted transition-colors duration-200 hover:text-accent",
                 Icon { icon: FaRss, width: 16, height: 16, fill: "currentColor" }
             }
         }
