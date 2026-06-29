@@ -6,12 +6,12 @@ use dioxus_free_icons::{
 
 #[component]
 pub fn Component() -> Element {
-    let mut theme = use_signal(|| "dark".to_string());
+    let mut theme = use_signal(|| "light".to_string());
 
     use_effect(move || {
         spawn(async move {
             let eval = document::eval(
-                "return document.documentElement.getAttribute('data-theme') || 'dark';",
+                "return document.documentElement.getAttribute('data-theme') || 'light';",
             );
             if let Ok(value) = eval.await {
                 if let Some(current) = value.as_str() {
@@ -24,7 +24,7 @@ pub fn Component() -> Element {
     let toggle = move |_| {
         spawn(async move {
             let eval = document::eval(
-                "var c=document.documentElement.getAttribute('data-theme')||'dark';\
+                "var c=document.documentElement.getAttribute('data-theme')||'light';\
                  var n=c==='dark'?'light':'dark';\
                  document.documentElement.setAttribute('data-theme',n);\
                  try{localStorage.setItem('theme',n)}catch(e){}\

@@ -34,7 +34,7 @@ pub fn App() -> Element {
             name: "keywords",
             content: "rust-dd, rust, ai, mathematics, embedded, web, systems, programming"
         }
-        document::Meta { name: "theme-color", content: "#0b0b0c" }
+        document::Meta { name: "theme-color", content: "#fafaf9" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
         document::Meta {
@@ -61,7 +61,7 @@ pub fn App() -> Element {
             href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         }
         document::Script {
-            "try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','dark')}}"
+            "try{{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','light')}}"
         }
 
         div { class: "min-h-screen bg-bg text-fg font-mono",
