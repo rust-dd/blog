@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use std::collections::BTreeMap;
 
-use crate::{app::Route, components::loader, pages::projects::FEATURED_PROJECT, seo, ssr::api::select_posts};
+use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
 
 #[component]
 pub fn Component() -> Element {
@@ -28,13 +28,18 @@ pub fn Component() -> Element {
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
             div { class: "w-full font-mono",
-                // Hero
-                section { class: "py-4",
-                    p { class: "text-xs text-slate-400", "// engineering notes" }
-                    h1 { class: "mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl md:text-5xl",
-                        "Practical Rust Engineering"
+                section { class: "animate-rise py-6 sm:py-8",
+                    p { class: "text-xs text-faint",
+                        span { class: "text-accent", "//" }
+                        " engineering notes"
                     }
-                    p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-slate-600",
+                    h1 { class: "mt-3 text-4xl font-semibold leading-[1.05] tracking-tight text-fg sm:text-5xl md:text-6xl",
+                        "Practical "
+                        span { class: "text-accent", "Rust" }
+                        " Engineering"
+                        span { class: "ml-1.5 inline-block h-7 w-2.5 animate-pulse bg-accent align-middle sm:h-9 sm:w-3" }
+                    }
+                    p { class: "mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base",
                         "Logs on Rust backend systems, architecture, and performance."
                     }
                 }
@@ -65,83 +70,44 @@ pub fn Component() -> Element {
                             let tag_names: Vec<String> = top_tags.iter().map(|(name, _)| name.clone()).collect();
 
                             rsx! {
-                                // Status bar
-                                div { class: "mt-4 border-y border-dashed border-slate-300 py-3 text-xs text-slate-500",
+                                div { class: "mt-4 border-y border-dashed border-border py-3 text-xs text-muted",
                                     div { class: "flex flex-wrap gap-x-4 gap-y-1",
-                                        span { "posts: " span { class: "text-slate-700", "{items.len()}" } }
+                                        span { "posts: " span { class: "text-fg", "{items.len()}" } }
                                         span { class: "hidden sm:inline", "|" }
-                                        span { "latest: " span { class: "text-slate-700", "{latest}" } }
+                                        span { "latest: " span { class: "text-fg", "{latest}" } }
                                         span { class: "hidden sm:inline", "|" }
-                                        span { "stack: " span { class: "text-slate-700", "rust/dioxus/axum" } }
+                                        span { "stack: " span { class: "text-fg", "rust/dioxus/axum" } }
                                     }
                                 }
 
-                                // Topics
                                 if !tag_names.is_empty() {
-                                    div { class: "mt-4 text-xs text-slate-500",
-                                        span { class: "text-slate-400", "use " }
-                                        span { class: "text-slate-500", "topics" }
-                                        span { class: "text-slate-400", "::" }
-                                        span { class: "text-slate-400", "{{" }
-                                        span { class: "text-slate-600",
+                                    div { class: "mt-4 text-xs text-muted",
+                                        span { class: "text-faint", "use " }
+                                        span { class: "text-muted", "topics" }
+                                        span { class: "text-faint", "::" }
+                                        span { class: "text-faint", "{{" }
+                                        span { class: "text-fg",
                                             {tag_names.join(", ")}
                                         }
-                                        span { class: "text-slate-400", "}};" }
+                                        span { class: "text-faint", "}};" }
                                     }
                                 }
 
-                                // Projects
-                                section { class: "mt-8",
-                                    p { class: "text-xs text-slate-400", "// projects" }
-                                    div { class: "mt-3 rounded-xl border border-slate-900 bg-slate-950 p-5 text-slate-50 sm:p-6",
-                                        div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-                                            div { class: "max-w-2xl",
-                                                p { class: "text-[11px] uppercase tracking-[0.24em] text-emerald-300", "featured project" }
-                                                h2 { class: "mt-3 text-2xl font-semibold tracking-tight sm:text-3xl",
-                                                    "{FEATURED_PROJECT.name}"
-                                                }
-                                                p { class: "mt-3 text-sm leading-relaxed text-slate-300",
-                                                    "{FEATURED_PROJECT.description}"
-                                                }
-                                                div { class: "mt-4 flex flex-wrap gap-2 text-[11px] text-slate-300",
-                                                    for tag in FEATURED_PROJECT.tags.iter() {
-                                                        span { class: "rounded-full border border-white/15 px-2 py-1", "{tag}" }
-                                                    }
-                                                }
-                                            }
-                                            div { class: "flex shrink-0 flex-col gap-3 sm:items-end",
-                                                a {
-                                                    href: "{FEATURED_PROJECT.url}",
-                                                    target: "_blank",
-                                                    rel: "noopener noreferrer",
-                                                    class: "inline-flex items-center justify-center rounded-md bg-emerald-300 px-4 py-2 text-sm font-medium text-slate-950 transition-colors duration-200 hover:bg-emerald-200",
-                                                    "Open demo"
-                                                }
-                                                Link {
-                                                    to: Route::Projects {},
-                                                    class: "inline-flex items-center justify-center rounded-md border border-white/15 px-4 py-2 text-sm text-slate-200 transition-colors duration-200 hover:border-white/30 hover:text-white",
-                                                    "Browse all projects"
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                }
-
-                                // Featured posts
                                 if !featured_posts.is_empty() {
                                     section { class: "mt-8",
-                                        p { class: "text-xs text-slate-400", "// featured" }
-                                        div { class: "mt-3 grid gap-4 md:grid-cols-2",
+                                        p { class: "text-xs text-faint", "// featured" }
+                                        div { class: "mt-3 flex flex-col gap-4",
                                             for post in featured_posts {
-                                                article { class: "rounded-lg border border-slate-200 bg-white p-4 transition-colors duration-200 hover:border-slate-400 sm:p-5",
+                                                article { class: "group rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
                                                     Link {
                                                         to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                        class: "block no-underline",
-                                                        h2 { class: "text-lg leading-tight text-slate-900 sm:text-xl", "{post.title}" }
-                                                        p { class: "mt-2 text-sm leading-relaxed text-slate-600", "{post.summary}" }
-                                                        p { class: "mt-3 text-xs text-slate-400",
-                                                            "author={post.author.name} read={post.read_time}min views={post.total_views}"
+                                                        class: "flex flex-col gap-3 no-underline sm:flex-row sm:items-baseline sm:justify-between",
+                                                        div { class: "min-w-0",
+                                                            h2 { class: "text-lg leading-tight text-fg transition-colors duration-200 group-hover:text-accent sm:text-xl", "{post.title}" }
+                                                            p { class: "mt-2 text-sm leading-relaxed text-muted", "{post.summary}" }
+                                                        }
+                                                        p { class: "shrink-0 text-xs text-faint sm:text-right",
+                                                            "{post.read_time}min · {post.total_views} views"
                                                         }
                                                     }
                                                 }
@@ -150,33 +116,29 @@ pub fn Component() -> Element {
                                     }
                                 }
 
-                                // All posts (ls -la style)
                                 section { class: "mt-8",
-                                    p { class: "text-xs text-slate-400", "// all posts" }
-                                    div { class: "mt-3 rounded-lg border border-slate-200 bg-white",
-                                        // Table header
-                                        div { class: "hidden border-b border-dashed border-slate-200 px-4 py-2 text-[11px] font-semibold text-slate-400 sm:grid sm:grid-cols-[120px_1fr_70px_70px]",
+                                    p { class: "text-xs text-faint", "// all posts" }
+                                    div { class: "mt-3 rounded-lg border border-border bg-surface",
+                                        div { class: "hidden border-b border-dashed border-border px-4 py-2 text-[11px] font-semibold text-faint sm:grid sm:grid-cols-[120px_1fr_70px_70px]",
                                             span { "date" }
                                             span { "title" }
                                             span { class: "text-right", "read" }
                                             span { class: "text-right", "views" }
                                         }
-                                        div { class: "divide-y divide-slate-100",
+                                        div { class: "divide-y divide-border",
                                             for post in items.iter() {
                                                 Link {
                                                     to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                    class: "block px-4 py-3 no-underline transition-colors duration-150 hover:bg-slate-50",
-                                                    // Desktop row
+                                                    class: "block px-4 py-3 no-underline transition-colors duration-150 hover:bg-surface-2",
                                                     div { class: "hidden sm:grid sm:grid-cols-[120px_1fr_70px_70px] sm:items-center",
-                                                        span { class: "text-xs text-slate-400", "{post.created_at}" }
-                                                        span { class: "text-sm text-slate-900 truncate pr-4", "{post.title}" }
-                                                        span { class: "text-xs text-slate-400 text-right", "{post.read_time}min" }
-                                                        span { class: "text-xs text-slate-400 text-right", "{post.total_views}" }
+                                                        span { class: "text-xs text-faint", "{post.created_at}" }
+                                                        span { class: "truncate pr-4 text-sm text-fg", "{post.title}" }
+                                                        span { class: "text-right text-xs text-faint", "{post.read_time}min" }
+                                                        span { class: "text-right text-xs text-faint", "{post.total_views}" }
                                                     }
-                                                    // Mobile
                                                     div { class: "sm:hidden",
-                                                        p { class: "text-sm text-slate-900", "{post.title}" }
-                                                        p { class: "mt-1 text-xs text-slate-400",
+                                                        p { class: "text-sm text-fg", "{post.title}" }
+                                                        p { class: "mt-1 text-xs text-faint",
                                                             "{post.created_at} · {post.read_time}min · {post.total_views} views"
                                                         }
                                                     }
@@ -188,7 +150,7 @@ pub fn Component() -> Element {
                             }
                         }
                         Err(err) => rsx! {
-                            div { class: "mt-8 text-red-600", "Failed to load posts: {err}" }
+                            div { class: "mt-8 text-red-500", "Failed to load posts: {err}" }
                         },
                     }
                 }

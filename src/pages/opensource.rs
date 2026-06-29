@@ -132,6 +132,15 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         language: "TypeScript",
         topics: &["react-native", "qdrant", "vector-search", "embedded"],
     },
+    OssProject {
+        name: "ito",
+        description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
+        url: "https://github.com/rust-dd/ito",
+        github_repo: "rust-dd/ito",
+        stars: 2,
+        language: "Rust",
+        topics: &["rust", "tui", "stochastic", "quant"],
+    },
 ];
 
 #[component]
@@ -173,28 +182,35 @@ pub fn Component() -> Element {
                         .map(|project| project_stars(project, repo_stars))
                         .sum();
 
+                    let mut sorted_projects: Vec<&OssProject> = PROJECTS.iter().collect();
+                    sorted_projects.sort_by(|a, b| {
+                        project_stars(b, repo_stars)
+                            .cmp(&project_stars(a, repo_stars))
+                            .then_with(|| a.name.cmp(b.name))
+                    });
+
                     rsx! {
                         div { class: "w-full font-mono",
-                            section { class: "py-4",
-                                p { class: "text-xs text-slate-400", "// open source" }
-                                h1 { class: "mt-2 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl",
+                            section { class: "animate-rise py-4",
+                                p { class: "text-xs text-faint", "// open source" }
+                                h1 { class: "mt-2 text-3xl font-semibold leading-tight text-fg sm:text-4xl md:text-5xl",
                                     "Open Source"
                                 }
-                                p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-slate-600",
+                                p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-muted",
                                     "Libraries, frameworks, and tools we build and maintain in the open."
                                 }
                             }
 
-                            div { class: "mt-4 border-y border-dashed border-slate-300 py-3 text-xs text-slate-500",
+                            div { class: "mt-4 border-y border-dashed border-border py-3 text-xs text-muted",
                                 div { class: "flex flex-wrap gap-x-4 gap-y-1",
                                     span {
                                         "repos: "
-                                        span { class: "text-slate-700", "{PROJECTS.len()}" }
+                                        span { class: "text-fg", "{PROJECTS.len()}" }
                                     }
                                     span { class: "hidden sm:inline", "|" }
                                     span {
                                         "stars: "
-                                        span { class: "text-slate-700", "{total_stars}" }
+                                        span { class: "text-fg", "{total_stars}" }
                                     }
                                     span { class: "hidden sm:inline", "|" }
                                     span {
@@ -203,34 +219,34 @@ pub fn Component() -> Element {
                                             href: "https://github.com/rust-dd",
                                             target: "_blank",
                                             rel: "noopener noreferrer",
-                                            class: "text-slate-700 hover:text-slate-900",
+                                            class: "text-muted transition-colors duration-200 hover:text-accent",
                                             "rust-dd"
                                         }
                                     }
                                 }
                             }
 
-                            div { class: "mt-4 text-xs text-slate-500",
-                                span { class: "text-slate-400", "use " }
-                                span { class: "text-slate-500", "lang" }
-                                span { class: "text-slate-400", "::" }
-                                span { class: "text-slate-400", "{{" }
-                                span { class: "text-slate-600",
+                            div { class: "mt-4 text-xs text-muted",
+                                span { class: "text-faint", "use " }
+                                span { class: "text-muted", "lang" }
+                                span { class: "text-faint", "::" }
+                                span { class: "text-faint", "{{" }
+                                span { class: "text-fg",
                                     {languages.join(", ")}
                                 }
-                                span { class: "text-slate-400", "}};" }
+                                span { class: "text-faint", "}};" }
                             }
 
                             section { class: "mt-6 grid gap-4 md:gap-5 lg:grid-cols-2",
-                                for (index, project) in PROJECTS.iter().enumerate() {
+                                for (index, project) in sorted_projects.into_iter().enumerate() {
                                     a {
                                         href: "{project.url}",
                                         target: "_blank",
                                         rel: "noopener noreferrer",
-                                        class: "group rounded-lg border border-slate-200 bg-white p-4 transition-colors duration-200 hover:border-slate-400 sm:p-5",
+                                        class: "group rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
                                         div { class: "flex items-start justify-between gap-4",
                                             div { class: "flex min-w-0 items-start gap-3",
-                                                div { class: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded border border-slate-200 bg-slate-50 text-slate-600",
+                                                div { class: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded border border-border bg-surface-2 text-muted",
                                                     svg {
                                                         width: "1em",
                                                         height: "1em",
@@ -240,7 +256,7 @@ pub fn Component() -> Element {
                                                     }
                                                 }
                                                 div { class: "min-w-0",
-                                                    p { class: "text-xs text-slate-400",
+                                                    p { class: "text-xs text-faint",
                                                         "{project.language} · "
                                                         span { class: "inline-flex items-center gap-0.5",
                                                         svg {
@@ -256,23 +272,23 @@ pub fn Component() -> Element {
                                                 }
                                             }
                                             }
-                                            span { class: "text-xs text-slate-300", "#{index + 1}" }
+                                            span { class: "text-xs text-faint", "#{index + 1}" }
                                         }
 
-                                        h2 { class: "mt-3 text-lg font-semibold leading-tight text-slate-900",
+                                        h2 { class: "mt-3 text-lg font-semibold leading-tight text-fg",
                                             "{project.name}"
                                         }
-                                        p { class: "mt-2 text-sm leading-relaxed text-slate-600",
+                                        p { class: "mt-2 text-sm leading-relaxed text-muted",
                                             "{project.description}"
                                         }
 
                                         if !project.topics.is_empty() {
-                                            p { class: "mt-3 text-xs text-slate-400",
+                                            p { class: "mt-3 text-xs text-faint",
                                                 {project.topics.iter().map(|t| format!("#{t}")).collect::<Vec<_>>().join(" ")}
                                             }
                                         }
 
-                                        div { class: "mt-3 inline-flex items-center gap-1 text-xs text-slate-500 transition-colors duration-200 group-hover:text-slate-700",
+                                        div { class: "mt-3 inline-flex items-center gap-1 text-xs text-muted transition-colors duration-200 group-hover:text-accent",
                                             "open project"
                                             span { ">" }
                                         }

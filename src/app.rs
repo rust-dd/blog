@@ -34,7 +34,7 @@ pub fn App() -> Element {
             name: "keywords",
             content: "rust-dd, rust, ai, mathematics, embedded, web, systems, programming"
         }
-        document::Meta { name: "theme-color", content: "#f8fafc" }
+        document::Meta { name: "theme-color", content: "#fafaf9" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
         document::Meta {
@@ -56,8 +56,15 @@ pub fn App() -> Element {
         }
         document::Link { rel: "preconnect", href: "https://fonts.googleapis.com" }
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
+        document::Link {
+            rel: "stylesheet",
+            href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        }
+        document::Script {
+            "try{{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','light')}}"
+        }
 
-        div { class: "min-h-screen text-slate-900 font-mono",
+        div { class: "min-h-screen bg-bg text-fg font-mono",
             Router::<Route> {}
         }
     }
@@ -74,16 +81,16 @@ fn Layout() -> Element {
                     Outlet::<Route> {}
                 }
             }
-            footer { class: "z-40 border-t border-dashed border-slate-300 py-3",
+            footer { class: "z-40 border-t border-dashed border-border py-3",
                 div { class: "flex flex-col items-center gap-2",
                     div { class: "block sm:hidden",
                         icons::Component {}
                     }
-                    p { class: "text-xs text-slate-400",
+                    p { class: "text-xs text-faint",
                         "// powered by "
                         a {
                             href: "https://github.com/rust-dd",
-                            class: "text-slate-500 hover:text-slate-700",
+                            class: "text-muted transition-colors duration-200 hover:text-accent",
                             "rust-dd"
                         }
                         " | {Utc::now().year()}"
@@ -138,11 +145,12 @@ fn PageNotFound(route: Vec<String>) -> Element {
         document::Meta { name: "twitter:url", content: "{canonical}" }
         document::Link { rel: "canonical", href: "{canonical}" }
         section { class: "mx-auto max-w-3xl text-center pt-24",
-            h1 { class: "text-4xl font-bold text-slate-600", "404" }
-            p { class: "mt-4 text-lg text-slate-600", "Page not found: {attempted_path}" }
+            p { class: "text-xs text-faint", "// route not found" }
+            h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }
+            p { class: "mt-4 text-lg text-muted", "Page not found: {attempted_path}" }
             Link {
                 to: Route::Home {},
-                class: "inline-flex mt-8 text-slate-600 hover:underline",
+                class: "inline-flex mt-8 text-accent hover:underline",
                 "Go back home"
             }
         }
