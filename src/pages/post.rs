@@ -62,72 +62,69 @@ pub fn Component(slug: String) -> Element {
                             document::Link { rel: "canonical", href: "{canonical}" }
 
                             div { class: "w-full font-mono",
+                                div { class: "reading-progress" }
+
                                 Link {
                                     to: Route::Home {},
-                                    class: "inline-flex gap-1 text-xs text-slate-400 transition-colors duration-200 hover:text-slate-600",
+                                    class: "inline-flex gap-1 text-xs text-faint transition-colors duration-200 hover:text-accent",
                                     span { "<-" }
                                     span { "back" }
                                 }
 
                                 article { class: "mt-4",
-                                    // Header
-                                    section { class: "rounded-lg border border-slate-200 bg-white p-5 sm:p-7 md:p-10",
-                                        p { class: "text-xs text-slate-400", "// article" }
-                                        h1 { class: "mt-2 text-2xl font-semibold leading-tight text-slate-900 sm:text-3xl md:text-4xl", "{post.title}" }
-                                        p { class: "mt-3 text-sm leading-relaxed text-slate-600", "{post.summary}" }
+                                    section { class: "rounded-lg border border-border bg-surface p-5 sm:p-7 md:p-10",
+                                        p { class: "text-xs text-faint", "// article" }
+                                        h1 { class: "mt-2 text-2xl font-semibold leading-tight text-fg sm:text-3xl md:text-4xl", "{post.title}" }
+                                        p { class: "mt-3 text-sm leading-relaxed text-muted", "{post.summary}" }
 
-                                        // Metadata inline
-                                        p { class: "mt-4 text-xs text-slate-400",
+                                        p { class: "mt-4 text-xs text-faint",
                                             "author={post.author.name} date={post.created_at} read={post.read_time}min views={post.total_views}"
                                         }
 
-                                        // Tags
                                         if !post.tags.is_empty() {
                                             {
                                                 let tags_str = post.tags.iter().take(10).cloned().collect::<Vec<_>>().join(", ");
                                                 rsx! {
-                                                    p { class: "mt-2 text-xs text-slate-400",
-                                                        span { class: "text-slate-300", "use " }
-                                                        span { class: "text-slate-400", "tags" }
-                                                        span { class: "text-slate-300", "::" }
-                                                        span { class: "text-slate-300", "{{" }
-                                                        span { class: "text-slate-500", "{tags_str}" }
-                                                        span { class: "text-slate-300", "}};" }
+                                                    p { class: "mt-2 text-xs text-faint",
+                                                        span { class: "text-faint", "use " }
+                                                        span { class: "text-muted", "tags" }
+                                                        span { class: "text-faint", "::" }
+                                                        span { class: "text-faint", "{{" }
+                                                        span { class: "text-fg", "{tags_str}" }
+                                                        span { class: "text-faint", "}};" }
                                                     }
                                                 }
                                             }
                                         }
 
                                         if let Some(image) = post.header_image.clone() {
-                                            div { class: "mt-6 overflow-hidden rounded-lg border border-slate-200 bg-slate-100",
+                                            div { class: "mt-6 overflow-hidden rounded-lg border border-border bg-surface-2",
                                                 img {
                                                     src: "{image}",
                                                     alt: "{post.title}",
-                                                    class: "object-cover w-full max-h-[520px]"
+                                                    class: "max-h-[520px] w-full object-cover"
                                                 }
                                             }
                                         }
                                     }
 
-                                    // Body
-                                    div { class: "mt-4 rounded-lg border border-slate-200 bg-white p-4 sm:p-6 md:p-8",
+                                    div { class: "mt-4 rounded-lg border border-border bg-surface p-4 sm:p-6 md:p-8",
                                         div {
-                                            class: "prose prose-base sm:prose-lg max-w-none break-words prose-h3:text-slate-900 prose-h4:text-slate-900 prose-code:before:content-none prose-th:text-slate-900 prose-li:marker:text-slate-500 prose-code:after:content-none prose-pre:bg-slate-100 prose-pre:rounded-lg prose-pre:px-4 prose-pre:py-3 prose-code:text-slate-700 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-slate-900 prose-table:text-slate-800 prose-thead:text-slate-900 prose-li:text-slate-700 prose-ol:text-slate-700 prose-h1:text-slate-900 prose-h1:text-3xl prose-h2:text-slate-900 prose-h2:text-2xl prose-ul:text-slate-700 prose-p:text-slate-700 prose-a:text-slate-700 prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 prose-pre:whitespace-pre prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:break-words prose-a:break-all [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
+                                            class: "prose prose-base sm:prose-lg max-w-none break-words font-sans prose-pre:rounded-lg prose-pre:px-4 prose-pre:py-3 prose-pre:overflow-x-auto prose-pre:whitespace-pre prose-pre:max-w-full prose-code:bg-surface-2 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-a:break-all prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
                                             dangerous_inner_html: "{post.body}"
                                         }
                                     }
 
-                                    // CTA
                                     if post.show_cta {
-                                        div { class: "mt-4 rounded-lg border border-dashed border-slate-300 bg-white p-4 sm:p-5",
+                                        div { class: "mt-4 rounded-lg border border-dashed border-border bg-surface p-4 sm:p-5",
                                             div { class: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
                                                 div {
-                                                    p { class: "text-sm font-semibold text-slate-700", "Need Rust expertise?" }
-                                                    p { class: "text-xs text-slate-500", "Build your next production Rust system with us." }
+                                                    p { class: "text-sm font-semibold text-fg", "Need Rust expertise?" }
+                                                    p { class: "text-xs text-muted", "Build your next production Rust system with us." }
                                                 }
                                                 a {
                                                     href: "mailto:info@rust-dd.com",
-                                                    class: "inline-flex items-center justify-center rounded bg-slate-700 px-4 py-2 text-xs font-semibold text-white transition-colors duration-200 hover:bg-slate-800",
+                                                    class: "inline-flex items-center justify-center rounded bg-accent px-4 py-2 text-xs font-semibold text-accent-fg transition-colors duration-200 hover:bg-accent/90",
                                                     "contact us"
                                                 }
                                             }
@@ -140,10 +137,10 @@ pub fn Component(slug: String) -> Element {
                     Err(err) => rsx! {
                         section { class: "mx-auto max-w-3xl text-center pt-24",
                             h1 { class: "text-3xl font-semibold text-red-500", "Failed to load post" }
-                            p { class: "mt-4 text-slate-600", "{err}" }
+                            p { class: "mt-4 text-muted", "{err}" }
                             Link {
                                 to: Route::Home {},
-                                class: "inline-flex mt-8 text-slate-600 hover:underline",
+                                class: "inline-flex mt-8 text-accent hover:underline",
                                 "Go back home"
                             }
                         }
