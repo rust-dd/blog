@@ -133,6 +133,15 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         topics: &["react-native", "qdrant", "vector-search", "embedded"],
     },
     OssProject {
+        name: "react-native-scc",
+        description: "Rust-powered, ultra-fast persistent key-value storage for React Native and Expo — a lock-free hash map behind Nitro Modules, built as a drop-in MMKV alternative.",
+        url: "https://github.com/rust-dd/react-native-scc",
+        github_repo: "rust-dd/react-native-scc",
+        stars: 2,
+        language: "Rust",
+        topics: &["react-native", "rust", "nitro-modules", "key-value-store", "mmkv-alternative"],
+    },
+    OssProject {
         name: "ito",
         description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
         url: "https://github.com/rust-dd/ito",

@@ -49,6 +49,27 @@ pub const PROJECTS: &[Project] = &[
         url: "https://doom.rust-dd.com/",
         tags: &["browser", "game", "experiment"],
     },
+    Project {
+        name: "react-native-scc",
+        kind: "library",
+        description: "Rust-powered, ultra-fast persistent key-value storage for React Native and Expo — a lock-free hash map behind Nitro Modules, built as a drop-in MMKV alternative.",
+        url: "https://github.com/rust-dd/react-native-scc",
+        tags: &["react-native", "rust", "nitro", "storage"],
+    },
+    Project {
+        name: "react-native-qdrant-edge",
+        kind: "library",
+        description: "Embedded vector search for React Native powered by Qdrant Edge, running fully offline on-device.",
+        url: "https://github.com/rust-dd/react-native-qdrant-edge",
+        tags: &["react-native", "qdrant", "vector-search", "rust"],
+    },
+    Project {
+        name: "ito",
+        kind: "tui",
+        description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
+        url: "https://github.com/rust-dd/ito",
+        tags: &["rust", "tui", "stochastic", "quant"],
+    },
 ];
 
 #[component]
