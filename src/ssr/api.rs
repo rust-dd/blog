@@ -121,7 +121,7 @@ pub async fn select_posts() -> Result<Vec<Post>> {
 
         let db = db().await;
         let mut query = db
-            .query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;")
+            .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
             .await?;
 
         let mut posts = query.take::<Vec<Post>>(0)?;
@@ -182,7 +182,9 @@ pub async fn select_post(slug: String) -> Result<Post> {
 
         let db = db().await;
         let mut query = db
-            .query(format!(r#"SELECT *, author.* from post WHERE slug = "{slug}""#))
+            .query(format!(
+                r#"SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE slug = "{slug}""#
+            ))
             .await?;
         let post = query.take::<Vec<Post>>(0)?;
         let mut post = match post.first().cloned() {

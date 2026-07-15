@@ -20,7 +20,11 @@ tower-http = { version = "0.6.2", features = [
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
-surrealdb = { version = "2.3.10", features = ["protocol-http"] }
+# The full client is server-only; shared types (RecordId, SurrealValue) come from
+# surrealdb-types so the wasm build doesn't pull the client engines (whose reqwest
+# 0.13 wasm-streams clashes with dioxus' reqwest 0.12 copy at LTO link time).
+surrealdb = { version = "3", features = ["protocol-http"], optional = true }
+surrealdb-types = "3"
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
 dotenvy = "0.15.7"
@@ -46,18 +50,22 @@ lettre = { version = "0.11.9", default-features = false, optional = true, featur
 ] }
 reqwest = { version = "0.12.28", default-features = false, optional = true, features = ["json", "rustls-tls"] }
 getrandom = { version = "0.3.4", features = ["wasm_js"] }
+# surrealdb-types → geo → rand 0.8 pulls getrandom 0.2, which needs "js" on wasm
+getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
 dioxus-free-icons = { version = "0.10.0", features = ["font-awesome-brands", "font-awesome-solid"] }
-# Must match the wasm-bindgen CLI the Dioxus CLI 0.7.9 uses to process the wasm
-# (0.2.100 — the version dioxus-web 0.7.9 targets and dx keeps cached). A mismatch
-# leaves __wbindgen_placeholder__ imports / schema-version errors so the module never
-# instantiates and the client never hydrates.
-wasm-bindgen = "=0.2.100"
+# Must match the wasm-bindgen CLI the Dioxus CLI uses to process the wasm (dx
+# downloads the CLI version found in Cargo.lock, so keep this an exact pin). A
+# mismatch leaves __wbindgen_placeholder__ imports / schema-version errors so the
+# module never instantiates and the client never hydrates. 0.2.108 is the exact
+# version surrealdb 3.x's wasm-bindgen-futures dependency requires.
+wasm-bindgen = "=0.2.108"
 
 [features]
 default = []
 web = ["dioxus/web"]
 server = [
     "dioxus/server",
+    "dep:surrealdb",
     "dep:axum",
     "dep:tokio",
     "dep:tower",

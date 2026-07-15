@@ -1,5 +1,5 @@
-DEFINE TABLE OVERWRITE post TYPE NORMAL SCHEMAFULL 
-    PERMISSIONS 
+DEFINE TABLE OVERWRITE post TYPE NORMAL SCHEMAFULL
+    PERMISSIONS
         FOR select FULL
         FOR create, update, delete NONE;
 
@@ -16,3 +16,12 @@ DEFINE FIELD OVERWRITE updated_at ON post TYPE datetime VALUE time::now();
 DEFINE FIELD OVERWRITE is_published ON post TYPE bool DEFAULT false;
 DEFINE FIELD OVERWRITE header_image ON post TYPE option<string>;
 DEFINE FIELD OVERWRITE show_cta ON post TYPE bool DEFAULT false;
+
+DEFINE EVENT OVERWRITE post_read_time ON TABLE post WHEN ($event = "UPDATE" || $event = "CREATE") && $before.body != $after.body THEN {
+    LET $read_time = array::len(string::words($after.body)) / 200;
+    UPDATE post SET read_time = math::max([1, $read_time]) WHERE id = $after.id;
+};
+
+DEFINE EVENT OVERWRITE post_slug ON TABLE post WHEN ($event = "CREATE" OR $event = "UPDATE") && $before.title != $after.title THEN (
+    UPDATE post SET slug = string::slug($after.title) WHERE id = $after.id
+);

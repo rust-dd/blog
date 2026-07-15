@@ -19,7 +19,7 @@ pub fn Component(slug: String) -> Element {
         if cfg!(not(debug_assertions)) && !*view_counted.read() {
             if let Some(Ok(post)) = post.read().as_ref() {
                 view_counted.set(true);
-                let id = post.id.id.to_string();
+                let id = surrealdb_types::ToSql::to_sql(&post.id.key);
                 spawn(async move {
                     let _ = increment_views(id).await;
                 });

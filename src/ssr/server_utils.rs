@@ -5,7 +5,6 @@ use dioxus::prelude::Result;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
 use regex::Regex;
 use rss::{ChannelBuilder, Item};
-use serde::{Deserialize, Serialize};
 use std::env;
 use surrealdb::engine::remote::http::{Client, Http, Https};
 use surrealdb::opt::auth::Root;
@@ -30,12 +29,7 @@ pub async fn connect() -> Surreal<Client> {
         Surreal::new::<Https>(host).await.unwrap()
     };
 
-    db.signin(Root {
-        username: &username,
-        password: &password,
-    })
-    .await
-    .unwrap();
+    db.signin(Root { username, password }).await.unwrap();
     db.use_ns(ns).use_db(db_name).await.unwrap();
 
     db
@@ -52,7 +46,7 @@ pub async fn rss_handler() -> Response<String> {
 
 pub async fn generate_rss(db: Surreal<Client>) -> Result<String> {
     let mut query = db
-        .query("SELECT *, author.* from post WHERE is_published = true ORDER BY created_at DESC;")
+        .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
         .await?;
     let mut posts = query.take::<Vec<Post>>(0)?;
 
@@ -238,7 +232,9 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
 }
 
 pub async fn sitemap_handler() -> Response<String> {
-    #[derive(Serialize, Deserialize)]
+    use surrealdb_types::SurrealValue;
+
+    #[derive(SurrealValue)]
     struct SitemapPost {
         slug: Option<String>,
         created_at: String,
@@ -246,7 +242,7 @@ pub async fn sitemap_handler() -> Response<String> {
 
     let db = db().await;
     let query = db
-        .query("SELECT slug, created_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
+        .query("SELECT slug, <string>created_at AS created_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
         .await;
     let posts = query.unwrap().take::<Vec<SitemapPost>>(0).unwrap();
     let mut sitemap = String::new();

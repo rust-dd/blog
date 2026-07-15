@@ -6,7 +6,7 @@ A blog engine written in Rust, powered by SurrealDB. This project runs [https://
 
 - Dioxus `0.7.x` (fullstack + router)
 - Axum `0.8`
-- SurrealDB
+- SurrealDB `3.x`
 - TailwindCSS
 
 ## Local Development
@@ -24,12 +24,12 @@ Install Dioxus CLI:
 cargo install dioxus-cli
 ```
 
-Prepare the database:
+Prepare the database (schema lives in `database/schema/`, managed by [surrealkit](https://github.com/surrealdb/surrealkit)):
 
 ```bash
 ./db.sh
-cargo install surrealdb-migrations
-surrealdb-migrations apply
+cargo binstall surrealkit
+surrealkit sync
 ```
 
 Install frontend tooling:

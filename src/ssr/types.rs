@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb_types::{RecordId, SurrealValue};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
 pub struct Author {
-    pub id: Thing,
+    pub id: RecordId,
     pub name: String,
     pub email: String,
     pub bio: Option<String>,
@@ -15,7 +15,7 @@ pub struct Author {
 impl Default for Author {
     fn default() -> Self {
         Self {
-            id: Thing::from(("author", "0")),
+            id: RecordId::new("author", "0"),
             name: String::new(),
             email: String::new(),
             bio: None,
@@ -26,9 +26,9 @@ impl Default for Author {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
 pub struct Post {
-    pub id: Thing,
+    pub id: RecordId,
     pub title: String,
     pub summary: String,
     pub body: String,
@@ -47,7 +47,7 @@ pub struct Post {
 impl Default for Post {
     fn default() -> Self {
         Self {
-            id: Thing::from(("post", "0")),
+            id: RecordId::new("post", "0"),
             title: String::new(),
             summary: String::new(),
             body: String::new(),
@@ -65,9 +65,9 @@ impl Default for Post {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
 pub struct Reference {
-    pub id: Thing,
+    pub id: RecordId,
     pub title: String,
     pub description: String,
     pub url: String,

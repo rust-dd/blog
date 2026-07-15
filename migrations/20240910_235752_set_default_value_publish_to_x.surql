@@ -1,1 +1,0 @@
-UPDATE post SET publish_to_x = false;

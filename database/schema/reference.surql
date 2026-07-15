@@ -15,3 +15,4 @@ DEFINE FIELD OVERWRITE updated_at ON reference TYPE datetime VALUE time::now();
 DEFINE FIELD OVERWRITE category ON reference TYPE string;
 DEFINE FIELD OVERWRITE year ON reference TYPE string;
 DEFINE FIELD OVERWRITE icon ON reference TYPE string;
+
