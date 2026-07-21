@@ -7,7 +7,7 @@ use regex::Regex;
 use rss::{ChannelBuilder, Item};
 use std::env;
 use surrealdb::engine::remote::http::{Client, Http, Https};
-use surrealdb::opt::auth::Root;
+use surrealdb::opt::auth::{Database, Root};
 use surrealdb::Surreal;
 use syntect::highlighting::ThemeSet;
 use syntect::html::highlighted_html_for_string;
@@ -18,8 +18,6 @@ use crate::ssr::app_state::db;
 pub async fn connect() -> Surreal<Client> {
     let protocol = env::var("SURREAL_PROTOCOL").unwrap_or("http".to_string());
     let host = env::var("SURREAL_HOST").unwrap_or("127.0.0.1:8000".to_string());
-    let username = env::var("SURREAL_ROOT_USER").unwrap_or("root".to_string());
-    let password = env::var("SURREAL_ROOT_PASS").unwrap_or("root".to_string());
     let ns = env::var("SURREAL_NS").unwrap_or("rustblog".to_string());
     let db_name = env::var("SURREAL_DB").unwrap_or("rustblog".to_string());
 
@@ -29,7 +27,26 @@ pub async fn connect() -> Surreal<Client> {
         Surreal::new::<Https>(host).await.unwrap()
     };
 
-    db.signin(Root { username, password }).await.unwrap();
+    // The database-level service user decouples the app from cloud-managed
+    // instance credentials, which the provider may rotate; root signin stays
+    // as the local-dev fallback.
+    match (env::var("SURREAL_USER"), env::var("SURREAL_PASS")) {
+        (Ok(username), Ok(password)) => {
+            db.signin(Database {
+                namespace: ns.clone(),
+                database: db_name.clone(),
+                username,
+                password,
+            })
+            .await
+            .unwrap();
+        }
+        _ => {
+            let username = env::var("SURREAL_ROOT_USER").unwrap_or("root".to_string());
+            let password = env::var("SURREAL_ROOT_PASS").unwrap_or("root".to_string());
+            db.signin(Root { username, password }).await.unwrap();
+        }
+    }
     db.use_ns(ns).use_db(db_name).await.unwrap();
 
     db
