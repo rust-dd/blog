@@ -1,6 +1,9 @@
 -- The app signs in as this database-level user instead of a cloud-managed
 -- root user, so instance credential rotations can't take the service down.
-DEFINE USER OVERWRITE blog_svc ON DATABASE
+-- IF NOT EXISTS, never OVERWRITE: redefining a user regenerates its token
+-- signing key, which instantly 401s tokens already issued to running apps.
+-- To rotate the password, run a one-off DEFINE USER OVERWRITE.
+DEFINE USER IF NOT EXISTS blog_svc ON DATABASE
     PASSWORD "${svc_password}"
     ROLES EDITOR
     DURATION FOR TOKEN 1y, FOR SESSION NONE;
