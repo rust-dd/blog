@@ -120,6 +120,7 @@ pub async fn select_posts() -> Result<Vec<Post>> {
         use chrono::{DateTime, Utc};
 
         let db = db().await;
+        let db = db.get().await;
         let mut query = db
             .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
             .await?;
@@ -149,6 +150,7 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>> {
         use crate::ssr::app_state::db;
 
         let db = db().await;
+        let db = db.get().await;
         let mut query = db
             .query(
                 "
@@ -181,6 +183,7 @@ pub async fn select_post(slug: String) -> Result<Post> {
         use chrono::{DateTime, Utc};
 
         let db = db().await;
+        let db = db.get().await;
         let mut query = db
             .query(format!(
                 r#"SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE slug = "{slug}""#
@@ -213,6 +216,7 @@ pub async fn increment_views(id: String) -> Result<()> {
         use crate::ssr::app_state::db;
 
         let db = db().await;
+        let db = db.get().await;
         db.query(format!("UPDATE post:{0} SET total_views = total_views + 1;", id))
             .await?;
 

@@ -5,9 +5,7 @@ use dioxus::prelude::Result;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
 use regex::Regex;
 use rss::{ChannelBuilder, Item};
-use std::env;
-use surrealdb::engine::remote::http::{Client, Http, Https};
-use surrealdb::opt::auth::{Database, Root};
+use surrealdb::engine::remote::http::Client;
 use surrealdb::Surreal;
 use syntect::highlighting::ThemeSet;
 use syntect::html::highlighted_html_for_string;
@@ -15,53 +13,29 @@ use syntect::parsing::SyntaxSet;
 
 use crate::ssr::app_state::db;
 
-pub async fn connect() -> Surreal<Client> {
-    let protocol = env::var("SURREAL_PROTOCOL").unwrap_or("http".to_string());
-    let host = env::var("SURREAL_HOST").unwrap_or("127.0.0.1:8000".to_string());
-    let ns = env::var("SURREAL_NS").unwrap_or("rustblog".to_string());
-    let db_name = env::var("SURREAL_DB").unwrap_or("rustblog".to_string());
-
-    let db = if protocol == "http" {
-        Surreal::new::<Http>(host).await.unwrap()
-    } else {
-        Surreal::new::<Https>(host).await.unwrap()
-    };
-
-    // The database-level service user decouples the app from cloud-managed
-    // instance credentials, which the provider may rotate; root signin stays
-    // as the local-dev fallback.
-    match (env::var("SURREAL_USER"), env::var("SURREAL_PASS")) {
-        (Ok(username), Ok(password)) => {
-            db.signin(Database {
-                namespace: ns.clone(),
-                database: db_name.clone(),
-                username,
-                password,
-            })
-            .await
-            .unwrap();
-        }
-        _ => {
-            let username = env::var("SURREAL_ROOT_USER").unwrap_or("root".to_string());
-            let password = env::var("SURREAL_ROOT_PASS").unwrap_or("root".to_string());
-            db.signin(Root { username, password }).await.unwrap();
-        }
-    }
-    db.use_ns(ns).use_db(db_name).await.unwrap();
-
-    db
-}
-
 pub async fn rss_handler() -> Response<String> {
     let db = db().await;
-    let rss = generate_rss(db).await.unwrap_or_default();
+    let conn = db.get().await;
+    let rss = match generate_rss(&conn).await {
+        Ok(rss) => rss,
+        // Serving an empty 200 would tell feed readers the blog has no posts;
+        // a 503 keeps the last good copy in their cache until the db is back.
+        Err(err) => {
+            tracing::error!("rss generation failed: {err}");
+            return Response::builder()
+                .status(http::StatusCode::SERVICE_UNAVAILABLE)
+                .header("Content-Type", "application/xml")
+                .body(String::new())
+                .unwrap();
+        }
+    };
     Response::builder()
         .header("Content-Type", "application/xml")
         .body(rss)
         .unwrap()
 }
 
-pub async fn generate_rss(db: Surreal<Client>) -> Result<String> {
+pub async fn generate_rss(db: &Surreal<Client>) -> Result<String> {
     let mut query = db
         .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
         .await?;
@@ -258,10 +232,25 @@ pub async fn sitemap_handler() -> Response<String> {
     }
 
     let db = db().await;
-    let query = db
+    let posts = match db
+        .get()
+        .await
         .query("SELECT slug, <string>created_at AS created_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
-        .await;
-    let posts = query.unwrap().take::<Vec<SitemapPost>>(0).unwrap();
+        .await
+        .and_then(|mut query| query.take::<Vec<SitemapPost>>(0))
+    {
+        Ok(posts) => posts,
+        // Unwrapping here panicked the worker thread on every crawl once the
+        // db handle went stale; a 503 lets crawlers retry instead.
+        Err(err) => {
+            tracing::error!("sitemap generation failed: {err}");
+            return Response::builder()
+                .status(http::StatusCode::SERVICE_UNAVAILABLE)
+                .header("Content-Type", "application/xml")
+                .body(String::new())
+                .unwrap();
+        }
+    };
     let mut sitemap = String::new();
     sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
