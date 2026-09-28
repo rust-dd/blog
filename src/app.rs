@@ -1,4 +1,5 @@
 use chrono::{Datelike, Utc};
+use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 
 use crate::{
@@ -26,28 +27,16 @@ pub enum Route {
 #[component]
 pub fn App() -> Element {
     rsx! {
+        // Fallback only; every page sets its own title, and the last one set wins.
+        document::Title { "{seo::SITE_NAME}" }
         document::Stylesheet { href: asset!("/assets/tailwind.css") }
         document::Stylesheet { href: "/katex.min.css" }
-        document::Meta { charset: "utf-8" }
-        document::Meta { name: "viewport", content: "width=device-width, initial-scale=1" }
-        document::Meta {
-            name: "keywords",
-            content: "rust-dd, rust, ai, mathematics, embedded, web, systems, programming"
-        }
+        document::Link { rel: "icon", href: "/favicon.ico" }
         document::Meta { name: "theme-color", content: "#fafaf9" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
-        document::Meta {
-            property: "og:image",
-            content: seo::DEFAULT_OG_IMAGE
-        }
-        document::Meta { property: "og:image:type", content: "image/png" }
-        document::Meta { property: "og:image:width", content: "1200" }
-        document::Meta { property: "og:image:height", content: "627" }
         document::Meta { name: "twitter:site", content: seo::X_HANDLE }
         document::Meta { name: "twitter:creator", content: seo::X_HANDLE }
-        document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
-        document::Meta { name: "twitter:image:alt", content: "Rust-DD logo" }
         document::Link {
             rel: "alternate",
             r#type: "application/rss+xml",
@@ -108,7 +97,13 @@ fn Home() -> Element {
 
 #[component]
 fn Post(slug: String) -> Element {
-    rsx! { post::Component { slug } }
+    // Keys only apply inside a list, hence the one-item loop: moving between posts has to remount
+    // the page, since it reads its data and head tags once per mount.
+    rsx! {
+        for slug in [slug] {
+            post::Component { key: "{slug}", slug }
+        }
+    }
 }
 
 #[component]
@@ -128,22 +123,15 @@ fn PageNotFound(route: Vec<String>) -> Element {
     } else {
         format!("/{}", route.join("/"))
     };
-    let canonical = seo::absolute_url(&attempted_path);
+    FullstackContext::commit_http_status(StatusCode::NOT_FOUND, None);
 
     rsx! {
-        document::Title { "404 | Rust-DD" }
-        document::Meta { name: "description", content: "This page could not be found on Rust-DD." }
-        document::Meta { name: "robots", content: "noindex, nofollow" }
-        document::Meta { name: "googlebot", content: "noindex, nofollow" }
-        document::Meta { property: "og:type", content: "website" }
-        document::Meta { property: "og:title", content: "404 | Rust-DD" }
-        document::Meta { property: "og:description", content: "This page could not be found on Rust-DD." }
-        document::Meta { property: "og:url", content: "{canonical}" }
-        document::Meta { name: "twitter:card", content: "summary" }
-        document::Meta { name: "twitter:title", content: "404 | Rust-DD" }
-        document::Meta { name: "twitter:description", content: "This page could not be found on Rust-DD." }
-        document::Meta { name: "twitter:url", content: "{canonical}" }
-        document::Link { rel: "canonical", href: "{canonical}" }
+        seo::PageMeta {
+            title: seo::page_title("Page not found"),
+            description: "This page could not be found on Rust-DD.",
+            path: attempted_path.clone(),
+            noindex: true,
+        }
         section { class: "mx-auto max-w-3xl text-center pt-24",
             p { class: "text-xs text-faint", "// route not found" }
             h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }

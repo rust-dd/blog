@@ -1,8 +1,10 @@
+use super::api::published_posts;
 use super::types::Post;
+use crate::seo::{absolute_url, meta_description, SITE_DESCRIPTION, SITE_NAME};
 use axum::response::Response;
 use chrono::{DateTime, Utc};
 use dioxus::prelude::Result;
-use pulldown_cmark::{CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
+use pulldown_cmark::{CodeBlockKind, CowStr, Event, HeadingLevel, Options, Parser, Tag, TagEnd, TextMergeStream};
 use regex::Regex;
 use rss::{ChannelBuilder, Item};
 use surrealdb::engine::remote::http::Client;
@@ -104,7 +106,7 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
         .or_else(|| ts.themes.get("Solarized (dark)"))
         .or_else(|| ts.themes.values().next())
         .expect("syntect default theme missing");
-    let re_img = Regex::new(r"!\[.*?\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)")?;
+    let re_img = Regex::new(r"!\[(.*?)\]\((.*?\.(svg|png|jpe?g|gif|bmp|webp))\)")?;
     let re_bg_styles = Regex::new(r"background-color:\s*#[0-9a-fA-F]{6};?")?;
     let re_empty_style = Regex::new(r#"style="\s*""#)?;
 
@@ -112,20 +114,7 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
     let mut last_img_end = 0;
     for img_cap in re_img.captures_iter(&markdown) {
         processed_markdown.push_str(&markdown[last_img_end..img_cap.get(0).unwrap().start()]);
-        let img_path = &img_cap[1];
-        let img_format = &img_cap[2];
-        let img_html = if img_format == "svg" {
-            format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="filter: invert(100%); width: 100%;"></div>"#,
-                img_path
-            )
-        } else {
-            format!(
-                r#"<div style="display: flex; justify-content: center;"><img src="{}" style="width: 100%;"></div>"#,
-                img_path
-            )
-        };
-        processed_markdown.push_str(&img_html);
+        processed_markdown.push_str(&image_html(&img_cap[2], &img_cap[1]));
         last_img_end = img_cap.get(0).unwrap().end();
     }
     processed_markdown.push_str(&markdown[last_img_end..]);
@@ -144,12 +133,23 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
     let mut in_code_block = false;
     let mut code_block_language: Option<String> = None;
     let mut code_block_content = String::new();
-    let mut skip_image = false;
+    // Source URL and alt text of the image whose inner events are being collected.
+    let mut pending_image: Option<(String, String)> = None;
 
     for event in iterator {
-        if skip_image {
-            if let Event::End(TagEnd::Image) = event {
-                skip_image = false;
+        if pending_image.is_some() {
+            match event {
+                Event::Text(text) | Event::Code(text) => {
+                    if let Some((_, alt)) = pending_image.as_mut() {
+                        alt.push_str(&text);
+                    }
+                }
+                Event::End(TagEnd::Image) => {
+                    if let Some((src, alt)) = pending_image.take() {
+                        events.push(Event::Html(CowStr::from(image_html(&src, &alt))));
+                    }
+                }
+                _ => {}
             }
             continue;
         }
@@ -187,31 +187,28 @@ pub async fn process_markdown(markdown: String) -> Result<String> {
                 code_block_content.push('\n');
             }
             Event::Start(Tag::Image { dest_url, .. }) => {
-                let img_path = dest_url.into_string();
-                let img_format = img_path.split('.').last().unwrap_or("").to_lowercase();
-
-                let img_html = if img_format == "svg" {
-                    format!(
-                        r#"<div style="display: flex; justify-content: center;"><img alt="image" src="{}" style="filter: invert(100%); width: 100%;"></div>"#,
-                        img_path
-                    )
-                } else {
-                    format!(
-                        r#"<div style="display: flex; justify-content: center;"><img alt="image" src="{}" style="width: 100%;"></div>"#,
-                        img_path
-                    )
-                };
-
-                events.push(Event::Html(CowStr::from(img_html)));
-                skip_image = true;
-            }
-            Event::End(TagEnd::Image) => {
-                if !skip_image {
-                    events.push(Event::End(TagEnd::Image));
-                }
+                pending_image = Some((dest_url.into_string(), String::new()));
             }
             other if !in_code_block => events.push(other),
             _ => {}
+        }
+    }
+
+    // The page renders the post title as its only h1, so posts written with `#` sections move down a level.
+    let has_h1 = events.iter().any(|event| {
+        matches!(
+            event,
+            Event::Start(Tag::Heading {
+                level: HeadingLevel::H1,
+                ..
+            })
+        )
+    });
+    if has_h1 {
+        for event in events.iter_mut() {
+            if let Event::Start(Tag::Heading { level, .. }) | Event::End(TagEnd::Heading(level)) = event {
+                *level = HeadingLevel::try_from(*level as usize + 1).unwrap_or(HeadingLevel::H6);
+            }
         }
     }
 
@@ -255,29 +252,19 @@ pub async fn sitemap_handler() -> Response<String> {
     sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-    let static_urls = vec![
-        ("https://rust-dd.com/", "daily", "0.9"),
-        ("https://rust-dd.com/opensource", "weekly", "0.8"),
-        ("https://rust-dd.com/rss.xml", "daily", "0.5"),
-        ("https://rust-dd.com/sitemap.xml", "monthly", "0.5"),
-    ];
-
-    for (url, freq, priority) in static_urls {
-        sitemap.push_str("<url>\n");
-        sitemap.push_str(&format!("<loc>{}</loc>\n", url));
-        sitemap.push_str(&format!("<changefreq>{}</changefreq>\n", freq));
-        sitemap.push_str(&format!("<priority>{}</priority>\n", priority));
-        sitemap.push_str("</url>\n");
+    // Only indexable HTML pages belong here. No changefreq/priority: Google ignores both, and
+    // no updated_at-based lastmod either, since that field changes on every view count.
+    let latest_post = posts.first().map(|post| post.created_at.as_str());
+    for (path, lastmod) in [("/", latest_post), ("/projects", None), ("/opensource", None)] {
+        push_sitemap_url(&mut sitemap, &absolute_url(path), lastmod);
     }
-
-    for post in posts {
-        if let Some(slug) = post.slug {
-            sitemap.push_str("<url>\n");
-            sitemap.push_str(&format!("<loc>https://rust-dd.com/post/{}</loc>\n", slug));
-            sitemap.push_str("<changefreq>monthly</changefreq>\n");
-            sitemap.push_str("<priority>1.0</priority>\n");
-            sitemap.push_str(&format!("<lastmod>{}</lastmod>\n", post.created_at));
-            sitemap.push_str("</url>\n");
+    for post in &posts {
+        if let Some(slug) = &post.slug {
+            push_sitemap_url(
+                &mut sitemap,
+                &absolute_url(&format!("/post/{slug}")),
+                Some(&post.created_at),
+            );
         }
     }
     sitemap.push_str("</urlset>");
@@ -287,11 +274,118 @@ pub async fn sitemap_handler() -> Response<String> {
         .unwrap()
 }
 
+fn push_sitemap_url(sitemap: &mut String, loc: &str, lastmod: Option<&str>) {
+    sitemap.push_str("<url>\n");
+    sitemap.push_str(&format!("<loc>{loc}</loc>\n"));
+    if let Some(lastmod) = lastmod {
+        sitemap.push_str(&format!("<lastmod>{lastmod}</lastmod>\n"));
+    }
+    sitemap.push_str("</url>\n");
+}
+
 pub async fn robots_handler() -> Response<String> {
-    let mut robots = String::new();
-    robots.push_str("User-agent: *\nDisallow:\n\nAllow: /\n\nSitemap: https://rust-dd.com/sitemap.xml\n");
+    let robots = format!("User-agent: *\nAllow: /\n\nSitemap: {}\n", absolute_url("/sitemap.xml"));
     Response::builder()
-        .header("Content-Type", "text/plain")
+        .header("Content-Type", "text/plain; charset=utf-8")
         .body(robots)
         .unwrap()
+}
+
+/// Plain-markdown site index for LLM crawlers, per https://llmstxt.org.
+pub async fn llms_txt_handler() -> Response<String> {
+    let posts = match published_posts().await {
+        Ok(posts) => posts,
+        Err(err) => {
+            tracing::error!("llms.txt generation failed: {err}");
+            return Response::builder()
+                .status(http::StatusCode::SERVICE_UNAVAILABLE)
+                .header("Content-Type", "text/plain; charset=utf-8")
+                .body(String::new())
+                .unwrap();
+        }
+    };
+
+    let mut llms = format!("# {SITE_NAME}\n\n> {SITE_DESCRIPTION}\n\n## Posts\n\n");
+    for post in &posts {
+        if let Some(slug) = &post.slug {
+            let url = absolute_url(&format!("/post/{slug}"));
+            llms.push_str(&format!(
+                "- [{}]({url}): {}\n",
+                post.title,
+                meta_description(&post.summary)
+            ));
+        }
+    }
+    llms.push_str("\n## Pages\n\n");
+    llms.push_str(&format!(
+        "- [Projects]({}): Apps and developer tools built with Rust\n",
+        absolute_url("/projects")
+    ));
+    llms.push_str(&format!(
+        "- [Open source]({}): Open-source Rust crates, frameworks and CLI tools\n",
+        absolute_url("/opensource")
+    ));
+    llms.push_str(&format!(
+        "- [RSS feed]({}): Full text of every post\n",
+        absolute_url("/rss.xml")
+    ));
+
+    Response::builder()
+        .header("Content-Type", "text/plain; charset=utf-8")
+        .body(llms)
+        .unwrap()
+}
+
+fn image_html(src: &str, alt: &str) -> String {
+    let style = if src.to_lowercase().ends_with(".svg") {
+        "filter: invert(100%); width: 100%;"
+    } else {
+        "width: 100%;"
+    };
+    format!(
+        r#"<div style="display: flex; justify-content: center;"><img src="{}" alt="{}" loading="lazy" decoding="async" style="{style}"></div>"#,
+        escape_attribute(src),
+        escape_attribute(alt),
+    )
+}
+
+fn escape_attribute(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('"', "&quot;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn images_keep_their_alt_text_and_load_lazily() {
+        let html = process_markdown(
+            "![ESP32 \"pinout\"](https://cdn.example/pinout.png)\n\n![Flow](https://cdn.example/flow)".into(),
+        )
+        .await
+        .unwrap();
+
+        assert!(html.contains(r#"alt="ESP32 &quot;pinout&quot;" loading="lazy""#));
+        assert!(html.contains(r#"<img src="https://cdn.example/flow" alt="Flow" loading="lazy""#));
+    }
+
+    #[tokio::test]
+    async fn posts_with_h1_sections_are_shifted_below_the_page_title() {
+        let html = process_markdown("# Intro\n\n## Details\n\ntext".into()).await.unwrap();
+
+        assert!(html.contains("<h2>Intro</h2>"));
+        assert!(html.contains("<h3>Details</h3>"));
+        assert!(!html.contains("<h1>"));
+    }
+
+    #[tokio::test]
+    async fn posts_without_h1_keep_their_heading_levels() {
+        let html = process_markdown("## Details\n\ntext".into()).await.unwrap();
+
+        assert!(html.contains("<h2>Details</h2>"));
+    }
 }

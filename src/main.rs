@@ -5,7 +5,7 @@ async fn main() {
     use blog::app::App;
     use blog::ssr::app_state::init_db;
     use blog::ssr::redirect::redirect_www;
-    use blog::ssr::server_utils::{robots_handler, rss_handler, sitemap_handler};
+    use blog::ssr::server_utils::{llms_txt_handler, robots_handler, rss_handler, sitemap_handler};
     use dotenvy::dotenv;
     use tower_http::compression::predicate::{NotForContentType, SizeAbove};
     use tower_http::compression::{CompressionLayer, Predicate};
@@ -28,6 +28,7 @@ async fn main() {
         .route("/rss.xml", get(rss_handler))
         .route("/sitemap.xml", get(sitemap_handler))
         .route("/robots.txt", get(robots_handler))
+        .route("/llms.txt", get(llms_txt_handler))
         .layer(
             tower::ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())

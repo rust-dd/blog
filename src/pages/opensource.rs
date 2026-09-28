@@ -155,31 +155,17 @@ pub(crate) const PROJECTS: &[OssProject] = &[
 #[component]
 pub fn Component() -> Element {
     let stars = use_server_future(select_repo_stars)?;
-    let title = "Open Source | Rust-DD";
-    let description =
-        "Open source projects by Rust-DD — web frameworks, quant finance, embedded systems, and developer tools.";
-    let canonical = seo::absolute_url("/opensource");
 
     let mut languages: Vec<&str> = PROJECTS.iter().map(|p| p.language).collect();
     languages.sort();
     languages.dedup();
 
     rsx! {
-        document::Title { "{title}" }
-        document::Meta { name: "description", content: "{description}" }
-        document::Meta { name: "robots", content: "index, follow" }
-        document::Meta { name: "googlebot", content: "index, follow" }
-        document::Meta { property: "og:type", content: "website" }
-        document::Meta { property: "og:title", content: "{title}" }
-        document::Meta { property: "og:description", content: "{description}" }
-        document::Meta { property: "og:url", content: "{canonical}" }
-        document::Meta { property: "og:image", content: seo::DEFAULT_OG_IMAGE }
-        document::Meta { name: "twitter:card", content: "summary_large_image" }
-        document::Meta { name: "twitter:title", content: "{title}" }
-        document::Meta { name: "twitter:description", content: "{description}" }
-        document::Meta { name: "twitter:url", content: "{canonical}" }
-        document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
-        document::Link { rel: "canonical", href: "{canonical}" }
+        seo::PageMeta {
+            title: seo::page_title("Open-Source Rust Crates and Tools"),
+            description: "Open-source Rust from Rust-DD: the Tako web framework, stochastic-rs for quant finance, embedded sensor drivers, CLI tools and starter templates.",
+            path: "/opensource",
+        }
 
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading projects...".to_string() } },

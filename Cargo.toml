@@ -27,6 +27,7 @@ surrealdb = { version = "3", features = ["protocol-http"], optional = true }
 surrealdb-types = "3"
 chrono = "0.4.38"
 serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1"
 dotenvy = "0.15.7"
 syntect = { version = "5.2.0", optional = true, default-features = false, features = [
     "default-fancy",

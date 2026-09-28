@@ -514,6 +514,7 @@ dependencies = [
  "reqwest 0.12.28",
  "rss",
  "serde",
+ "serde_json",
  "surrealdb",
  "surrealdb-types",
  "syntect",

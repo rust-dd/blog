@@ -1,3 +1,4 @@
+use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 use std::collections::BTreeMap;
 
@@ -6,24 +7,19 @@ use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
 #[component]
 pub fn Component() -> Element {
     let posts = use_server_future(select_posts)?;
-    let canonical = seo::absolute_url("/");
+
+    // A 5xx keeps crawlers from indexing the error state as the home page.
+    if let Some(Err(err)) = posts.read().as_ref() {
+        FullstackContext::commit_error_status(err.clone());
+    }
 
     rsx! {
-        document::Title { "{seo::SITE_NAME}" }
-        document::Meta { name: "description", content: seo::SITE_DESCRIPTION }
-        document::Meta { name: "robots", content: "index, follow" }
-        document::Meta { name: "googlebot", content: "index, follow" }
-        document::Meta { property: "og:type", content: "website" }
-        document::Meta { property: "og:title", content: seo::SITE_NAME }
-        document::Meta { property: "og:description", content: seo::SITE_DESCRIPTION }
-        document::Meta { property: "og:url", content: "{canonical}" }
-        document::Meta { property: "og:image", content: seo::DEFAULT_OG_IMAGE }
-        document::Meta { name: "twitter:card", content: "summary_large_image" }
-        document::Meta { name: "twitter:title", content: seo::SITE_NAME }
-        document::Meta { name: "twitter:description", content: seo::SITE_DESCRIPTION }
-        document::Meta { name: "twitter:url", content: "{canonical}" }
-        document::Meta { name: "twitter:image", content: seo::DEFAULT_OG_IMAGE }
-        document::Link { rel: "canonical", href: "{canonical}" }
+        seo::PageMeta {
+            title: seo::HOME_TITLE,
+            description: seo::SITE_DESCRIPTION,
+            path: "/",
+        }
+        seo::JsonLd { value: seo::website_graph() }
 
         SuspenseBoundary {
             fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
@@ -50,7 +46,7 @@ pub fn Component() -> Element {
                             let featured_posts: Vec<_> = items.iter().take(2).collect();
                             let latest = items
                                 .first()
-                                .map(|post| post.created_at.clone())
+                                .map(|post| post.published_on())
                                 .unwrap_or_else(|| "-".to_string());
 
                             let mut tag_counts: BTreeMap<String, usize> = BTreeMap::new();
@@ -131,7 +127,7 @@ pub fn Component() -> Element {
                                                     to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
                                                     class: "block px-4 py-3 no-underline transition-colors duration-150 hover:bg-surface-2",
                                                     div { class: "hidden sm:grid sm:grid-cols-[120px_1fr_70px_70px] sm:items-center",
-                                                        span { class: "text-xs text-faint", "{post.created_at}" }
+                                                        span { class: "text-xs text-faint", "{post.published_on()}" }
                                                         span { class: "truncate pr-4 text-sm text-fg", "{post.title}" }
                                                         span { class: "text-right text-xs text-faint", "{post.read_time}min" }
                                                         span { class: "text-right text-xs text-faint", "{post.total_views}" }
@@ -139,7 +135,7 @@ pub fn Component() -> Element {
                                                     div { class: "sm:hidden",
                                                         p { class: "text-sm text-fg", "{post.title}" }
                                                         p { class: "mt-1 text-xs text-faint",
-                                                            "{post.created_at} · {post.read_time}min · {post.total_views} views"
+                                                            "{post.published_on()} · {post.read_time}min · {post.total_views} views"
                                                         }
                                                     }
                                                 }

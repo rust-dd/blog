@@ -44,6 +44,15 @@ pub struct Post {
     pub show_cta: bool,
 }
 
+impl Post {
+    /// `created_at` formatted for display, e.g. "Oct 1, 2024".
+    pub fn published_on(&self) -> String {
+        chrono::DateTime::parse_from_rfc3339(&self.created_at)
+            .map(|date| date.with_timezone(&chrono::Utc).format("%b %-d, %Y").to_string())
+            .unwrap_or_else(|_| self.created_at.clone())
+    }
+}
+
 impl Default for Post {
     fn default() -> Self {
         Self {

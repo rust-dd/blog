@@ -54,28 +54,31 @@ async fn fetch_repo_stars_from_github() -> BTreeMap<String, u32> {
         Err(_) => return BTreeMap::new(),
     };
 
-    let mut stars = BTreeMap::new();
-
+    // Concurrent, so a cold cache costs the /opensource render one GitHub round trip, not one per repo.
+    let mut requests = tokio::task::JoinSet::new();
     for project in PROJECTS.iter() {
         let Some((owner, repo)) = project.github_repo.split_once('/') else {
             continue;
         };
+        let github_repo = project.github_repo;
+        let request = client.get(format!("https://api.github.com/repos/{owner}/{repo}"));
 
-        let response = match client
-            .get(format!("https://api.github.com/repos/{owner}/{repo}"))
-            .send()
-            .await
-        {
-            Ok(response) if response.status().is_success() => response,
-            _ => continue,
-        };
+        requests.spawn(async move {
+            let response = request
+                .send()
+                .await
+                .ok()
+                .filter(|response| response.status().is_success())?;
+            let payload = response.json::<GithubRepo>().await.ok()?;
+            Some((github_repo, payload.stargazers_count))
+        });
+    }
 
-        let payload = match response.json::<GithubRepo>().await {
-            Ok(payload) => payload,
-            Err(_) => continue,
-        };
-
-        stars.insert(project.github_repo.to_string(), payload.stargazers_count);
+    let mut stars = BTreeMap::new();
+    while let Some(result) = requests.join_next().await {
+        if let Ok(Some((github_repo, count))) = result {
+            stars.insert(github_repo.to_string(), count);
+        }
     }
 
     stars
@@ -112,30 +115,63 @@ pub async fn select_repo_stars() -> Result<BTreeMap<String, u32>> {
     }
 }
 
+#[cfg(feature = "server")]
+pub(crate) async fn published_posts() -> Result<Vec<Post>> {
+    use crate::ssr::app_state::db;
+
+    let db = db().await;
+    let db = db.get().await;
+    // Listings never render bodies, and every field returned here is embedded in the page's hydration data.
+    let mut query = db
+        .query("SELECT *, author.*, '' AS body, <string>created_at AS created_at, <string>updated_at AS updated_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
+        .await?;
+
+    Ok(query.take::<Vec<Post>>(0)?)
+}
+
 #[get("/api/posts")]
 pub async fn select_posts() -> Result<Vec<Post>> {
     #[cfg(feature = "server")]
     {
-        use crate::ssr::app_state::db;
-        use chrono::{DateTime, Utc};
+        published_posts().await
+    }
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
+    }
+}
 
-        let db = db().await;
-        let db = db.get().await;
-        let mut query = db
-            .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
-            .await?;
+#[get("/api/post/{slug}/related")]
+pub async fn select_related_posts(slug: String) -> Result<Vec<Post>> {
+    #[cfg(feature = "server")]
+    {
+        use std::collections::BTreeSet;
 
-        let mut posts = query.take::<Vec<Post>>(0)?;
-        posts.iter_mut().for_each(|post| {
-            let date_time = DateTime::parse_from_rfc3339(&post.created_at)
-                .unwrap()
-                .with_timezone(&Utc);
-            let naive_date = date_time.date_naive();
-            let formatted_date = naive_date.format("%b %-d, %Y").to_string();
-            post.created_at = formatted_date;
-        });
+        const RELATED_POSTS: usize = 3;
 
-        Ok(posts)
+        fn tags_of(post: &Post) -> BTreeSet<String> {
+            post.tags
+                .iter()
+                .map(|tag| tag.trim().to_lowercase())
+                .filter(|tag| !tag.is_empty())
+                .collect()
+        }
+
+        let posts = published_posts().await?;
+        let is_current = |post: &Post| post.slug.as_deref() == Some(slug.as_str());
+        let Some(current_tags) = posts.iter().find(|post| is_current(post)).map(tags_of) else {
+            return Ok(Vec::new());
+        };
+
+        let mut related: Vec<(usize, Post)> = posts
+            .into_iter()
+            .filter(|post| !is_current(post))
+            .map(|post| (tags_of(&post).intersection(&current_tags).count(), post))
+            .collect();
+        // Stable sort, so posts sharing as many tags keep their newest-first order.
+        related.sort_by_key(|(shared_tags, _)| std::cmp::Reverse(*shared_tags));
+
+        Ok(related.into_iter().take(RELATED_POSTS).map(|(_, post)| post).collect())
     }
     #[cfg(not(feature = "server"))]
     {
@@ -174,13 +210,13 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>> {
     }
 }
 
+/// `Ok(None)` when no post has this slug, so the page can answer with a real 404.
 #[get("/api/post/{slug}")]
-pub async fn select_post(slug: String) -> Result<Post> {
+pub async fn select_post(slug: String) -> Result<Option<Post>> {
     #[cfg(feature = "server")]
     {
         use crate::ssr::app_state::db;
         use crate::ssr::server_utils::process_markdown;
-        use chrono::{DateTime, Utc};
 
         let db = db().await;
         let db = db.get().await;
@@ -189,19 +225,12 @@ pub async fn select_post(slug: String) -> Result<Post> {
                 r#"SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE slug = "{slug}""#
             ))
             .await?;
-        let post = query.take::<Vec<Post>>(0)?;
-        let mut post = match post.first().cloned() {
-            Some(post) => post,
-            None => return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "post not found").into()),
+        let Some(mut post) = query.take::<Vec<Post>>(0)?.into_iter().next() else {
+            return Ok(None);
         };
-
-        let date_time = DateTime::parse_from_rfc3339(&post.created_at)?.with_timezone(&Utc);
-        let naive_date = date_time.date_naive();
-        let formatted_date = naive_date.format("%b %-d").to_string();
-        post.created_at = formatted_date;
         post.body = process_markdown(post.body.clone()).await?;
 
-        Ok(post)
+        Ok(Some(post))
     }
     #[cfg(not(feature = "server"))]
     {
