@@ -1,5 +1,6 @@
 use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
+use surrealdb_types::RecordIdKey;
 
 use crate::{
     app::Route,
@@ -34,10 +35,11 @@ pub fn Component(slug: String) -> Element {
         if cfg!(not(debug_assertions)) && !*view_counted.read() {
             if let Some(Ok(Some(post))) = post.read().as_ref() {
                 view_counted.set(true);
-                let id = surrealdb_types::ToSql::to_sql(&post.id.key);
-                spawn(async move {
-                    let _ = increment_views(id).await;
-                });
+                if let RecordIdKey::String(id) = post.id.key.clone() {
+                    spawn(async move {
+                        let _ = increment_views(id).await;
+                    });
+                }
             }
         }
     });

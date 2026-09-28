@@ -125,8 +125,16 @@ pub(crate) async fn published_posts() -> Result<Vec<Post>> {
     let mut query = db
         .query("SELECT *, author.*, '' AS body, <string>created_at AS created_at, <string>updated_at AS updated_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
         .await?;
+    let mut posts = query.take::<Vec<Post>>(0)?;
+    posts.iter_mut().for_each(hide_author_email);
 
-    Ok(query.take::<Vec<Post>>(0)?)
+    Ok(posts)
+}
+
+/// Author emails are personal inboxes that no page shows, so they never leave the server.
+#[cfg(feature = "server")]
+fn hide_author_email(post: &mut Post) {
+    post.author.email.clear();
 }
 
 #[get("/api/posts")]
@@ -221,13 +229,13 @@ pub async fn select_post(slug: String) -> Result<Option<Post>> {
         let db = db().await;
         let db = db.get().await;
         let mut query = db
-            .query(format!(
-                r#"SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE slug = "{slug}""#
-            ))
+            .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at FROM post WHERE slug = $slug")
+            .bind(("slug", slug))
             .await?;
         let Some(mut post) = query.take::<Vec<Post>>(0)?.into_iter().next() else {
             return Ok(None);
         };
+        hide_author_email(&mut post);
         post.body = process_markdown(post.body.clone()).await?;
 
         Ok(Some(post))
@@ -243,10 +251,12 @@ pub async fn increment_views(id: String) -> Result<()> {
     #[cfg(feature = "server")]
     {
         use crate::ssr::app_state::db;
+        use surrealdb_types::RecordId;
 
         let db = db().await;
         let db = db.get().await;
-        db.query(format!("UPDATE post:{0} SET total_views = total_views + 1;", id))
+        db.query("UPDATE $post SET total_views = total_views + 1;")
+            .bind(("post", RecordId::new("post", id)))
             .await?;
 
         Ok(())
