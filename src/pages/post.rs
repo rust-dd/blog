@@ -128,6 +128,9 @@ fn Article(post: Post, related: Vec<Post>) -> Element {
             noindex: !post.is_published,
         }
         document::Meta { property: "article:published_time", content: "{post.created_at}" }
+        if let Some(modified) = post.content_updated_at.clone() {
+            document::Meta { property: "article:modified_time", content: "{modified}" }
+        }
         seo::JsonLd { value: seo::blog_posting(&post, &url, &share_image) }
 
         div { class: "w-full font-mono",
@@ -161,6 +164,10 @@ fn Article(post: Post, related: Vec<Post>) -> Element {
                         }
                         " date="
                         time { datetime: "{post.created_at}", "{post.published_on()}" }
+                        if let (Some(updated), Some(modified)) = (post.updated_on(), post.content_updated_at.clone()) {
+                            " updated="
+                            time { datetime: "{modified}", "{updated}" }
+                        }
                         " read={post.read_time}min views={post.total_views}"
                     }
 

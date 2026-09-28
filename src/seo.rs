@@ -173,6 +173,7 @@ pub fn blog_posting(post: &Post, url: &str, image: &str) -> Value {
         "description": post.summary,
         "image": image,
         "datePublished": post.created_at,
+        "dateModified": post.content_updated_at.as_deref().unwrap_or(&post.created_at),
         "author": person,
         "publisher": organization(),
         "keywords": keywords,

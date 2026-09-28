@@ -13,6 +13,8 @@ DEFINE FIELD OVERWRITE read_time ON post TYPE option<int>;
 DEFINE FIELD OVERWRITE total_views ON post TYPE int DEFAULT 0;
 DEFINE FIELD OVERWRITE created_at ON post TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE updated_at ON post TYPE datetime VALUE time::now();
+-- updated_at also moves on every view count; this one only moves when the text changes.
+DEFINE FIELD OVERWRITE content_updated_at ON post TYPE option<datetime>;
 DEFINE FIELD OVERWRITE is_published ON post TYPE bool DEFAULT false;
 DEFINE FIELD OVERWRITE header_image ON post TYPE option<string>;
 DEFINE FIELD OVERWRITE show_cta ON post TYPE bool DEFAULT false;
@@ -24,4 +26,8 @@ DEFINE EVENT OVERWRITE post_read_time ON TABLE post WHEN ($event = "UPDATE" || $
 
 DEFINE EVENT OVERWRITE post_slug ON TABLE post WHEN ($event = "CREATE" OR $event = "UPDATE") && $before.title != $after.title THEN (
     UPDATE post SET slug = string::slug($after.title) WHERE id = $after.id
+);
+
+DEFINE EVENT OVERWRITE post_content_updated ON TABLE post WHEN $event = "UPDATE" && ($before.title != $after.title || $before.summary != $after.summary || $before.body != $after.body) THEN (
+    UPDATE post SET content_updated_at = time::now() WHERE id = $after.id
 );

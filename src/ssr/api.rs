@@ -115,6 +115,11 @@ pub async fn select_repo_stars() -> Result<BTreeMap<String, u32>> {
     }
 }
 
+/// Projection for `Post`: datetimes arrive as strings, and `<option<string>>` keeps an unset
+/// `content_updated_at` as NONE instead of the text "NONE" that `<string>` would produce.
+#[cfg(feature = "server")]
+pub(crate) const POST_FIELDS: &str = "*, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at, <option<string>>content_updated_at AS content_updated_at";
+
 #[cfg(feature = "server")]
 pub(crate) async fn published_posts() -> Result<Vec<Post>> {
     use crate::ssr::app_state::db;
@@ -123,7 +128,9 @@ pub(crate) async fn published_posts() -> Result<Vec<Post>> {
     let db = db.get().await;
     // Listings never render bodies, and every field returned here is embedded in the page's hydration data.
     let mut query = db
-        .query("SELECT *, author.*, '' AS body, <string>created_at AS created_at, <string>updated_at AS updated_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
+        .query(format!(
+            "SELECT {POST_FIELDS}, '' AS body FROM post WHERE is_published = true ORDER BY created_at DESC;"
+        ))
         .await?;
     let mut posts = query.take::<Vec<Post>>(0)?;
     posts.iter_mut().for_each(hide_author_email);
@@ -229,7 +236,7 @@ pub async fn select_post(slug: String) -> Result<Option<Post>> {
         let db = db().await;
         let db = db.get().await;
         let mut query = db
-            .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at FROM post WHERE slug = $slug")
+            .query(format!("SELECT {POST_FIELDS} FROM post WHERE slug = $slug"))
             .bind(("slug", slug))
             .await?;
         let Some(mut post) = query.take::<Vec<Post>>(0)?.into_iter().next() else {

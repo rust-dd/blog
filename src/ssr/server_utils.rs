@@ -1,4 +1,4 @@
-use super::api::published_posts;
+use super::api::{published_posts, POST_FIELDS};
 use super::types::Post;
 use crate::seo::{absolute_url, meta_description, SITE_DESCRIPTION, SITE_NAME};
 use axum::response::Response;
@@ -39,7 +39,9 @@ pub async fn rss_handler() -> Response<String> {
 
 pub async fn generate_rss(db: &Surreal<Client>) -> Result<String> {
     let mut query = db
-        .query("SELECT *, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at from post WHERE is_published = true ORDER BY created_at DESC;")
+        .query(format!(
+            "SELECT {POST_FIELDS} FROM post WHERE is_published = true ORDER BY created_at DESC;"
+        ))
         .await?;
     let mut posts = query.take::<Vec<Post>>(0)?;
 
@@ -226,13 +228,20 @@ pub async fn sitemap_handler() -> Response<String> {
     struct SitemapPost {
         slug: Option<String>,
         created_at: String,
+        content_updated_at: Option<String>,
+    }
+
+    impl SitemapPost {
+        fn lastmod(&self) -> &str {
+            self.content_updated_at.as_deref().unwrap_or(&self.created_at)
+        }
     }
 
     let db = db().await;
     let posts = match db
         .get()
         .await
-        .query("SELECT slug, <string>created_at AS created_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
+        .query("SELECT slug, <string>created_at AS created_at, <option<string>>content_updated_at AS content_updated_at FROM post WHERE is_published = true ORDER BY created_at DESC;")
         .await
         .and_then(|mut query| query.take::<Vec<SitemapPost>>(0))
     {
@@ -252,10 +261,10 @@ pub async fn sitemap_handler() -> Response<String> {
     sitemap.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     sitemap.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-    // Only indexable HTML pages belong here. No changefreq/priority: Google ignores both, and
-    // no updated_at-based lastmod either, since that field changes on every view count.
-    let latest_post = posts.first().map(|post| post.created_at.as_str());
-    for (path, lastmod) in [("/", latest_post), ("/projects", None), ("/opensource", None)] {
+    // Only indexable HTML pages belong here. No changefreq/priority: Google ignores both. lastmod
+    // uses content_updated_at, not updated_at, which changes on every view count.
+    let latest_change = posts.iter().map(SitemapPost::lastmod).max();
+    for (path, lastmod) in [("/", latest_change), ("/projects", None), ("/opensource", None)] {
         push_sitemap_url(&mut sitemap, &absolute_url(path), lastmod);
     }
     for post in &posts {
@@ -263,7 +272,7 @@ pub async fn sitemap_handler() -> Response<String> {
             push_sitemap_url(
                 &mut sitemap,
                 &absolute_url(&format!("/post/{slug}")),
-                Some(&post.created_at),
+                Some(post.lastmod()),
             );
         }
     }
