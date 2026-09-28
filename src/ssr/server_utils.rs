@@ -346,13 +346,14 @@ pub async fn llms_txt_handler() -> Response<String> {
 }
 
 fn image_html(src: &str, alt: &str) -> String {
-    let style = if src.to_lowercase().ends_with(".svg") {
-        "filter: invert(100%); width: 100%;"
+    // SVG diagrams are drawn black on transparent, so only the dark theme needs them inverted.
+    let class = if src.to_lowercase().ends_with(".svg") {
+        r#" class="invert-on-dark""#
     } else {
-        "width: 100%;"
+        ""
     };
     format!(
-        r#"<div style="display: flex; justify-content: center;"><img src="{}" alt="{}" loading="lazy" decoding="async" style="{style}"></div>"#,
+        r#"<div style="display: flex; justify-content: center;"><img src="{}" alt="{}" loading="lazy" decoding="async"{class} style="width: 100%;"></div>"#,
         escape_attribute(src),
         escape_attribute(alt),
     )
@@ -389,6 +390,16 @@ mod tests {
         assert!(html.contains("<h2>Intro</h2>"));
         assert!(html.contains("<h3>Details</h3>"));
         assert!(!html.contains("<h1>"));
+    }
+
+    #[tokio::test]
+    async fn svg_images_are_inverted_only_through_the_dark_theme_class() {
+        let html = process_markdown("![Equation](https://cdn.example/eq.svg)".into())
+            .await
+            .unwrap();
+
+        assert!(html.contains(r#"class="invert-on-dark""#));
+        assert!(!html.contains("invert(100%)"));
     }
 
     #[tokio::test]

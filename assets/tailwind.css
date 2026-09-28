@@ -1411,6 +1411,10 @@ body {
   --tw-prose-td-borders: rgb(var(--border-c));
 }
 
+:root[data-theme="dark"] .invert-on-dark {
+  filter: invert(100%);
+}
+
 .static {
   position: static;
 }

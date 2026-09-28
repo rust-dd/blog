@@ -104,6 +104,10 @@
     --tw-prose-th-borders: rgb(var(--border-c));
     --tw-prose-td-borders: rgb(var(--border-c));
   }
+
+  :root[data-theme="dark"] .invert-on-dark {
+    filter: invert(100%);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
