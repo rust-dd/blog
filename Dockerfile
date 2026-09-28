@@ -1,5 +1,6 @@
 # Stage 1: Build
-FROM rustlang/rust:nightly-alpine AS builder
+# Pinned stable toolchain: a floating nightly can stop compiling a dependency overnight.
+FROM rust:1.98-alpine AS builder
 
 RUN apk update && \
     apk add --no-cache bash curl npm libc-dev binaryen clang openssl-dev openssl-libs-static pkgconfig
@@ -23,7 +24,7 @@ RUN dx bundle --web --release && \
     fi
 
 # Stage 2: Runtime
-FROM rustlang/rust:nightly-alpine AS runner
+FROM rust:1.98-alpine AS runner
 
 WORKDIR /app
 
