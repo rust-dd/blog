@@ -47,7 +47,7 @@ pub fn App() -> Element {
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
         document::Link {
             rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400..700&display=swap"
         }
         document::Script {
             "try{{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','light')}}"

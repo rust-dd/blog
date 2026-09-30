@@ -87,7 +87,7 @@
   }
 
   .prose {
-    --tw-prose-body: rgb(var(--fg));
+    --tw-prose-body: rgb(var(--fg) / 0.86);
     --tw-prose-headings: rgb(var(--fg));
     --tw-prose-lead: rgb(var(--muted));
     --tw-prose-links: rgb(var(--accent));
@@ -96,13 +96,175 @@
     --tw-prose-bullets: rgb(var(--faint));
     --tw-prose-hr: rgb(var(--border-c));
     --tw-prose-quotes: rgb(var(--muted));
-    --tw-prose-quote-borders: rgb(var(--border-c));
+    --tw-prose-quote-borders: rgb(var(--border-strong));
     --tw-prose-captions: rgb(var(--muted));
-    --tw-prose-code: rgb(var(--accent));
+    --tw-prose-code: rgb(var(--fg));
     --tw-prose-pre-code: #c0c5ce;
     --tw-prose-pre-bg: #2b303b;
     --tw-prose-th-borders: rgb(var(--border-c));
     --tw-prose-td-borders: rgb(var(--border-c));
+  }
+
+  /* Text stays in a ~75-character column; code, tables and display math keep the full card width. */
+  .prose.post-body {
+    max-width: none;
+    font-family: theme("fontFamily.sans");
+    font-size: 1rem;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+    container-type: inline-size;
+  }
+
+  .post-body :is(p, ul, ol, blockquote, h2, h3, h4, h5, h6, dl) {
+    max-width: 36rem;
+  }
+
+  .post-body > :first-child {
+    margin-top: 0;
+  }
+
+  .post-body > :last-child {
+    margin-bottom: 0;
+  }
+
+  .post-body p {
+    text-wrap: pretty;
+  }
+
+  .post-body li {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+
+  .post-body :is(h2, h3, h4, h5, h6) {
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .post-body h2 {
+    margin-top: 2em;
+    margin-bottom: 0.6em;
+    font-size: 1.2em;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .post-body h3 {
+    margin-top: 1.75em;
+    margin-bottom: 0.5em;
+    font-size: 1.075em;
+    line-height: 1.4;
+  }
+
+  .post-body :is(h4, h5, h6) {
+    margin-top: 1.5em;
+    margin-bottom: 0.4em;
+    font-size: 1em;
+    line-height: 1.5;
+  }
+
+  .post-body a {
+    font-weight: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    text-decoration-color: rgb(var(--accent) / 0.4);
+    transition: text-decoration-color 0.2s ease;
+  }
+
+  .post-body a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .post-body :not(pre) > code {
+    padding: 0.12em 0.34em;
+    border-radius: 0.25rem;
+    background-color: rgb(var(--surface-2));
+    box-shadow: inset 0 0 0 1px rgb(var(--border-c));
+    font-size: 0.85em;
+    font-weight: 400;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .post-body :is(h2, h3, h4, h5, h6) code {
+    font-weight: inherit;
+  }
+
+  .post-body code::before,
+  .post-body code::after {
+    content: none;
+  }
+
+  .post-body pre {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+
+  .post-body blockquote {
+    padding-inline-start: 1.1em;
+    border-inline-start-width: 2px;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .post-body blockquote p::before,
+  .post-body blockquote p::after {
+    content: none;
+  }
+
+  .post-body hr {
+    margin-top: 2.5em;
+    margin-bottom: 2.5em;
+    border-top-style: dashed;
+  }
+
+  .post-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    font-size: 0.875em;
+  }
+
+  .post-body img {
+    height: auto;
+    max-width: 100%;
+  }
+
+  .post-body .katex {
+    font-size: 1.1em;
+  }
+
+  /* Short equations center on the text column; long ones may run on into the space beside it.
+     Some posts inline their own `.prose .katex-display` rule, hence the extra class. */
+  .prose.post-body .katex-display {
+    width: max-content;
+    min-width: 100%;
+    max-width: 100cqw;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  @media (min-width: theme("screens.sm")) {
+    .prose.post-body {
+      font-size: 1.03125rem;
+    }
+
+    .post-body h2 {
+      font-size: 1.375em;
+    }
+
+    .post-body h3 {
+      font-size: 1.125em;
+    }
+
+    .post-body pre {
+      padding: 0.875rem 1.125rem;
+      font-size: 0.84375rem;
+    }
   }
 
   :root[data-theme="dark"] .invert-on-dark {

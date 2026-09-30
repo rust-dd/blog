@@ -198,9 +198,9 @@ fn Article(post: Post, related: Vec<Post>) -> Element {
                     }
                 }
 
-                div { class: "mt-4 rounded-lg border border-border bg-surface p-4 sm:p-6 md:p-8",
+                div { class: "mt-4 rounded-lg border border-border bg-surface p-5 sm:p-7 md:p-10",
                     div {
-                        class: "prose prose-base sm:prose-lg max-w-none break-words font-sans prose-pre:rounded-lg prose-pre:px-4 prose-pre:py-3 prose-pre:overflow-x-auto prose-pre:whitespace-pre prose-pre:max-w-full prose-code:bg-surface-2 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-a:break-all prose-p:leading-7 sm:prose-p:leading-8 prose-li:leading-7 [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:text-sm",
+                        class: "prose post-body",
                         dangerous_inner_html: "{post.body}"
                     }
                 }
