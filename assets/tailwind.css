@@ -1164,19 +1164,12 @@ body {
   --tw-prose-td-borders: rgb(var(--border-c));
 }
 
-/* Text stays in a ~75-character column; code, tables and display math keep the full card width. */
-
 .prose.post-body {
   max-width: none;
   font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.7;
   overflow-wrap: break-word;
-  container-type: inline-size;
-}
-
-.post-body :is(p, ul, ol, blockquote, h2, h3, h4, h5, h6, dl) {
-  max-width: 36rem;
 }
 
 .post-body > :first-child {
@@ -1298,14 +1291,11 @@ body {
   font-size: 1.1em;
 }
 
-/* Short equations center on the text column; long ones may run on into the space beside it.
-     Some posts inline their own `.prose .katex-display` rule, hence the extra class. */
+/* Long equations scroll instead of widening the page; the padding keeps tall glyphs from being clipped. */
 
-.prose.post-body .katex-display {
-  width: -moz-max-content;
-  width: max-content;
-  min-width: 100%;
-  max-width: 100cqw;
+.post-body .katex-display {
+  margin: 0.6em 0;
+  padding: 0.4em 2px;
   overflow-x: auto;
   overflow-y: hidden;
 }
