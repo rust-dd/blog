@@ -33,9 +33,9 @@ pub fn Component(slug: String) -> Element {
 
     use_effect(move || {
         if cfg!(not(debug_assertions)) && !*view_counted.read() {
-            if let Some(Ok(Some(post))) = post.read().as_ref() {
+            if let Some(Ok(Some(page))) = post.read().as_ref() {
                 view_counted.set(true);
-                if let RecordIdKey::String(id) = post.id.key.clone() {
+                if let RecordIdKey::String(id) = page.post.id.key.clone() {
                     spawn(async move {
                         let _ = increment_views(id).await;
                     });
@@ -56,13 +56,13 @@ pub fn Component(slug: String) -> Element {
         .read()
         .as_ref()
         .and_then(|result| result.as_ref().ok())
-        .cloned()
+        .map(|related| related.see_also.clone())
         .unwrap_or_default();
 
     rsx! {
         match post.read().as_ref() {
-            Some(Ok(Some(post))) => rsx! {
-                Article { post: post.clone(), related: related_posts }
+            Some(Ok(Some(page))) => rsx! {
+                Article { post: page.post.clone(), related: related_posts }
             },
             Some(Ok(None)) => rsx! {
                 seo::PageMeta {
