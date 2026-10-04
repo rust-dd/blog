@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::topics::TOPICS;
+
 /// The home page's `?q=` value. Parsed from the whole query string: the router percent-decodes
 /// before it splits on `&`, so a `?:q` argument would cut "rust & zig" at the ampersand.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -35,6 +37,10 @@ impl fmt::Display for SearchQuery {
 /// Case-insensitive substring match on a post's title or topic; a blank query matches everything.
 pub fn matches(title: &str, topic: Option<&str>, query: &str) -> bool {
     let query = query.trim().to_lowercase();
+    // A module name is a filter, not a word: "ai" must not pick up "Explained".
+    if TOPICS.iter().any(|known| known.name == query) {
+        return topic == Some(query.as_str());
+    }
     query.is_empty()
         || title.to_lowercase().contains(&query)
         || topic.is_some_and(|topic| topic.to_lowercase().contains(&query))
@@ -81,6 +87,13 @@ mod tests {
     fn topic_name_matches_posts_without_it_in_the_title() {
         assert!(matches("stochastic-rs v1 stable", Some("quant"), "quant"));
         assert!(!matches("stochastic-rs v1 stable", None, "quant"));
+    }
+
+    #[test]
+    fn module_names_match_only_their_own_posts() {
+        assert!(!matches("Async Rust Explained - Part 1", Some("async"), "ai"));
+        assert!(!matches("Deep Learning the Volatility Surface: An AI-Enhanced Calibration", Some("quant"), "AI"));
+        assert!(matches("iTransformer implementation in pure Rust", Some("ai"), " ai "));
     }
 
     #[test]
