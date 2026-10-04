@@ -2,6 +2,9 @@ use dioxus::prelude::*;
 
 use crate::{app::Route, search::SearchQuery};
 
+/// Target of the skip link; `index.html` already uses `main` for the app root.
+pub const CONTENT_ID: &str = "content";
+
 #[component]
 pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Element {
     let mut open = use_signal(|| false);
@@ -120,5 +123,17 @@ pub fn SectionHeading(#[props(into)] id: String, #[props(into)] title: String) -
             a { class: "doc-anchor", href: "#{id}", aria_label: "Link to {title}", "§" }
             "{title}"
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CONTENT_ID;
+
+    #[test]
+    fn content_target_does_not_reuse_the_app_root_id() {
+        let index = include_str!("../../index.html");
+
+        assert!(!index.contains(&format!(r#"id="{CONTENT_ID}""#)));
     }
 }

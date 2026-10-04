@@ -6,7 +6,7 @@ use crate::{
     authors::AUTHORS,
     components::{
         post_list::PostList,
-        shell::{SectionHeading, SideGroup, Sidebar},
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
     },
     search::{self, SearchQuery},
     seo,
@@ -95,7 +95,7 @@ pub fn Component(query: String) -> Element {
             }
         }
 
-        main { id: "main", class: "shell-main",
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
             div { class: "doc-title", style: "margin-top: 36px",
                 h1 { class: "doc-h1",
                     "Crate "

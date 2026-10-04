@@ -7,7 +7,7 @@ use crate::{
     authors,
     components::{
         post_list::PostList,
-        shell::{SectionHeading, SideGroup, Sidebar},
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
     },
     search::SearchQuery,
     seo,
@@ -97,7 +97,7 @@ pub fn Component(slug: String) -> Element {
 fn Missing(heading: &'static str, detail: String) -> Element {
     rsx! {
         Sidebar {}
-        main { id: "main", class: "shell-main",
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
             div { class: "doc-title", style: "margin-top: 36px",
                 h1 { class: "doc-h1", "{heading}" }
             }
@@ -164,7 +164,7 @@ fn Article(page: PostPage, related: RelatedPosts) -> Element {
                 SideGroup { title: format!("In rust_dd::{topic}"),
                     li {
                         a {
-                            href: "#main",
+                            href: "#{CONTENT_ID}",
                             aria_current: "page",
                             class: "side-link side-current text-post",
                             "{post.title}"
@@ -183,7 +183,7 @@ fn Article(page: PostPage, related: RelatedPosts) -> Element {
             }
         }
 
-        main { id: "main", class: "shell-main",
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
             article {
                 p { class: "doc-path",
                     Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "rust_dd" }

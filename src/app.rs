@@ -2,7 +2,10 @@ use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 
 use crate::{
-    components::{loader, shell},
+    components::{
+        loader,
+        shell::{self, CONTENT_ID},
+    },
     pages::{about, home, opensource, post, projects},
     search::SearchQuery,
     seo,
@@ -63,7 +66,7 @@ pub fn App() -> Element {
 #[component]
 fn Layout() -> Element {
     rsx! {
-        a { href: "#main", class: "skip-link", "Skip to content" }
+        a { href: "#{CONTENT_ID}", class: "skip-link", "Skip to content" }
         div { class: "shell",
             div { class: "shell-search", shell::SearchBar {} }
             SuspenseBoundary {
@@ -125,7 +128,7 @@ fn PageNotFound(route: Vec<String>) -> Element {
             noindex: true,
         }
         shell::Sidebar {}
-        main { id: "main", class: "shell-main",
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
             div { class: "doc-title", style: "margin-top: 36px",
                 h1 { class: "doc-h1", "Page not found" }
             }

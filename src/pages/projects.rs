@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     app::Route,
-    components::shell::{SideGroup, Sidebar},
+    components::shell::{SideGroup, Sidebar, CONTENT_ID},
     search::SearchQuery,
     seo,
 };
@@ -99,7 +99,7 @@ pub fn Component() -> Element {
                 }
             }
         }
-        main { id: "main", class: "shell-main",
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
             p { class: "doc-path",
                 Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "rust_dd" }
                 "::"
