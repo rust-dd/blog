@@ -139,7 +139,14 @@ const TOOLBOX: &[(&str, &str)] = &[
     ("Spoken", "Hungarian, English, German"),
 ];
 
-const TRAITS: &[&str] = &["Maintainer", "Author", "Researcher", "Experience", "Education", "Toolbox"];
+const TRAITS: &[&str] = &[
+    "Maintainer",
+    "Author",
+    "Researcher",
+    "Experience",
+    "Education",
+    "Toolbox",
+];
 
 #[component]
 pub fn Component() -> Element {
@@ -483,7 +490,11 @@ mod tests {
 
     #[test]
     fn linked_files_are_published() {
-        let published = |path: &str| std::path::Path::new("public").join(path.trim_start_matches('/')).exists();
+        let published = |path: &str| {
+            std::path::Path::new("public")
+                .join(path.trim_start_matches('/'))
+                .exists()
+        };
 
         assert!(published(PORTRAIT_PATH));
         assert!(CV_PATH.map_or(true, published));

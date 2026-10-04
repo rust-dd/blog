@@ -92,7 +92,11 @@ mod tests {
     #[test]
     fn module_names_match_only_their_own_posts() {
         assert!(!matches("Async Rust Explained - Part 1", Some("async"), "ai"));
-        assert!(!matches("Deep Learning the Volatility Surface: An AI-Enhanced Calibration", Some("quant"), "AI"));
+        assert!(!matches(
+            "Deep Learning the Volatility Surface: An AI-Enhanced Calibration",
+            Some("quant"),
+            "AI"
+        ));
         assert!(matches("iTransformer implementation in pure Rust", Some("ai"), " ai "));
     }
 

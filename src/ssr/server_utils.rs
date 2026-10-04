@@ -172,7 +172,10 @@ pub async fn render_markdown(markdown: String) -> Result<RenderedMarkdown> {
             Event::End(TagEnd::CodeBlock) => {
                 in_code_block = false;
                 let language = code_block_language.as_deref().unwrap_or("plaintext");
-                events.push(Event::Html(CowStr::from(highlight_code(&code_block_content, language)?)));
+                events.push(Event::Html(CowStr::from(highlight_code(
+                    &code_block_content,
+                    language,
+                )?)));
                 code_block_language = None;
             }
             Event::Text(text) if in_code_block => {
@@ -237,7 +240,10 @@ pub fn highlight_code(code: &str, language: &str) -> Result<String> {
     for line in LinesWithEndings::from(code) {
         generator.parse_html_for_line_which_includes_newline(line)?;
     }
-    Ok(format!(r#"<pre class="code-block"><code>{}</code></pre>"#, generator.finalize()))
+    Ok(format!(
+        r#"<pre class="code-block"><code>{}</code></pre>"#,
+        generator.finalize()
+    ))
 }
 
 /// The first Rust block of a post (else its first block), capped at `max_lines` lines.
@@ -535,7 +541,9 @@ mod tests {
 
     #[tokio::test]
     async fn headings_get_unique_ids_and_h2s_become_sections() {
-        let rendered = render_markdown("## Setup\n\n### Details\n\n## Setup\n\ntext".into()).await.unwrap();
+        let rendered = render_markdown("## Setup\n\n### Details\n\n## Setup\n\ntext".into())
+            .await
+            .unwrap();
 
         assert!(rendered.html.contains(r#"<h2 id="setup">Setup</h2>"#));
         assert!(rendered.html.contains(r#"<h3 id="details">Details</h3>"#));
