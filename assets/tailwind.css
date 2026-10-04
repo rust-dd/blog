@@ -1306,6 +1306,7 @@ body {
 
 .shell-main {
   grid-area: main;
+  box-sizing: content-box;
   min-width: 0;
   max-width: 940px;
   padding: 0 clamp(20px, 4vw, 48px);
