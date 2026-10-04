@@ -219,7 +219,8 @@
       padding: 0;
     }
 
-    .side-toggle {
+    .side-toggle,
+    .side-toggle-input {
       display: none;
     }
 
