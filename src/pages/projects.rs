@@ -1,6 +1,11 @@
 use dioxus::prelude::*;
 
-use crate::{app::Route, seo};
+use crate::{
+    app::Route,
+    components::shell::{SideGroup, Sidebar, CONTENT_ID},
+    search::SearchQuery,
+    seo,
+};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Project {
@@ -8,67 +13,74 @@ pub struct Project {
     pub kind: &'static str,
     pub description: &'static str,
     pub url: &'static str,
-    pub tags: &'static [&'static str],
 }
 
-pub const FEATURED_PROJECT: Project = Project {
-    name: "rsql",
-    kind: "database",
-    description: "Fast PostgreSQL client built with Rust, Tauri, and React. Query data, inspect schema, run EXPLAIN, and stay responsive on large result sets.",
-    url: "https://rsql.rust-dd.com/#demo",
-    tags: &["postgresql", "rust", "tauri", "react"],
-};
-
 pub const PROJECTS: &[Project] = &[
-    FEATURED_PROJECT,
     Project {
-        name: "shrtn.ink",
-        kind: "service",
-        description: "Fast URL shortener for quick sharing with a minimal, no-noise interface.",
-        url: "https://shrtn.ink/",
-        tags: &["links", "web", "utility"],
+        name: "stochastic-rs",
+        kind: "library and docs",
+        description: "Open-source quantitative finance for Rust and Python: 132 stochastic processes, option pricing, Heston and SABR calibration, volatility surfaces and fixed income.",
+        url: "https://stochastic.rust-dd.com",
+    },
+    Project {
+        name: "tako",
+        kind: "web framework",
+        description: "Multi-transport Rust web framework: HTTP/1.1, HTTP/2, HTTP/3, WebTransport, WebSocket, SSE, gRPC, TCP, UDP and Unix sockets behind one router.",
+        url: "https://tako.rust-dd.com",
+    },
+    Project {
+        name: "candding",
+        kind: "library",
+        description: "Dense, sparse, multi-vector and reranking models in Rust on candle, with no ONNX runtime, each checked against its reference implementation.",
+        url: "https://candding.rust-dd.com",
+    },
+    Project {
+        name: "rsql",
+        kind: "database client",
+        description: "Fast PostgreSQL client built with Rust, Tauri and React. Query data, inspect schema, run EXPLAIN and stay responsive on large result sets.",
+        url: "https://rsql.rust-dd.com",
     },
     Project {
         name: "stochasticlab",
         kind: "platform",
-        description: "Cloud compute platform for simulation-heavy and quantitative workloads.",
-        url: "https://stochasticlab.cloud/",
-        tags: &["cloud", "compute", "quant"],
+        description: "Quantitative tools built on stochastic calculus: portfolio optimization, volatility modeling, option pricing and risk analysis.",
+        url: "https://stochasticlab.cloud",
+    },
+    Project {
+        name: "shrtn.ink",
+        kind: "service",
+        description: "Free URL shortener with QR codes, click analytics, a REST API, an MCP server and webhooks.",
+        url: "https://shrtn.ink",
     },
     Project {
         name: "tryrust.org",
         kind: "education",
         description: "Interactive Rust tutorial and playground that runs directly in the browser.",
-        url: "https://tryrust.org/",
-        tags: &["rust", "learning", "browser"],
+        url: "https://tryrust.org",
     },
     Project {
         name: "doom.rust-dd",
         kind: "experiment",
-        description: "Playable browser experiment from Rust-DD built for fun and fast iteration.",
-        url: "https://doom.rust-dd.com/",
-        tags: &["browser", "game", "experiment"],
+        description: "DOOM in the browser, rebuilt with Rust and Bevy on Freedoom.",
+        url: "https://doom.rust-dd.com",
     },
     Project {
         name: "react-native-scc",
         kind: "library",
-        description: "Rust-powered, ultra-fast persistent key-value storage for React Native and Expo — a lock-free hash map behind Nitro Modules, built as a drop-in MMKV alternative.",
+        description: "Rust-powered persistent key-value storage for React Native and Expo, built as a drop-in MMKV alternative.",
         url: "https://github.com/rust-dd/react-native-scc",
-        tags: &["react-native", "rust", "nitro", "storage"],
     },
     Project {
         name: "react-native-qdrant-edge",
         kind: "library",
-        description: "Embedded vector search for React Native powered by Qdrant Edge, running fully offline on-device.",
+        description: "Embedded vector search for React Native: the Qdrant engine running in-process on iOS and Android.",
         url: "https://github.com/rust-dd/react-native-qdrant-edge",
-        tags: &["react-native", "qdrant", "vector-search", "rust"],
     },
     Project {
         name: "ito",
-        kind: "tui",
-        description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
+        kind: "terminal app",
+        description: "Terminal UI to browse, configure and plot every stochastic process in stochastic-rs.",
         url: "https://github.com/rust-dd/ito",
-        tags: &["rust", "tui", "stochastic", "quant"],
     },
 ];
 
@@ -77,117 +89,46 @@ pub fn Component() -> Element {
     rsx! {
         seo::PageMeta {
             title: seo::page_title("Rust Apps and Developer Tools"),
-            description: "Apps and tools we build with Rust: the rsql PostgreSQL client, the tryrust.org browser playground, React Native storage and on-device vector search.",
+            description: "Apps, sites and tools we build with Rust: stochastic-rs, the Tako web framework, candding embeddings, the rsql PostgreSQL client and the tryrust.org playground.",
             path: "/projects",
         }
-
-        div { class: "w-full font-mono",
-            section { class: "animate-rise py-4",
-                p { class: "text-xs text-faint", "// projects" }
-                h1 { class: "mt-2 text-3xl font-semibold leading-tight text-fg sm:text-4xl md:text-5xl",
-                    "Projects"
-                }
-                p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-muted",
-                    "Live tools, experiments, and product work from Rust-DD."
-                }
-            }
-
-            div { class: "mt-4 border-y border-dashed border-border py-3 text-xs text-muted",
-                div { class: "flex flex-wrap gap-x-4 gap-y-1",
-                    span {
-                        "live: "
-                        span { class: "text-fg", "{PROJECTS.len()}" }
-                    }
-                    span { class: "hidden sm:inline", "|" }
-                    span {
-                        "featured: "
-                        span { class: "text-fg", "{FEATURED_PROJECT.name}" }
-                    }
-                    span { class: "hidden sm:inline", "|" }
-                    span {
-                        "more: "
-                        Link {
-                            to: Route::OpenSource {},
-                            class: "text-muted transition-colors duration-200 hover:text-accent",
-                            "open source"
-                        }
-                    }
-                }
-            }
-
-            div { class: "mt-6 rounded-xl border border-accent/40 bg-surface p-5 text-fg sm:p-6",
-                div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-                    div { class: "max-w-2xl",
-                        p { class: "text-[11px] uppercase tracking-[0.24em] text-accent", "featured project" }
-                        h2 { class: "mt-3 text-2xl font-semibold tracking-tight sm:text-3xl",
-                            "{FEATURED_PROJECT.name}"
-                        }
-                        p { class: "mt-3 text-sm leading-relaxed text-muted",
-                            "{FEATURED_PROJECT.description}"
-                        }
-                        div { class: "mt-4 flex flex-wrap gap-2 text-[11px] text-muted",
-                            for tag in FEATURED_PROJECT.tags.iter() {
-                                span { class: "rounded-full border border-border px-2 py-1", "{tag}" }
-                            }
-                        }
-                    }
-                    div { class: "flex shrink-0 flex-col gap-3 sm:items-end",
-                        a {
-                            href: "{FEATURED_PROJECT.url}",
-                            target: "_blank",
-                            rel: "noopener noreferrer",
-                            class: "inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition-colors duration-200 hover:bg-accent/90",
-                            "Open demo"
-                        }
-                        Link {
-                            to: Route::OpenSource {},
-                            class: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm text-fg transition-colors duration-200 hover:border-accent hover:text-accent",
-                            "See open source repos"
-                        }
-                    }
-                }
-            }
-
-            section { class: "mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3",
-                for project in PROJECTS.iter().filter(|project| project.name != FEATURED_PROJECT.name) {
-                    ProjectCard { project: *project }
-                }
-                Link {
-                    to: Route::OpenSource {},
-                    class: "group flex min-h-[220px] flex-col justify-between rounded-xl border border-dashed border-border bg-surface-2 p-5 no-underline transition-colors duration-200 hover:border-accent hover:bg-surface",
-                    div {
-                        p { class: "text-[11px] uppercase tracking-[0.2em] text-faint", "index" }
-                        h3 { class: "mt-3 text-xl font-semibold text-fg", "Open source repos" }
-                        p { class: "mt-2 text-sm leading-relaxed text-muted",
-                            "Browse libraries, frameworks, CLI tools, and public repos from the same workspace."
-                        }
-                    }
-                    span { class: "text-sm text-faint transition-colors duration-200 group-hover:text-accent", "open /opensource ->" }
+        Sidebar {
+            SideGroup { title: "Projects",
+                for project in PROJECTS.iter() {
+                    li { a { href: "#{project.name}", class: "side-link side-code text-mod", "{project.name}" } }
                 }
             }
         }
-    }
-}
-
-#[component]
-fn ProjectCard(project: Project) -> Element {
-    rsx! {
-        a {
-            href: "{project.url}",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            class: "group flex min-h-[220px] flex-col justify-between rounded-xl border border-border bg-surface p-5 transition-colors duration-200 hover:border-accent hover:bg-surface-2",
-            div {
-                p { class: "text-[11px] uppercase tracking-[0.2em] text-faint", "{project.kind}" }
-                h3 { class: "mt-3 text-xl font-semibold text-fg", "{project.name}" }
-                p { class: "mt-2 text-sm leading-relaxed text-muted", "{project.description}" }
-                div { class: "mt-4 flex flex-wrap gap-2 text-[11px] text-muted",
-                    for tag in project.tags.iter() {
-                        span { class: "rounded-full border border-border px-2 py-1", "{tag}" }
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
+            p { class: "doc-path",
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "rust_dd" }
+                "::"
+                span { class: "text-mod", "projects" }
+            }
+            div { class: "doc-title",
+                h1 { class: "doc-h1",
+                    "Module "
+                    span { class: "text-mod", "projects" }
+                }
+            }
+            p { class: "doc-lead", "Live tools, libraries with their own sites, experiments and product work from Rust-DD." }
+            dl { class: "item-table", style: "margin-top: 24px",
+                for project in PROJECTS.iter() {
+                    div { id: "{project.name}", class: "item-row",
+                        dt {
+                            a {
+                                href: "{project.url}",
+                                rel: "noopener noreferrer",
+                                target: "_blank",
+                                class: "ident text-mod",
+                                "{project.name}"
+                            }
+                            span { class: "item-kind", "{project.kind}" }
+                        }
+                        dd { "{project.description}" }
                     }
                 }
             }
-            span { class: "text-sm text-faint transition-colors duration-200 group-hover:text-accent", "visit ->" }
         }
     }
 }

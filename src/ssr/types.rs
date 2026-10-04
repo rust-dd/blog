@@ -33,6 +33,7 @@ pub struct Post {
     pub summary: String,
     pub body: String,
     pub tags: Vec<String>,
+    pub topic: Option<String>,
     pub author: Author,
     pub read_time: usize,
     pub total_views: usize,
@@ -73,6 +74,7 @@ impl Default for Post {
             summary: String::new(),
             body: String::new(),
             tags: vec![],
+            topic: None,
             author: Author::default(),
             read_time: 0,
             total_views: 0,
@@ -85,6 +87,25 @@ impl Default for Post {
             show_cta: false,
         }
     }
+}
+
+/// An h2 of a rendered post body, listed in the sidebar.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Section {
+    pub id: String,
+    pub title: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PostPage {
+    pub post: Post,
+    pub sections: Vec<Section>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+pub struct RelatedPosts {
+    pub see_also: Vec<Post>,
+    pub same_topic: Vec<Post>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]

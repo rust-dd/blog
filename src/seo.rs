@@ -145,6 +145,24 @@ pub fn website_graph() -> Value {
     })
 }
 
+pub fn person_graph() -> Value {
+    json!({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": format!("{SITE_URL}/about#person"),
+        "name": "Daniel Boros",
+        "url": absolute_url("/about"),
+        "image": absolute_url("/daniel-boros.jpg"),
+        "jobTitle": "Senior Rust Engineer",
+        "worksFor": { "@type": "Organization", "name": "Qdrant", "url": "https://qdrant.tech" },
+        "alumniOf": [
+            { "@type": "CollegeOrUniversity", "name": "Corvinus University of Budapest" },
+            { "@type": "CollegeOrUniversity", "name": "Budapest University of Technology and Economics" },
+        ],
+        "sameAs": ["https://github.com/dancixx", "https://www.linkedin.com/in/daniel-boros-b86a5373/"],
+    })
+}
+
 pub fn blog_posting(post: &Post, url: &str, image: &str) -> Value {
     let author = &post.author;
     let profiles: Vec<&str> = [&author.linkedin, &author.github, &author.twitter]

@@ -46,7 +46,6 @@ reqwest = { version = "0.12.28", default-features = false, optional = true, feat
 getrandom = { version = "0.3.4", features = ["wasm_js"] }
 # surrealdb-types → geo → rand 0.8 pulls getrandom 0.2, which needs "js" on wasm
 getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
-dioxus-free-icons = { version = "0.10.0", features = ["font-awesome-brands", "font-awesome-solid"] }
 # Must match the wasm-bindgen CLI the Dioxus CLI uses to process the wasm (dx
 # downloads the CLI version found in Cargo.lock, so keep this an exact pin). A
 # mismatch leaves __wbindgen_placeholder__ imports / schema-version errors so the

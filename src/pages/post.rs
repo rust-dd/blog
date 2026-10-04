@@ -4,10 +4,16 @@ use surrealdb_types::RecordIdKey;
 
 use crate::{
     app::Route,
+    authors,
+    components::{
+        post_list::PostList,
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
+    },
+    search::SearchQuery,
     seo,
     ssr::{
         api::{increment_views, select_post, select_related_posts},
-        types::Post,
+        types::{Post, PostPage, RelatedPosts},
     },
 };
 
@@ -15,7 +21,7 @@ use crate::{
 pub fn Component(slug: String) -> Element {
     // Each future must suspend right away: dioxus drops wakeups of a pending future the component
     // isn't suspended on yet, so starting both before `?` hangs SSR whenever the second one wins.
-    let post = use_server_future({
+    let page = use_server_future({
         let slug = slug.clone();
         move || {
             let slug = slug.clone();
@@ -33,9 +39,9 @@ pub fn Component(slug: String) -> Element {
 
     use_effect(move || {
         if cfg!(not(debug_assertions)) && !*view_counted.read() {
-            if let Some(Ok(Some(post))) = post.read().as_ref() {
+            if let Some(Ok(Some(page))) = page.read().as_ref() {
                 view_counted.set(true);
-                if let RecordIdKey::String(id) = post.id.key.clone() {
+                if let RecordIdKey::String(id) = page.post.id.key.clone() {
                     spawn(async move {
                         let _ = increment_views(id).await;
                     });
@@ -44,7 +50,7 @@ pub fn Component(slug: String) -> Element {
         }
     });
 
-    match post.read().as_ref() {
+    match page.read().as_ref() {
         Some(Ok(None)) => FullstackContext::commit_http_status(StatusCode::NOT_FOUND, None),
         Some(Err(err)) => {
             FullstackContext::commit_error_status(err.clone());
@@ -52,7 +58,7 @@ pub fn Component(slug: String) -> Element {
         _ => {}
     }
 
-    let related_posts = related
+    let related = related
         .read()
         .as_ref()
         .and_then(|result| result.as_ref().ok())
@@ -60,9 +66,9 @@ pub fn Component(slug: String) -> Element {
         .unwrap_or_default();
 
     rsx! {
-        match post.read().as_ref() {
-            Some(Ok(Some(post))) => rsx! {
-                Article { post: post.clone(), related: related_posts }
+        match page.read().as_ref() {
+            Some(Ok(Some(page))) => rsx! {
+                Article { page: page.clone(), related }
             },
             Some(Ok(None)) => rsx! {
                 seo::PageMeta {
@@ -71,16 +77,7 @@ pub fn Component(slug: String) -> Element {
                     path: format!("/post/{slug}"),
                     noindex: true,
                 }
-                section { class: "mx-auto max-w-3xl text-center pt-24",
-                    p { class: "text-xs text-faint", "// post not found" }
-                    h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }
-                    p { class: "mt-4 text-lg text-muted", "Post not found: /post/{slug}" }
-                    Link {
-                        to: Route::Home {},
-                        class: "inline-flex mt-8 text-accent hover:underline",
-                        "Go back home"
-                    }
-                }
+                Missing { heading: "Post not found", detail: format!("No post lives at /post/{slug}.") }
             },
             Some(Err(err)) => rsx! {
                 seo::PageMeta {
@@ -89,15 +86,7 @@ pub fn Component(slug: String) -> Element {
                     path: format!("/post/{slug}"),
                     noindex: true,
                 }
-                section { class: "mx-auto max-w-3xl text-center pt-24",
-                    h1 { class: "text-3xl font-semibold text-red-500", "Failed to load post" }
-                    p { class: "mt-4 text-muted", "{err}" }
-                    Link {
-                        to: Route::Home {},
-                        class: "inline-flex mt-8 text-accent hover:underline",
-                        "Go back home"
-                    }
-                }
+                Missing { heading: "Failed to load post", detail: err.to_string() }
             },
             None => rsx! {},
         }
@@ -105,14 +94,43 @@ pub fn Component(slug: String) -> Element {
 }
 
 #[component]
-fn Article(post: Post, related: Vec<Post>) -> Element {
-    let path = format!("/post/{}", post.slug.clone().unwrap_or_default());
+fn Missing(heading: &'static str, detail: String) -> Element {
+    rsx! {
+        Sidebar {}
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
+            div { class: "doc-title", style: "margin-top: 36px",
+                h1 { class: "doc-h1", "{heading}" }
+            }
+            p { class: "doc-lead", "{detail}" }
+            p { class: "doc-text", style: "margin-top: 18px",
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "Back to all posts" }
+            }
+        }
+    }
+}
+
+#[component]
+fn Article(page: PostPage, related: RelatedPosts) -> Element {
+    let post = page.post.clone();
+    let slug = post.slug.clone().unwrap_or_default();
+    let path = format!("/post/{slug}");
     let url = seo::absolute_url(&path);
     let share_image = post
         .header_image
         .clone()
         .unwrap_or_else(|| seo::DEFAULT_OG_IMAGE.to_string());
-    let author_profile = [&post.author.linkedin, &post.author.github, &post.author.twitter]
+    let topic = post.topic.clone();
+    let note = authors::find(&post.author.name);
+    let is_daniel = note.is_some_and(|note| note.href.is_none());
+    let ident = note
+        .map(|note| note.ident.to_string())
+        .unwrap_or_else(|| post.author.name.clone());
+    let avatar = post
+        .author
+        .github
+        .as_ref()
+        .map(|github| format!("{}.png?size=104", github.trim_end_matches('/')));
+    let author_profile = [&post.author.github, &post.author.linkedin, &post.author.twitter]
         .into_iter()
         .flatten()
         .next()
@@ -132,110 +150,164 @@ fn Article(post: Post, related: Vec<Post>) -> Element {
             document::Meta { property: "article:modified_time", content: "{modified}" }
         }
         seo::JsonLd { value: seo::blog_posting(&post, &url, &share_image) }
+        div { class: "reading-progress" }
 
-        div { class: "w-full font-mono",
-            div { class: "reading-progress" }
-
-            Link {
-                to: Route::Home {},
-                class: "inline-flex gap-1 text-xs text-faint transition-colors duration-200 hover:text-accent",
-                span { "<-" }
-                span { "back" }
+        Sidebar {
+            if !page.sections.is_empty() {
+                SideGroup { title: "Sections",
+                    for section in page.sections.iter() {
+                        li { a { href: "#{section.id}", class: "side-link", "{section.title}" } }
+                    }
+                }
             }
-
-            article { class: "mt-4",
-                section { class: "rounded-lg border border-border bg-surface p-5 sm:p-7 md:p-10",
-                    p { class: "text-xs text-faint", "// article" }
-                    h1 { class: "mt-2 text-2xl font-semibold leading-tight text-fg sm:text-3xl md:text-4xl", "{post.title}" }
-                    p { class: "mt-3 text-sm leading-relaxed text-muted", "{post.summary}" }
-
-                    p { class: "mt-4 text-xs text-faint",
-                        "author="
-                        if let Some(profile) = author_profile {
-                            a {
-                                href: "{profile}",
-                                rel: "author noopener noreferrer",
-                                target: "_blank",
-                                class: "transition-colors duration-200 hover:text-accent",
-                                "{post.author.name}"
-                            }
-                        } else {
-                            "{post.author.name}"
-                        }
-                        " date="
-                        time { datetime: "{post.created_at}", "{post.published_on()}" }
-                        if let (Some(updated), Some(modified)) = (post.updated_on(), post.content_updated_at.clone()) {
-                            " updated="
-                            time { datetime: "{modified}", "{updated}" }
-                        }
-                        " read={post.read_time}min views={post.total_views}"
-                    }
-
-                    if !post.tags.is_empty() {
-                        {
-                            let tags_str = post.tags.iter().take(10).cloned().collect::<Vec<_>>().join(", ");
-                            rsx! {
-                                p { class: "mt-2 text-xs text-faint",
-                                    span { class: "text-faint", "use " }
-                                    span { class: "text-muted", "tags" }
-                                    span { class: "text-faint", "::" }
-                                    span { class: "text-faint", "{{" }
-                                    span { class: "text-fg", "{tags_str}" }
-                                    span { class: "text-faint", "}};" }
-                                }
-                            }
+            if let Some(topic) = topic.clone() {
+                SideGroup { title: format!("In rust_dd::{topic}"),
+                    li {
+                        a {
+                            href: "#{CONTENT_ID}",
+                            aria_current: "page",
+                            class: "side-link side-current text-post",
+                            "{post.title}"
                         }
                     }
-
-                    if let Some(image) = post.header_image.clone() {
-                        div { class: "mt-6 overflow-hidden rounded-lg border border-border bg-surface-2",
-                            img {
-                                src: "{image}",
-                                alt: "{post.title}",
-                                class: "max-h-[520px] w-full object-cover"
+                    for sibling in related.same_topic.iter() {
+                        li {
+                            Link {
+                                to: Route::Post { slug: sibling.slug.clone().unwrap_or_default() },
+                                class: "side-link text-post",
+                                "{sibling.title}"
                             }
                         }
                     }
                 }
+            }
+        }
 
-                div { class: "mt-4 rounded-lg border border-border bg-surface p-5 sm:p-7 md:p-10",
-                    div {
-                        class: "prose post-body",
-                        dangerous_inner_html: "{post.body}"
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
+            article {
+                p { class: "doc-path",
+                    Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "rust_dd" }
+                    if let Some(topic) = topic.clone() {
+                        "::"
+                        Link { to: Route::Home { query: SearchQuery(topic.clone()) }, class: "text-mod", "{topic}" }
                     }
+                }
+                div { class: "doc-title",
+                    h1 { class: "doc-h1 doc-h1-post", "{post.title}" }
+                    time { class: "doc-source", datetime: "{post.created_at}", "{post.published_on()}" }
+                }
+                FrontMatter { post: post.clone() }
+                p { class: "doc-lead", style: "font-size: 20px; color: rgb(var(--heading))", "{post.summary}" }
+                if let Some(image) = post.header_image.clone() {
+                    img {
+                        src: "{image}",
+                        alt: "{post.title}",
+                        class: "mt-6 max-h-[520px] w-full rounded-md object-cover",
+                    }
+                }
+                div {
+                    class: "prose post-body",
+                    style: "margin-top: 26px",
+                    dangerous_inner_html: "{post.body}",
                 }
 
                 if post.show_cta {
-                    div { class: "mt-4 rounded-lg border border-dashed border-border bg-surface p-4 sm:p-5",
-                        div { class: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
-                            div {
-                                p { class: "text-sm font-semibold text-fg", "Need Rust expertise?" }
-                                p { class: "text-xs text-muted", "Build your next production Rust system with us." }
+                    aside { class: "doc-note",
+                        p { class: "text-heading font-semibold", "Need Rust expertise?" }
+                        p { class: "doc-text", "Build your next production Rust system with us." }
+                        a {
+                            href: "mailto:info@rust-dd.com",
+                            class: "button-primary",
+                            style: "margin-top: 12px",
+                            "Contact us"
+                        }
+                    }
+                }
+
+                if !related.see_also.is_empty() {
+                    section { aria_labelledby: "post-see-also",
+                        SectionHeading { id: "post-see-also", title: "See also" }
+                        PostList { posts: related.see_also.clone() }
+                    }
+                }
+
+                section { aria_labelledby: "post-author",
+                    SectionHeading { id: "post-author", title: "Author" }
+                    div { class: "author-card",
+                        if let Some(src) = avatar {
+                            img { src: "{src}", alt: "", width: "52", height: "52", class: "author-avatar" }
+                        }
+                        div {
+                            if is_daniel {
+                                Link { to: Route::About {}, class: "ident text-author", "{ident}" }
+                            } else if let Some(profile) = author_profile {
+                                a {
+                                    href: "{profile}",
+                                    rel: "author noopener noreferrer",
+                                    target: "_blank",
+                                    class: "ident text-author",
+                                    "{ident}"
+                                }
+                            } else {
+                                span { class: "ident text-author", "{ident}" }
                             }
-                            a {
-                                href: "mailto:info@rust-dd.com",
-                                class: "inline-flex items-center justify-center rounded bg-accent px-4 py-2 text-xs font-semibold text-accent-fg transition-colors duration-200 hover:bg-accent/90",
-                                "contact us"
+                            if let Some(note) = note {
+                                p { class: "doc-text", style: "margin-top: 4px; font-size: 17px", "{note.note}" }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
 
-            if !related.is_empty() {
-                section { class: "mt-8",
-                    h2 { class: "text-xs text-faint", "// related posts" }
-                    div { class: "mt-3 flex flex-col gap-3",
-                        for item in related.iter() {
-                            Link {
-                                to: Route::Post { slug: item.slug.clone().unwrap_or_default() },
-                                class: "group block rounded-lg border border-border bg-surface p-4 no-underline transition-colors duration-200 hover:border-accent",
-                                h3 { class: "text-sm leading-tight text-fg transition-colors duration-200 group-hover:text-accent sm:text-base",
-                                    "{item.title}"
-                                }
-                                p { class: "mt-1 text-xs text-faint", "{item.published_on()} · {item.read_time}min" }
+#[component]
+fn FrontMatter(post: Post) -> Element {
+    let published = post.created_at.get(..10).unwrap_or(&post.created_at).to_string();
+    let updated = post
+        .updated_on()
+        .and(post.content_updated_at.as_deref())
+        .map(|updated| updated.get(..10).unwrap_or(updated).to_string());
+
+    rsx! {
+        pre { class: "code-block front-matter", aria_label: "Post metadata",
+            code {
+                span { class: "fm-line", span { class: "sx-keyword", "[post]" } }
+                span { class: "fm-line",
+                    "author = "
+                    span { class: "sx-string", "\"{post.author.name}\"" }
+                }
+                span { class: "fm-line",
+                    "published = "
+                    span { class: "sx-constant", "{published}" }
+                }
+                if let Some(updated) = updated {
+                    span { class: "fm-line",
+                        "updated = "
+                        span { class: "sx-constant", "{updated}" }
+                    }
+                }
+                span { class: "fm-line",
+                    "reading-time = "
+                    span { class: "sx-string", "\"{post.read_time} min\"" }
+                }
+                if let Some(topic) = post.topic.clone() {
+                    span { class: "fm-line",
+                        "topic = "
+                        span { class: "sx-string", "\"{topic}\"" }
+                    }
+                }
+                if !post.tags.is_empty() {
+                    span { class: "fm-line",
+                        "tags = ["
+                        for (index, tag) in post.tags.iter().enumerate() {
+                            if index > 0 {
+                                ", "
                             }
+                            span { class: "sx-string", "\"{tag}\"" }
                         }
+                        "]"
                     }
                 }
             }

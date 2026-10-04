@@ -1,25 +1,29 @@
-use chrono::{Datelike, Utc};
 use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 
 use crate::{
-    components::{header, icons, loader},
-    pages::{home, opensource, post, projects},
+    components::{
+        loader,
+        shell::{self, CONTENT_ID},
+    },
+    pages::{about, home, opensource, post, projects},
+    search::SearchQuery,
     seo,
 };
 
 #[derive(Routable, Clone, PartialEq, Debug)]
 pub enum Route {
     #[layout(Layout)]
-    #[route("/")]
-    Home {},
+    #[route("/?:..query")]
+    Home { query: SearchQuery },
     #[route("/post/:slug")]
     Post { slug: String },
+    #[route("/about")]
+    About {},
     #[route("/projects")]
     Projects {},
     #[route("/opensource")]
     OpenSource {},
-    #[end_layout]
     #[route("/:..route")]
     PageNotFound { route: Vec<String> },
 }
@@ -32,7 +36,7 @@ pub fn App() -> Element {
         document::Stylesheet { href: asset!("/assets/tailwind.css") }
         document::Stylesheet { href: "/katex.min.css" }
         document::Link { rel: "icon", href: "/favicon.ico" }
-        document::Meta { name: "theme-color", content: "#fafaf9" }
+        document::Meta { name: "theme-color", content: "#1A1210" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
         document::Meta { name: "twitter:site", content: seo::X_HANDLE }
@@ -47,13 +51,13 @@ pub fn App() -> Element {
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
         document::Link {
             rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400..700&display=swap"
+            href: "https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap"
         }
         document::Script {
-            "try{{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','light')}}"
+            "document.addEventListener('keydown',function(e){{var t=e.target;if(e.metaKey||e.ctrlKey||e.altKey||(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)))return;if(e.key==='s'||e.key==='S'||e.key==='/'){{var i=document.getElementById('search');if(i){{e.preventDefault();i.focus();}}}}}});"
         }
 
-        div { class: "min-h-screen bg-bg text-fg font-mono",
+        div { class: "min-h-screen bg-bg text-fg font-sans",
             Router::<Route> {}
         }
     }
@@ -62,37 +66,23 @@ pub fn App() -> Element {
 #[component]
 fn Layout() -> Element {
     rsx! {
-        div { class: "flex min-h-screen flex-col",
-            header::Component {}
-            main { class: "mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 pt-6 pb-20 sm:px-6",
-                SuspenseBoundary {
-                    fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
-                    Outlet::<Route> {}
-                }
+        a { href: "#{CONTENT_ID}", class: "skip-link", "Skip to content" }
+        div { class: "shell",
+            div { class: "shell-search", shell::SearchBar {} }
+            SuspenseBoundary {
+                fallback: |_| rsx! {
+                    div { class: "loader-wrap", loader::Inline { message: "Loading page...".to_string() } }
+                },
+                Outlet::<Route> {}
             }
-            footer { class: "z-40 border-t border-dashed border-border py-3",
-                div { class: "flex flex-col items-center gap-2",
-                    div { class: "block sm:hidden",
-                        icons::Component {}
-                    }
-                    p { class: "text-xs text-faint",
-                        "// powered by "
-                        a {
-                            href: "https://github.com/rust-dd",
-                            class: "text-muted transition-colors duration-200 hover:text-accent",
-                            "rust-dd"
-                        }
-                        " | {Utc::now().year()}"
-                    }
-                }
-            }
+            shell::Footer {}
         }
     }
 }
 
 #[component]
-fn Home() -> Element {
-    rsx! { home::Component {} }
+fn Home(query: SearchQuery) -> Element {
+    rsx! { home::Component { query: query.0 } }
 }
 
 #[component]
@@ -104,6 +94,11 @@ fn Post(slug: String) -> Element {
             post::Component { key: "{slug}", slug }
         }
     }
+}
+
+#[component]
+fn About() -> Element {
+    rsx! { about::Component {} }
 }
 
 #[component]
@@ -132,14 +127,18 @@ fn PageNotFound(route: Vec<String>) -> Element {
             path: attempted_path.clone(),
             noindex: true,
         }
-        section { class: "mx-auto max-w-3xl text-center pt-24",
-            p { class: "text-xs text-faint", "// route not found" }
-            h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }
-            p { class: "mt-4 text-lg text-muted", "Page not found: {attempted_path}" }
-            Link {
-                to: Route::Home {},
-                class: "inline-flex mt-8 text-accent hover:underline",
-                "Go back home"
+        shell::Sidebar {}
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
+            div { class: "doc-title", style: "margin-top: 36px",
+                h1 { class: "doc-h1", "Page not found" }
+            }
+            p { class: "doc-lead",
+                "Nothing lives at "
+                code { class: "ident text-mod", "{attempted_path}" }
+                "."
+            }
+            p { class: "doc-text", style: "margin-top: 18px",
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "Back to all posts" }
             }
         }
     }

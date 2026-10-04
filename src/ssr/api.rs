@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::ssr::types::Post;
+use crate::ssr::types::{Post, PostPage, RelatedPosts};
 use dioxus::prelude::*;
 
 #[cfg(feature = "server")]
@@ -157,12 +157,12 @@ pub async fn select_posts() -> Result<Vec<Post>> {
 }
 
 #[get("/api/post/{slug}/related")]
-pub async fn select_related_posts(slug: String) -> Result<Vec<Post>> {
+pub async fn select_related_posts(slug: String) -> Result<RelatedPosts> {
     #[cfg(feature = "server")]
     {
         use std::collections::BTreeSet;
 
-        const RELATED_POSTS: usize = 3;
+        const SEE_ALSO: usize = 3;
 
         fn tags_of(post: &Post) -> BTreeSet<String> {
             post.tags
@@ -174,8 +174,18 @@ pub async fn select_related_posts(slug: String) -> Result<Vec<Post>> {
 
         let posts = published_posts().await?;
         let is_current = |post: &Post| post.slug.as_deref() == Some(slug.as_str());
-        let Some(current_tags) = posts.iter().find(|post| is_current(post)).map(tags_of) else {
-            return Ok(Vec::new());
+        let Some(current) = posts.iter().find(|post| is_current(post)).cloned() else {
+            return Ok(RelatedPosts::default());
+        };
+        let current_tags = tags_of(&current);
+
+        let same_topic = match &current.topic {
+            Some(topic) => posts
+                .iter()
+                .filter(|post| !is_current(post) && post.topic.as_ref() == Some(topic))
+                .cloned()
+                .collect(),
+            None => Vec::new(),
         };
 
         let mut related: Vec<(usize, Post)> = posts
@@ -185,8 +195,9 @@ pub async fn select_related_posts(slug: String) -> Result<Vec<Post>> {
             .collect();
         // Stable sort, so posts sharing as many tags keep their newest-first order.
         related.sort_by_key(|(shared_tags, _)| std::cmp::Reverse(*shared_tags));
+        let see_also = related.into_iter().take(SEE_ALSO).map(|(_, post)| post).collect();
 
-        Ok(related.into_iter().take(RELATED_POSTS).map(|(_, post)| post).collect())
+        Ok(RelatedPosts { see_also, same_topic })
     }
     #[cfg(not(feature = "server"))]
     {
@@ -227,11 +238,11 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>> {
 
 /// `Ok(None)` when no post has this slug, so the page can answer with a real 404.
 #[get("/api/post/{slug}")]
-pub async fn select_post(slug: String) -> Result<Option<Post>> {
+pub async fn select_post(slug: String) -> Result<Option<PostPage>> {
     #[cfg(feature = "server")]
     {
         use crate::ssr::app_state::db;
-        use crate::ssr::server_utils::process_markdown;
+        use crate::ssr::markdown::render_markdown;
 
         let db = db().await;
         let db = db.get().await;
@@ -243,9 +254,52 @@ pub async fn select_post(slug: String) -> Result<Option<Post>> {
             return Ok(None);
         };
         hide_author_email(&mut post);
-        post.body = process_markdown(post.body.clone()).await?;
+        let rendered = render_markdown(post.body.clone()).await?;
+        post.body = rendered.html;
 
-        Ok(Some(post))
+        Ok(Some(PostPage {
+            post,
+            sections: rendered.sections,
+        }))
+    }
+    #[cfg(not(feature = "server"))]
+    {
+        unreachable!()
+    }
+}
+
+/// Highlighted first code block of the newest post, for the home page.
+#[get("/api/posts/latest/snippet")]
+pub async fn select_latest_snippet() -> Result<Option<String>> {
+    #[cfg(feature = "server")]
+    {
+        use crate::ssr::app_state::db;
+        use crate::ssr::markdown::{first_code_block, highlight_code};
+        use surrealdb_types::SurrealValue;
+
+        const SNIPPET_LINES: usize = 20;
+
+        #[derive(SurrealValue)]
+        struct Latest {
+            body: String,
+            // Projected only because ORDER BY fields must appear in the selection.
+            #[allow(dead_code)]
+            created_at: String,
+        }
+
+        let db = db().await;
+        let db = db.get().await;
+        let mut query = db
+            .query("SELECT body, <string>created_at AS created_at FROM post WHERE is_published = true ORDER BY created_at DESC LIMIT 1;")
+            .await?;
+        let Some(latest) = query.take::<Vec<Latest>>(0)?.into_iter().next() else {
+            return Ok(None);
+        };
+        let Some((language, code)) = first_code_block(&latest.body, SNIPPET_LINES) else {
+            return Ok(None);
+        };
+
+        Ok(Some(highlight_code(&code, &language)?))
     }
     #[cfg(not(feature = "server"))]
     {

@@ -1,17 +1,60 @@
 use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
-use std::collections::BTreeMap;
 
-use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
+use crate::{
+    app::Route,
+    authors::AUTHORS,
+    components::{
+        post_list::PostList,
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
+    },
+    search::{self, SearchQuery},
+    seo,
+    ssr::{
+        api::{select_latest_snippet, select_posts},
+        types::Post,
+    },
+    topics::TOPICS,
+};
+
+const FIRST_PAGE: usize = 12;
 
 #[component]
-pub fn Component() -> Element {
+pub fn Component(query: String) -> Element {
     let posts = use_server_future(select_posts)?;
+    let snippet = use_server_future(select_latest_snippet)?;
 
     // A 5xx keeps crawlers from indexing the error state as the home page.
     if let Some(Err(err)) = posts.read().as_ref() {
         FullstackContext::commit_error_status(err.clone());
     }
+    let load_error = posts
+        .read()
+        .as_ref()
+        .and_then(|result| result.as_ref().err())
+        .map(|err| err.to_string());
+    let all: Vec<Post> = posts
+        .read()
+        .as_ref()
+        .and_then(|result| result.as_ref().ok())
+        .cloned()
+        .unwrap_or_default();
+    let snippet = snippet
+        .read()
+        .as_ref()
+        .and_then(|result| result.as_ref().ok())
+        .cloned()
+        .flatten();
+
+    let searching = !query.trim().is_empty();
+    let matching: Vec<Post> = all
+        .iter()
+        .filter(|post| search::matches(&post.title, post.topic.as_deref(), &query))
+        .cloned()
+        .collect();
+    let first_page: Vec<Post> = all.iter().take(FIRST_PAGE).cloned().collect();
+    let rest: Vec<Post> = all.iter().skip(FIRST_PAGE).cloned().collect();
+    let description = seo::SITE_DESCRIPTION;
 
     rsx! {
         seo::PageMeta {
@@ -21,136 +64,216 @@ pub fn Component() -> Element {
         }
         seo::JsonLd { value: seo::website_graph() }
 
-        SuspenseBoundary {
-            fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
-            div { class: "w-full font-mono",
-                section { class: "animate-rise py-6 sm:py-8",
-                    p { class: "text-xs text-faint",
-                        span { class: "text-accent", "//" }
-                        " engineering notes"
-                    }
-                    h1 { class: "mt-3 text-4xl font-semibold leading-[1.05] tracking-tight text-fg sm:text-5xl md:text-6xl",
-                        "Practical "
-                        span { class: "text-accent", "Rust" }
-                        " Engineering"
-                        span { class: "ml-1.5 inline-block h-7 w-2.5 animate-pulse bg-accent align-middle sm:h-9 sm:w-3" }
-                    }
-                    p { class: "mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base",
-                        "Logs on Rust backend systems, architecture, and performance."
+        Sidebar { meta: format!("{} posts", all.len()),
+            SideGroup { title: "Sections",
+                li {
+                    a { href: "#latest", class: "side-link", "Latest" }
+                }
+                li {
+                    a { href: "#modules", class: "side-link", "Modules" }
+                }
+                li {
+                    a { href: "#posts", class: "side-link", "Posts" }
+                }
+                li {
+                    a { href: "#authors", class: "side-link", "Authors" }
+                }
+            }
+            SideGroup { title: "Modules",
+                for topic in TOPICS.iter() {
+                    li {
+                        Link {
+                            to: Route::Home {
+                                query: SearchQuery(topic.name.to_string()),
+                            },
+                            class: "side-link side-code text-mod",
+                            "{topic.name}"
+                        }
                     }
                 }
+            }
+            SideGroup { title: "Authors",
+                for author in AUTHORS.iter() {
+                    li {
+                        AuthorLink {
+                            ident: author.ident,
+                            href: author.href,
+                            class: "side-link side-code text-author",
+                        }
+                    }
+                }
+            }
+        }
 
-                if let Some(result) = posts.read().as_ref() {
-                    match result {
-                        Ok(items) => {
-                            let featured_posts: Vec<_> = items.iter().take(2).collect();
-                            let latest = items
-                                .first()
-                                .map(|post| post.published_on())
-                                .unwrap_or_else(|| "-".to_string());
+        main { id: CONTENT_ID, tabindex: "-1", class: "shell-main",
+            div { class: "doc-title", style: "margin-top: 36px",
+                h1 { class: "doc-h1",
+                    "Crate "
+                    span { class: "text-mod", "rust_dd" }
+                }
+                a {
+                    href: "https://github.com/rust-dd/blog",
+                    rel: "noopener noreferrer",
+                    target: "_blank",
+                    class: "doc-source",
+                    "Source"
+                }
+            }
+            p { class: "doc-lead",
+                "{description} Written by "
+                AuthorLink {
+                    ident: "DanielBoros",
+                    href: None,
+                    class: "ident text-author",
+                }
+                " and "
+                AuthorLink {
+                    ident: "DanielZelei",
+                    href: Some("https://github.com/zeldan"),
+                    class: "ident text-author",
+                }
+                "."
+            }
 
-                            let mut tag_counts: BTreeMap<String, usize> = BTreeMap::new();
-                            for post in items.iter() {
-                                for tag in post.tags.iter() {
-                                    let normalized = tag.trim().to_lowercase();
-                                    if normalized.is_empty() {
-                                        continue;
-                                    }
-                                    *tag_counts.entry(normalized).or_insert(0) += 1;
-                                }
-                            }
-
-                            let mut top_tags: Vec<(String, usize)> = tag_counts.into_iter().collect();
-                            top_tags.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
-                            let top_tags: Vec<_> = top_tags.into_iter().take(12).collect();
-                            let tag_names: Vec<String> = top_tags.iter().map(|(name, _)| name.clone()).collect();
-
-                            rsx! {
-                                div { class: "mt-4 border-y border-dashed border-border py-3 text-xs text-muted",
-                                    div { class: "flex flex-wrap gap-x-4 gap-y-1",
-                                        span { "posts: " span { class: "text-fg", "{items.len()}" } }
-                                        span { class: "hidden sm:inline", "|" }
-                                        span { "latest: " span { class: "text-fg", "{latest}" } }
-                                        span { class: "hidden sm:inline", "|" }
-                                        span { "stack: " span { class: "text-fg", "rust/dioxus/axum" } }
-                                    }
-                                }
-
-                                if !tag_names.is_empty() {
-                                    div { class: "mt-4 text-xs text-muted",
-                                        span { class: "text-faint", "use " }
-                                        span { class: "text-muted", "topics" }
-                                        span { class: "text-faint", "::" }
-                                        span { class: "text-faint", "{{" }
-                                        span { class: "text-fg",
-                                            {tag_names.join(", ")}
-                                        }
-                                        span { class: "text-faint", "}};" }
-                                    }
-                                }
-
-                                if !featured_posts.is_empty() {
-                                    section { class: "mt-8",
-                                        p { class: "text-xs text-faint", "// featured" }
-                                        div { class: "mt-3 flex flex-col gap-4",
-                                            for post in featured_posts {
-                                                article { class: "group rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
-                                                    Link {
-                                                        to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                        class: "flex flex-col gap-3 no-underline sm:flex-row sm:items-baseline sm:justify-between",
-                                                        div { class: "min-w-0",
-                                                            h2 { class: "text-lg leading-tight text-fg transition-colors duration-200 group-hover:text-accent sm:text-xl", "{post.title}" }
-                                                            p { class: "mt-2 text-sm leading-relaxed text-muted", "{post.summary}" }
-                                                        }
-                                                        p { class: "shrink-0 text-xs text-faint sm:text-right",
-                                                            "{post.read_time}min · {post.total_views} views"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                section { class: "mt-8",
-                                    p { class: "text-xs text-faint", "// all posts" }
-                                    div { class: "mt-3 rounded-lg border border-border bg-surface",
-                                        div { class: "hidden border-b border-dashed border-border px-4 py-2 text-[11px] font-semibold text-faint sm:grid sm:grid-cols-[120px_1fr_70px_70px]",
-                                            span { "date" }
-                                            span { "title" }
-                                            span { class: "text-right", "read" }
-                                            span { class: "text-right", "views" }
-                                        }
-                                        div { class: "divide-y divide-border",
-                                            for post in items.iter() {
-                                                Link {
-                                                    to: Route::Post { slug: post.slug.clone().unwrap_or_default() },
-                                                    class: "block px-4 py-3 no-underline transition-colors duration-150 hover:bg-surface-2",
-                                                    div { class: "hidden sm:grid sm:grid-cols-[120px_1fr_70px_70px] sm:items-center",
-                                                        span { class: "text-xs text-faint", "{post.published_on()}" }
-                                                        span { class: "truncate pr-4 text-sm text-fg", "{post.title}" }
-                                                        span { class: "text-right text-xs text-faint", "{post.read_time}min" }
-                                                        span { class: "text-right text-xs text-faint", "{post.total_views}" }
-                                                    }
-                                                    div { class: "sm:hidden",
-                                                        p { class: "text-sm text-fg", "{post.title}" }
-                                                        p { class: "mt-1 text-xs text-faint",
-                                                            "{post.published_on()} · {post.read_time}min · {post.total_views} views"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+            if let Some(latest) = all.first().cloned().filter(|_| !searching) {
+                section { aria_labelledby: "latest",
+                    SectionHeading { id: "latest", title: "Latest" }
+                    article { class: "latest",
+                        p { class: "item-meta",
+                            time { datetime: "{latest.created_at}", "{latest.published_on()}" }
+                            span { "{latest.read_time} min read" }
+                            if let Some(topic) = latest.topic.clone() {
+                                span {
+                                    "in "
+                                    Link {
+                                        to: Route::Home {
+                                            query: SearchQuery(topic.clone()),
+                                        },
+                                        class: "ident text-mod",
+                                        "{topic}"
                                     }
                                 }
                             }
                         }
-                        Err(err) => rsx! {
-                            div { class: "mt-8 text-red-500", "Failed to load posts: {err}" }
-                        },
+                        h3 { class: "latest-title",
+                            Link {
+                                to: Route::Post {
+                                    slug: latest.slug.clone().unwrap_or_default(),
+                                },
+                                "{latest.title}"
+                            }
+                        }
+                        p {
+                            class: "doc-text",
+                            style: "margin-top: 10px; max-width: 40em",
+                            "{latest.summary}"
+                        }
+                        if let Some(html) = snippet {
+                            div {
+                                class: "latest-code",
+                                dangerous_inner_html: "{html}",
+                            }
+                        }
                     }
                 }
             }
+
+            if !searching {
+                section { aria_labelledby: "modules",
+                    SectionHeading { id: "modules", title: "Modules" }
+                    dl { class: "item-table",
+                        for topic in TOPICS.iter() {
+                            div { class: "item-row",
+                                dt {
+                                    Link {
+                                        to: Route::Home {
+                                            query: SearchQuery(topic.name.to_string()),
+                                        },
+                                        class: "ident text-mod",
+                                        "{topic.name}"
+                                    }
+                                }
+                                dd { "{topic.description}" }
+                            }
+                        }
+                    }
+                }
+            }
+
+            section { aria_labelledby: "posts",
+                SectionHeading { id: "posts", title: "Posts" }
+                div { class: "list-status", role: "status",
+                    if searching {
+                        p { "{matching.len()} of {all.len()} posts match “{query.trim()}”" }
+                        Link {
+                            to: Route::Home {
+                                query: SearchQuery::default(),
+                            },
+                            class: "button-quiet",
+                            "Clear filter"
+                        }
+                    } else {
+                        p { "{all.len()} posts, newest first" }
+                    }
+                }
+                if let Some(err) = load_error {
+                    p { class: "doc-text", "Failed to load posts: {err}" }
+                }
+                if searching {
+                    PostList { posts: matching.clone() }
+                    if matching.is_empty() {
+                        p { class: "doc-text", style: "margin-top: 16px",
+                            "No posts match that search. Try a module name such as quant or async."
+                        }
+                    }
+                } else {
+                    PostList { posts: first_page }
+                    if !rest.is_empty() {
+                        details { class: "more-posts",
+                            summary { class: "button-quiet", "Show all {all.len()} posts" }
+                            PostList { posts: rest }
+                        }
+                    }
+                }
+            }
+
+            section { aria_labelledby: "authors",
+                SectionHeading { id: "authors", title: "Authors" }
+                dl { class: "item-table",
+                    for author in AUTHORS.iter() {
+                        div { class: "item-row",
+                            dt {
+                                AuthorLink {
+                                    ident: author.ident,
+                                    href: author.href,
+                                    class: "ident text-author",
+                                }
+                            }
+                            dd { "{author.note}" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn AuthorLink(ident: &'static str, href: Option<&'static str>, class: &'static str) -> Element {
+    rsx! {
+        match href {
+            Some(href) => rsx! {
+                a {
+                    href,
+                    rel: "noopener noreferrer",
+                    target: "_blank",
+                    class,
+                    "{ident}"
+                }
+            },
+            None => rsx! {
+                Link { to: Route::About {}, class, "{ident}" }
+            },
         }
     }
 }
