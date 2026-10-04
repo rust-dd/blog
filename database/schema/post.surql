@@ -18,6 +18,7 @@ DEFINE FIELD OVERWRITE content_updated_at ON post TYPE option<datetime>;
 DEFINE FIELD OVERWRITE is_published ON post TYPE bool DEFAULT false;
 DEFINE FIELD OVERWRITE header_image ON post TYPE option<string>;
 DEFINE FIELD OVERWRITE show_cta ON post TYPE bool DEFAULT false;
+DEFINE FIELD OVERWRITE topic ON post TYPE option<string>;
 
 DEFINE EVENT OVERWRITE post_read_time ON TABLE post WHEN ($event = "UPDATE" || $event = "CREATE") && $before.body != $after.body THEN {
     LET $read_time = array::len(string::words($after.body)) / 200;
