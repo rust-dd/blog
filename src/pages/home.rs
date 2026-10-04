@@ -8,7 +8,8 @@ use crate::{
         post_list::PostList,
         shell::{SectionHeading, SideGroup, Sidebar},
     },
-    search, seo,
+    search::{self, SearchQuery},
+    seo,
     ssr::{
         api::{select_latest_snippet, select_posts},
         types::Post,
@@ -74,7 +75,7 @@ pub fn Component(query: String) -> Element {
                 for topic in TOPICS.iter() {
                     li {
                         Link {
-                            to: Route::Home { q: topic.name.to_string() },
+                            to: Route::Home { query: SearchQuery(topic.name.to_string()) },
                             class: "side-link side-code text-mod",
                             "{topic.name}"
                         }
@@ -130,7 +131,7 @@ pub fn Component(query: String) -> Element {
                             if let Some(topic) = latest.topic.clone() {
                                 span {
                                     "in "
-                                    Link { to: Route::Home { q: topic.clone() }, class: "ident text-mod", "{topic}" }
+                                    Link { to: Route::Home { query: SearchQuery(topic.clone()) }, class: "ident text-mod", "{topic}" }
                                 }
                             }
                         }
@@ -152,7 +153,7 @@ pub fn Component(query: String) -> Element {
                         div { class: "item-row",
                             dt {
                                 Link {
-                                    to: Route::Home { q: topic.name.to_string() },
+                                    to: Route::Home { query: SearchQuery(topic.name.to_string()) },
                                     class: "ident text-mod",
                                     "{topic.name}"
                                 }
@@ -168,7 +169,7 @@ pub fn Component(query: String) -> Element {
                 div { class: "list-status",
                     if searching {
                         p { "{matching.len()} of {all.len()} posts match “{query.trim()}”" }
-                        Link { to: Route::Home { q: String::new() }, class: "button-quiet", "Clear filter" }
+                        Link { to: Route::Home { query: SearchQuery::default() }, class: "button-quiet", "Clear filter" }
                     } else {
                         p { "{all.len()} posts, newest first" }
                     }

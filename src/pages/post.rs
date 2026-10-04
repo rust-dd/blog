@@ -9,6 +9,7 @@ use crate::{
         post_list::PostList,
         shell::{SectionHeading, SideGroup, Sidebar},
     },
+    search::SearchQuery,
     seo,
     ssr::{
         api::{increment_views, select_post, select_related_posts},
@@ -102,7 +103,7 @@ fn Missing(heading: &'static str, detail: String) -> Element {
             }
             p { class: "doc-lead", "{detail}" }
             p { class: "doc-text", style: "margin-top: 18px",
-                Link { to: Route::Home { q: String::new() }, class: "text-mod", "Back to all posts" }
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "Back to all posts" }
             }
         }
     }
@@ -185,10 +186,10 @@ fn Article(page: PostPage, related: RelatedPosts) -> Element {
         main { id: "main", class: "shell-main",
             article {
                 p { class: "doc-path",
-                    Link { to: Route::Home { q: String::new() }, class: "text-mod", "rust_dd" }
+                    Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "rust_dd" }
                     if let Some(topic) = topic.clone() {
                         "::"
-                        Link { to: Route::Home { q: topic.clone() }, class: "text-mod", "{topic}" }
+                        Link { to: Route::Home { query: SearchQuery(topic.clone()) }, class: "text-mod", "{topic}" }
                     }
                 }
                 div { class: "doc-title",

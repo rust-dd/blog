@@ -1,9 +1,66 @@
+use std::fmt;
+
+/// The home page's `?q=` value. Parsed from the whole query string: the router percent-decodes
+/// before it splits on `&`, so a `?:q` argument would cut "rust & zig" at the ampersand.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct SearchQuery(pub String);
+
+impl From<&str> for SearchQuery {
+    fn from(query: &str) -> Self {
+        let value = query
+            .strip_prefix("q=")
+            .or_else(|| query.split_once("&q=").map(|(_, value)| value))
+            .unwrap_or_default();
+        Self(value.to_string())
+    }
+}
+
+impl fmt::Display for SearchQuery {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.0.is_empty() {
+            return Ok(());
+        }
+        f.write_str("q=")?;
+        for ch in self.0.chars() {
+            match ch {
+                '%' => f.write_str("%25")?,
+                '&' => f.write_str("%26")?,
+                _ => write!(f, "{ch}")?,
+            }
+        }
+        Ok(())
+    }
+}
+
 /// Case-insensitive substring match on a post's title or topic; a blank query matches everything.
 pub fn matches(title: &str, topic: Option<&str>, query: &str) -> bool {
     let query = query.trim().to_lowercase();
     query.is_empty()
         || title.to_lowercase().contains(&query)
         || topic.is_some_and(|topic| topic.to_lowercase().contains(&query))
+}
+
+#[cfg(test)]
+mod query_tests {
+    use super::SearchQuery;
+
+    #[test]
+    fn display_escapes_what_the_router_decodes_before_splitting() {
+        assert_eq!(SearchQuery("rust & 100%".into()).to_string(), "q=rust %26 100%25");
+    }
+
+    #[test]
+    fn empty_query_writes_nothing() {
+        assert_eq!(SearchQuery::default().to_string(), "");
+    }
+
+    #[test]
+    fn parsing_takes_the_q_value_from_a_decoded_query_string() {
+        assert_eq!(SearchQuery::from("q=rust & 100%"), SearchQuery("rust & 100%".into()));
+        assert_eq!(SearchQuery::from("utm_source=x&q=tako"), SearchQuery("tako".into()));
+        assert_eq!(SearchQuery::from("utm_source=x"), SearchQuery::default());
+        assert_eq!(SearchQuery::from(""), SearchQuery::default());
+    }
 }
 
 #[cfg(test)]

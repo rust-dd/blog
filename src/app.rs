@@ -4,14 +4,15 @@ use dioxus::prelude::*;
 use crate::{
     components::{loader, shell},
     pages::{about, home, opensource, post, projects},
+    search::SearchQuery,
     seo,
 };
 
 #[derive(Routable, Clone, PartialEq, Debug)]
 pub enum Route {
     #[layout(Layout)]
-    #[route("/?:q")]
-    Home { q: String },
+    #[route("/?:..query")]
+    Home { query: SearchQuery },
     #[route("/post/:slug")]
     Post { slug: String },
     #[route("/about")]
@@ -77,8 +78,8 @@ fn Layout() -> Element {
 }
 
 #[component]
-fn Home(q: String) -> Element {
-    rsx! { home::Component { query: q } }
+fn Home(query: SearchQuery) -> Element {
+    rsx! { home::Component { query: query.0 } }
 }
 
 #[component]
@@ -134,7 +135,7 @@ fn PageNotFound(route: Vec<String>) -> Element {
                 "."
             }
             p { class: "doc-text", style: "margin-top: 18px",
-                Link { to: Route::Home { q: String::new() }, class: "text-mod", "Back to all posts" }
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "text-mod", "Back to all posts" }
             }
         }
     }

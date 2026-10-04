@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::app::Route;
+use crate::{app::Route, search::SearchQuery};
 
 #[component]
 pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Element {
@@ -14,7 +14,7 @@ pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Eleme
     rsx! {
         aside { class: "shell-side",
             div { class: "side-head",
-                Link { to: Route::Home { q: String::new() }, class: "crate-mark",
+                Link { to: Route::Home { query: SearchQuery::default() }, class: "crate-mark",
                     span { class: "crate-logo", aria_hidden: "true", "dd" }
                     span { class: "crate-text",
                         span { class: "crate-name", "rust_dd" }
@@ -63,7 +63,7 @@ pub fn SearchBar() -> Element {
     let input_nav = navigator();
     let key_nav = navigator();
     let (value, on_home) = match &route {
-        Route::Home { q } => (q.clone(), true),
+        Route::Home { query } => (query.0.clone(), true),
         _ => (String::new(), false),
     };
 
@@ -79,7 +79,7 @@ pub fn SearchBar() -> Element {
                 autocomplete: "off",
                 spellcheck: "false",
                 oninput: move |event| {
-                    let target = Route::Home { q: event.value() };
+                    let target = Route::Home { query: SearchQuery(event.value()) };
                     if on_home {
                         input_nav.replace(target);
                     } else {
@@ -88,7 +88,7 @@ pub fn SearchBar() -> Element {
                 },
                 onkeydown: move |event| {
                     if on_home && event.key() == Key::Escape {
-                        key_nav.replace(Route::Home { q: String::new() });
+                        key_nav.replace(Route::Home { query: SearchQuery::default() });
                     }
                 },
             }
