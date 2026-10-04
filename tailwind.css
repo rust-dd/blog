@@ -381,8 +381,22 @@
   }
 
   .doc-h2:hover .doc-anchor,
+  .post-body :is(h2, h3):hover .doc-anchor,
   .doc-anchor:focus {
     opacity: 1;
+  }
+
+  .doc-anchor:empty::before {
+    content: "§";
+  }
+
+  .post-body :is(h2, h3) {
+    position: relative;
+  }
+
+  .post-body a.doc-anchor {
+    text-decoration: none;
+    color: rgb(var(--muted));
   }
 
   .ident {

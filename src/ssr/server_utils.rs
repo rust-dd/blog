@@ -214,6 +214,7 @@ pub async fn render_markdown(markdown: String) -> Result<RenderedMarkdown> {
     }
 
     let sections = assign_heading_ids(&mut events);
+    let events = with_heading_anchors(events);
 
     use pulldown_cmark::html::push_html;
     let mut html_output = String::new();
@@ -313,6 +314,21 @@ fn assign_heading_ids(events: &mut [Event]) -> Vec<Section> {
         index = end + 1;
     }
     sections
+}
+
+fn with_heading_anchors(events: Vec<Event<'_>>) -> Vec<Event<'_>> {
+    let mut anchored = Vec::with_capacity(events.len());
+    for event in events {
+        let anchor = match &event {
+            Event::Start(Tag::Heading { id: Some(id), .. }) => Some(format!(
+                r##"<a class="doc-anchor" href="#{id}" aria-label="Link to this section"></a>"##
+            )),
+            _ => None,
+        };
+        anchored.push(event);
+        anchored.extend(anchor.map(|anchor| Event::InlineHtml(CowStr::from(anchor))));
+    }
+    anchored
 }
 
 fn slugify(text: &str) -> String {
@@ -517,8 +533,8 @@ mod tests {
     async fn posts_with_h1_sections_are_shifted_below_the_page_title() {
         let html = process_markdown("# Intro\n\n## Details\n\ntext".into()).await.unwrap();
 
-        assert!(html.contains(r#"<h2 id="intro">Intro</h2>"#));
-        assert!(html.contains(r#"<h3 id="details">Details</h3>"#));
+        assert!(html.contains(r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##));
+        assert!(html.contains(r##"<h3 id="details"><a class="doc-anchor" href="#details" aria-label="Link to this section"></a>Details</h3>"##));
         assert!(!html.contains("<h1>"));
     }
 
@@ -536,7 +552,7 @@ mod tests {
     async fn posts_without_h1_keep_their_heading_levels() {
         let html = process_markdown("## Details\n\ntext".into()).await.unwrap();
 
-        assert!(html.contains(r#"<h2 id="details">Details</h2>"#));
+        assert!(html.contains(r##"<h2 id="details"><a class="doc-anchor" href="#details" aria-label="Link to this section"></a>Details</h2>"##));
     }
 
     #[tokio::test]
@@ -545,18 +561,27 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(rendered.html.contains(r#"<h2 id="setup">Setup</h2>"#));
-        assert!(rendered.html.contains(r#"<h3 id="details">Details</h3>"#));
-        assert!(rendered.html.contains(r#"<h2 id="setup-2">Setup</h2>"#));
+        assert!(rendered.html.contains(r##"<h2 id="setup"><a class="doc-anchor" href="#setup" aria-label="Link to this section"></a>Setup</h2>"##));
+        assert!(rendered.html.contains(r##"<h3 id="details"><a class="doc-anchor" href="#details" aria-label="Link to this section"></a>Details</h3>"##));
+        assert!(rendered.html.contains(r##"<h2 id="setup-2"><a class="doc-anchor" href="#setup-2" aria-label="Link to this section"></a>Setup</h2>"##));
         let ids: Vec<&str> = rendered.sections.iter().map(|section| section.id.as_str()).collect();
         assert_eq!(ids, ["setup", "setup-2"]);
+    }
+
+    #[tokio::test]
+    async fn headings_carry_a_section_anchor() {
+        let html = process_markdown("## Setup".into()).await.unwrap();
+
+        assert!(html.contains(
+            r##"<h2 id="setup"><a class="doc-anchor" href="#setup" aria-label="Link to this section"></a>Setup</h2>"##
+        ));
     }
 
     #[tokio::test]
     async fn shifted_h1_sections_are_listed() {
         let rendered = render_markdown("# Intro\n\n## Details".into()).await.unwrap();
 
-        assert!(rendered.html.contains(r#"<h2 id="intro">Intro</h2>"#));
+        assert!(rendered.html.contains(r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##));
         assert_eq!(rendered.sections.len(), 1);
         assert_eq!(rendered.sections[0].title, "Intro");
     }
