@@ -1,4 +1,5 @@
 pub mod app;
+pub mod authors;
 pub mod components;
 pub mod pages;
 pub mod search;
