@@ -1230,6 +1230,10 @@ body {
   background: rgb(var(--hover));
 }
 
+.side-current {
+  font-weight: 600;
+}
+
 .side-code {
   font-family: "Source Code Pro", ui-monospace, SFMono-Regular, monospace;
   font-size: 14px;
@@ -1337,6 +1341,13 @@ body {
   text-underline-offset: 3px;
 }
 
+.doc-path {
+  margin-top: 34px;
+  font-family: "Source Code Pro", ui-monospace, SFMono-Regular, monospace;
+  font-size: 15px;
+  color: rgb(var(--muted));
+}
+
 .doc-title {
   display: flex;
   flex-wrap: wrap;
@@ -1352,6 +1363,14 @@ body {
   line-height: 1.2;
   font-weight: 500;
   color: rgb(var(--heading));
+}
+
+.doc-h1-post {
+  flex: 1 1 520px;
+  max-width: 24em;
+  font-size: clamp(28px, 3.2vw, 36px);
+  line-height: 1.22;
+  text-wrap: balance;
 }
 
 .doc-source {
@@ -1542,6 +1561,23 @@ a.ident:hover,
   background: rgb(var(--hover));
 }
 
+.button-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: rgb(var(--post));
+  color: rgb(var(--bg));
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.button-primary:hover {
+  filter: brightness(1.08);
+}
+
 .code-block {
   margin: 0;
   padding: 16px 20px;
@@ -1552,6 +1588,37 @@ a.ident:hover,
   font-size: 15px;
   line-height: 1.6;
   color: rgb(var(--fg));
+}
+
+.front-matter {
+  margin-top: 22px;
+}
+
+.fm-line {
+  display: block;
+  white-space: pre;
+}
+
+.author-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.author-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.doc-note {
+  margin-top: 32px;
+  padding: 16px 20px;
+  border: 1px solid rgb(var(--line-strong));
+  border-radius: 6px;
 }
 
 .impl {
@@ -1759,17 +1826,8 @@ a.ident:hover,
   margin: auto;
 }
 
-.mx-auto {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .mt-0\.5 {
   margin-top: 0.125rem;
-}
-
-.mt-1 {
-  margin-top: 0.25rem;
 }
 
 .mt-2 {
@@ -1786,10 +1844,6 @@ a.ident:hover,
 
 .mt-6 {
   margin-top: 1.5rem;
-}
-
-.mt-8 {
-  margin-top: 2rem;
 }
 
 .block {
@@ -1850,10 +1904,6 @@ a.ident:hover,
 
 .max-w-2xl {
   max-width: 42rem;
-}
-
-.max-w-3xl {
-  max-width: 48rem;
 }
 
 .shrink-0 {
@@ -1921,10 +1971,6 @@ a.ident:hover,
 
 .gap-y-1 {
   row-gap: 0.25rem;
-}
-
-.overflow-hidden {
-  overflow: hidden;
 }
 
 .rounded {
@@ -2008,14 +2054,6 @@ a.ident:hover,
   padding-bottom: 1rem;
 }
 
-.pt-24 {
-  padding-top: 6rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
 .font-mono {
   font-family: "Source Code Pro", ui-monospace, SFMono-Regular, monospace;
 }
@@ -2032,11 +2070,6 @@ a.ident:hover,
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
-}
-
-.text-5xl {
-  font-size: 3rem;
-  line-height: 1;
 }
 
 .text-\[11px\] {
@@ -2061,10 +2094,6 @@ a.ident:hover,
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
-}
-
-.font-bold {
-  font-weight: 700;
 }
 
 .font-medium {
@@ -2118,6 +2147,11 @@ a.ident:hover,
   color: rgb(var(--fg) / var(--tw-text-opacity, 1));
 }
 
+.text-heading {
+  --tw-text-opacity: 1;
+  color: rgb(var(--heading) / var(--tw-text-opacity, 1));
+}
+
 .text-mod {
   --tw-text-opacity: 1;
   color: rgb(var(--mod) / var(--tw-text-opacity, 1));
@@ -2128,9 +2162,9 @@ a.ident:hover,
   color: rgb(var(--muted) / var(--tw-text-opacity, 1));
 }
 
-.text-red-500 {
+.text-post {
   --tw-text-opacity: 1;
-  color: rgb(239 68 68 / var(--tw-text-opacity, 1));
+  color: rgb(var(--post) / var(--tw-text-opacity, 1));
 }
 
 .no-underline {
@@ -2231,10 +2265,6 @@ a.ident:hover,
   }
 }
 
-.hover\:underline:hover {
-  text-decoration-line: underline;
-}
-
 @media (min-width: 640px) {
   .sm\:inline {
     display: inline;
@@ -2252,10 +2282,6 @@ a.ident:hover,
     align-items: flex-end;
   }
 
-  .sm\:items-center {
-    align-items: center;
-  }
-
   .sm\:justify-between {
     justify-content: space-between;
   }
@@ -2268,10 +2294,6 @@ a.ident:hover,
     padding: 1.5rem;
   }
 
-  .sm\:p-7 {
-    padding: 1.75rem;
-  }
-
   .sm\:text-3xl {
     font-size: 1.875rem;
     line-height: 2.25rem;
@@ -2280,11 +2302,6 @@ a.ident:hover,
   .sm\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
-  }
-
-  .sm\:text-base {
-    font-size: 1rem;
-    line-height: 1.5rem;
   }
 }
 
@@ -2295,15 +2312,6 @@ a.ident:hover,
 
   .md\:gap-5 {
     gap: 1.25rem;
-  }
-
-  .md\:p-10 {
-    padding: 2.5rem;
-  }
-
-  .md\:text-4xl {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
   }
 
   .md\:text-5xl {
