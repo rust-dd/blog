@@ -379,7 +379,12 @@ pub async fn sitemap_handler() -> Response<String> {
     // Only indexable HTML pages belong here. No changefreq/priority: Google ignores both. lastmod
     // uses content_updated_at, not updated_at, which changes on every view count.
     let latest_change = posts.iter().map(SitemapPost::lastmod).max();
-    for (path, lastmod) in [("/", latest_change), ("/projects", None), ("/opensource", None)] {
+    for (path, lastmod) in [
+        ("/", latest_change),
+        ("/about", None),
+        ("/projects", None),
+        ("/opensource", None),
+    ] {
         push_sitemap_url(&mut sitemap, &absolute_url(path), lastmod);
     }
     for post in &posts {
@@ -441,6 +446,10 @@ pub async fn llms_txt_handler() -> Response<String> {
         }
     }
     llms.push_str("\n## Pages\n\n");
+    llms.push_str(&format!(
+        "- [About Daniel Boros]({}): Bio, CV, research and open-source work of the main author\n",
+        absolute_url("/about")
+    ));
     llms.push_str(&format!(
         "- [Projects]({}): Apps and developer tools built with Rust\n",
         absolute_url("/projects")

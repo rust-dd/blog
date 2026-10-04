@@ -1599,6 +1599,10 @@ a.ident:hover,
   white-space: pre;
 }
 
+.decl {
+  margin-top: 20px;
+}
+
 .author-card {
   display: flex;
   align-items: center;
@@ -1612,6 +1616,17 @@ a.ident:hover,
   border-radius: 8px;
   -o-object-fit: cover;
      object-fit: cover;
+}
+
+.portrait {
+  float: right;
+  width: 176px;
+  height: 176px;
+  margin: 4px 0 16px 28px;
+  border-radius: 8px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  box-shadow: 0 0 0 1px rgb(var(--line-strong));
 }
 
 .doc-note {
@@ -1654,6 +1669,46 @@ a.ident:hover,
 
 .impl:not([open]) > summary::before {
   content: "+";
+}
+
+.impl-body {
+  margin: 12px 0 0 24px;
+}
+
+.table-scroll {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.data-table {
+  min-width: 560px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.data-table th {
+  padding: 6px 16px 6px 0;
+  border-bottom: 1px solid rgb(var(--line));
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--muted));
+}
+
+.data-table td {
+  padding: 8px 16px 8px 0;
+  border-bottom: 1px solid rgb(var(--line));
+  vertical-align: baseline;
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+}
+
+.data-table .num {
+  text-align: right;
+  padding-right: 0;
+  font-family: "Fira Sans", "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .prose {
@@ -1860,6 +1915,10 @@ a.ident:hover,
 
 .inline-flex {
   display: inline-flex;
+}
+
+.table {
+  display: table;
 }
 
 .grid {

@@ -238,7 +238,7 @@ fn Article(page: PostPage, related: RelatedPosts) -> Element {
                         }
                         div {
                             if is_daniel {
-                                Link { to: Route::Home { q: String::new() }, class: "ident text-author", "{ident}" }
+                                Link { to: Route::About {}, class: "ident text-author", "{ident}" }
                             } else if let Some(profile) = author_profile {
                                 a {
                                     href: "{profile}",

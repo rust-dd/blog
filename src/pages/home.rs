@@ -216,7 +216,9 @@ fn AuthorLink(ident: &'static str, href: Option<&'static str>, class: &'static s
             Some(href) => rsx! {
                 a { href, rel: "noopener noreferrer", target: "_blank", class, "{ident}" }
             },
-            None => rsx! { "{ident}" },
+            None => rsx! {
+                Link { to: Route::About {}, class, "{ident}" }
+            },
         }
     }
 }

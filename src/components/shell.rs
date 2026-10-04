@@ -36,6 +36,7 @@ pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Eleme
                 class: if open() { "side-nav is-open" } else { "side-nav" },
                 {children}
                 SideGroup { title: "More",
+                    li { Link { to: Route::About {}, class: "side-link side-code text-mod", "about" } }
                     li { Link { to: Route::Projects {}, class: "side-link side-code text-mod", "projects" } }
                     li { Link { to: Route::OpenSource {}, class: "side-link side-code text-mod", "open_source" } }
                     li { a { href: "/rss.xml", class: "side-link side-code text-mod", "rss" } }

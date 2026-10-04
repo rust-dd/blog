@@ -299,7 +299,7 @@ pub fn Component() -> Element {
     }
 }
 
-fn project_stars(project: &OssProject, repo_stars: Option<&BTreeMap<String, u32>>) -> u32 {
+pub(crate) fn project_stars(project: &OssProject, repo_stars: Option<&BTreeMap<String, u32>>) -> u32 {
     repo_stars
         .and_then(|stars| stars.get(project.github_repo))
         .copied()
