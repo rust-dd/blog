@@ -242,7 +242,7 @@ pub async fn select_post(slug: String) -> Result<Option<PostPage>> {
     #[cfg(feature = "server")]
     {
         use crate::ssr::app_state::db;
-        use crate::ssr::server_utils::render_markdown;
+        use crate::ssr::markdown::render_markdown;
 
         let db = db().await;
         let db = db.get().await;
@@ -274,7 +274,7 @@ pub async fn select_latest_snippet() -> Result<Option<String>> {
     #[cfg(feature = "server")]
     {
         use crate::ssr::app_state::db;
-        use crate::ssr::server_utils::{first_code_block, highlight_code};
+        use crate::ssr::markdown::{first_code_block, highlight_code};
         use surrealdb_types::SurrealValue;
 
         const SNIPPET_LINES: usize = 20;

@@ -2,6 +2,8 @@ pub mod api;
 #[cfg(feature = "server")]
 pub mod db;
 #[cfg(feature = "server")]
+pub mod markdown;
+#[cfg(feature = "server")]
 pub mod redirect;
 #[cfg(feature = "server")]
 pub mod server_utils;
