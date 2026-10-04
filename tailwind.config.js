@@ -5,28 +5,25 @@ module.exports = {
     extend: {
       colors: {
         bg: "rgb(var(--bg) / <alpha-value>)",
-        surface: {
-          DEFAULT: "rgb(var(--surface) / <alpha-value>)",
-          2: "rgb(var(--surface-2) / <alpha-value>)",
-        },
-        border: {
-          DEFAULT: "rgb(var(--border-c) / <alpha-value>)",
-          strong: "rgb(var(--border-strong) / <alpha-value>)",
+        sidebar: "rgb(var(--sidebar) / <alpha-value>)",
+        hover: "rgb(var(--hover) / <alpha-value>)",
+        code: "rgb(var(--code) / <alpha-value>)",
+        line: {
+          DEFAULT: "rgb(var(--line) / <alpha-value>)",
+          strong: "rgb(var(--line-strong) / <alpha-value>)",
         },
         fg: "rgb(var(--fg) / <alpha-value>)",
+        heading: "rgb(var(--heading) / <alpha-value>)",
         muted: "rgb(var(--muted) / <alpha-value>)",
-        faint: "rgb(var(--faint) / <alpha-value>)",
-        accent: {
-          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
-          fg: "rgb(var(--accent-fg) / <alpha-value>)",
-        },
+        post: "rgb(var(--post) / <alpha-value>)",
+        author: "rgb(var(--author) / <alpha-value>)",
+        mod: "rgb(var(--mod) / <alpha-value>)",
+        logo: "rgb(var(--logo) / <alpha-value>)",
       },
       fontFamily: {
-        sans: ['"IBM Plex Sans"', "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
-      },
-      fontSize: {
-        xxs: "0.625rem",
+        sans: ['"Fira Sans"', '"Helvetica Neue"', "Arial", "sans-serif"],
+        serif: ['"Source Serif 4"', '"Iowan Old Style"', "Georgia", "serif"],
+        mono: ['"Source Code Pro"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
     },
   },

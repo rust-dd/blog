@@ -32,7 +32,7 @@ pub fn App() -> Element {
         document::Stylesheet { href: asset!("/assets/tailwind.css") }
         document::Stylesheet { href: "/katex.min.css" }
         document::Link { rel: "icon", href: "/favicon.ico" }
-        document::Meta { name: "theme-color", content: "#fafaf9" }
+        document::Meta { name: "theme-color", content: "#1A1210" }
         document::Meta { property: "og:site_name", content: seo::SITE_NAME }
         document::Meta { property: "og:locale", content: "en_US" }
         document::Meta { name: "twitter:site", content: seo::X_HANDLE }
@@ -47,13 +47,13 @@ pub fn App() -> Element {
         document::Link { rel: "preconnect", href: "https://fonts.gstatic.com" }
         document::Link {
             rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400..700&display=swap"
+            href: "https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap"
         }
         document::Script {
-            "try{{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)}}catch(e){{document.documentElement.setAttribute('data-theme','light')}}"
+            "document.addEventListener('keydown',function(e){{var t=e.target;if(e.metaKey||e.ctrlKey||e.altKey||(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)))return;if(e.key==='s'||e.key==='S'||e.key==='/'){{var i=document.getElementById('search');if(i){{e.preventDefault();i.focus();}}}}}});"
         }
 
-        div { class: "min-h-screen bg-bg text-fg font-mono",
+        div { class: "min-h-screen bg-bg text-fg font-sans",
             Router::<Route> {}
         }
     }

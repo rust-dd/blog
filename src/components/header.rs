@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     app::Route,
-    components::{icons, theme_toggle},
+    components::icons,
 };
 
 #[component]
@@ -34,7 +34,6 @@ pub fn Component() -> Element {
                         div { class: "hidden sm:block",
                             icons::Component {}
                         }
-                        theme_toggle::Component {}
                     }
                 }
             }
