@@ -2,10 +2,11 @@ use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 use std::collections::BTreeMap;
 
-use crate::{app::Route, components::loader, seo, ssr::api::select_posts};
+use crate::{app::Route, seo, ssr::api::select_posts};
 
 #[component]
-pub fn Component() -> Element {
+pub fn Component(query: String) -> Element {
+    let _ = query;
     let posts = use_server_future(select_posts)?;
 
     // A 5xx keeps crawlers from indexing the error state as the home page.
@@ -21,8 +22,8 @@ pub fn Component() -> Element {
         }
         seo::JsonLd { value: seo::website_graph() }
 
-        SuspenseBoundary {
-            fallback: |_| rsx! { loader::Inline { message: "Loading posts...".to_string() } },
+        crate::components::shell::Sidebar {}
+        main { id: "main", class: "shell-main",
             div { class: "w-full font-mono",
                 section { class: "animate-rise py-6 sm:py-8",
                     p { class: "text-xs text-faint",

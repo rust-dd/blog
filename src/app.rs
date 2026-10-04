@@ -1,9 +1,8 @@
-use chrono::{Datelike, Utc};
 use dioxus::fullstack::FullstackContext;
 use dioxus::prelude::*;
 
 use crate::{
-    components::{header, icons, loader},
+    components::{loader, shell},
     pages::{home, opensource, post, projects},
     seo,
 };
@@ -11,15 +10,14 @@ use crate::{
 #[derive(Routable, Clone, PartialEq, Debug)]
 pub enum Route {
     #[layout(Layout)]
-    #[route("/")]
-    Home {},
+    #[route("/?:q")]
+    Home { q: String },
     #[route("/post/:slug")]
     Post { slug: String },
     #[route("/projects")]
     Projects {},
     #[route("/opensource")]
     OpenSource {},
-    #[end_layout]
     #[route("/:..route")]
     PageNotFound { route: Vec<String> },
 }
@@ -62,37 +60,23 @@ pub fn App() -> Element {
 #[component]
 fn Layout() -> Element {
     rsx! {
-        div { class: "flex min-h-screen flex-col",
-            header::Component {}
-            main { class: "mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 pt-6 pb-20 sm:px-6",
-                SuspenseBoundary {
-                    fallback: |_| rsx! { loader::Inline { message: "Loading page...".to_string() } },
-                    Outlet::<Route> {}
-                }
+        a { href: "#main", class: "skip-link", "Skip to content" }
+        div { class: "shell",
+            div { class: "shell-search", shell::SearchBar {} }
+            SuspenseBoundary {
+                fallback: |_| rsx! {
+                    div { class: "loader-wrap", loader::Inline { message: "Loading page...".to_string() } }
+                },
+                Outlet::<Route> {}
             }
-            footer { class: "z-40 border-t border-dashed border-border py-3",
-                div { class: "flex flex-col items-center gap-2",
-                    div { class: "block sm:hidden",
-                        icons::Component {}
-                    }
-                    p { class: "text-xs text-faint",
-                        "// powered by "
-                        a {
-                            href: "https://github.com/rust-dd",
-                            class: "text-muted transition-colors duration-200 hover:text-accent",
-                            "rust-dd"
-                        }
-                        " | {Utc::now().year()}"
-                    }
-                }
-            }
+            shell::Footer {}
         }
     }
 }
 
 #[component]
-fn Home() -> Element {
-    rsx! { home::Component {} }
+fn Home(q: String) -> Element {
+    rsx! { home::Component { query: q } }
 }
 
 #[component]
@@ -132,14 +116,18 @@ fn PageNotFound(route: Vec<String>) -> Element {
             path: attempted_path.clone(),
             noindex: true,
         }
-        section { class: "mx-auto max-w-3xl text-center pt-24",
-            p { class: "text-xs text-faint", "// route not found" }
-            h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }
-            p { class: "mt-4 text-lg text-muted", "Page not found: {attempted_path}" }
-            Link {
-                to: Route::Home {},
-                class: "inline-flex mt-8 text-accent hover:underline",
-                "Go back home"
+        shell::Sidebar {}
+        main { id: "main", class: "shell-main",
+            div { class: "doc-title", style: "margin-top: 36px",
+                h1 { class: "doc-h1", "Page not found" }
+            }
+            p { class: "doc-lead",
+                "Nothing lives at "
+                code { class: "ident text-mod", "{attempted_path}" }
+                "."
+            }
+            p { class: "doc-text", style: "margin-top: 18px",
+                Link { to: Route::Home { q: String::new() }, class: "text-mod", "Back to all posts" }
             }
         }
     }

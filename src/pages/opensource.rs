@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use dioxus::prelude::*;
 
-use crate::{components::loader, seo, ssr::api::select_repo_stars};
+use crate::{seo, ssr::api::select_repo_stars};
 
 pub(crate) struct OssProject {
     pub(crate) name: &'static str,
@@ -167,8 +167,8 @@ pub fn Component() -> Element {
             path: "/opensource",
         }
 
-        SuspenseBoundary {
-            fallback: |_| rsx! { loader::Inline { message: "Loading projects...".to_string() } },
+        crate::components::shell::Sidebar {}
+        main { id: "main", class: "shell-main",
             match stars.read().as_ref() {
                 Some(result) => {
                     let repo_stars = result.as_ref().ok();

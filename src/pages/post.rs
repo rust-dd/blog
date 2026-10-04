@@ -60,6 +60,8 @@ pub fn Component(slug: String) -> Element {
         .unwrap_or_default();
 
     rsx! {
+        crate::components::shell::Sidebar {}
+        main { id: "main", class: "shell-main",
         match post.read().as_ref() {
             Some(Ok(Some(page))) => rsx! {
                 Article { post: page.post.clone(), related: related_posts }
@@ -76,7 +78,7 @@ pub fn Component(slug: String) -> Element {
                     h1 { class: "mt-2 text-5xl font-bold text-accent", "404" }
                     p { class: "mt-4 text-lg text-muted", "Post not found: /post/{slug}" }
                     Link {
-                        to: Route::Home {},
+                        to: Route::Home { q: String::new() },
                         class: "inline-flex mt-8 text-accent hover:underline",
                         "Go back home"
                     }
@@ -93,13 +95,14 @@ pub fn Component(slug: String) -> Element {
                     h1 { class: "text-3xl font-semibold text-red-500", "Failed to load post" }
                     p { class: "mt-4 text-muted", "{err}" }
                     Link {
-                        to: Route::Home {},
+                        to: Route::Home { q: String::new() },
                         class: "inline-flex mt-8 text-accent hover:underline",
                         "Go back home"
                     }
                 }
             },
             None => rsx! {},
+        }
         }
     }
 }
@@ -137,7 +140,7 @@ fn Article(post: Post, related: Vec<Post>) -> Element {
             div { class: "reading-progress" }
 
             Link {
-                to: Route::Home {},
+                to: Route::Home { q: String::new() },
                 class: "inline-flex gap-1 text-xs text-faint transition-colors duration-200 hover:text-accent",
                 span { "<-" }
                 span { "back" }

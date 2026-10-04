@@ -81,6 +81,8 @@ pub fn Component() -> Element {
             path: "/projects",
         }
 
+        crate::components::shell::Sidebar {}
+        main { id: "main", class: "shell-main",
         div { class: "w-full font-mono",
             section { class: "animate-rise py-4",
                 p { class: "text-xs text-faint", "// projects" }
@@ -165,6 +167,7 @@ pub fn Component() -> Element {
                     span { class: "text-sm text-faint transition-colors duration-200 group-hover:text-accent", "open /opensource ->" }
                 }
             }
+        }
         }
     }
 }
