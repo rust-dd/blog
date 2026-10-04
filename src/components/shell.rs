@@ -16,6 +16,15 @@ pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Eleme
 
     rsx! {
         aside { class: "shell-side",
+            // A checkbox, so the phone menu opens before (or without) hydration.
+            input {
+                r#type: "checkbox",
+                id: "side-toggle",
+                class: "side-toggle-input",
+                aria_controls: "side-nav",
+                checked: open(),
+                onchange: move |event| open.set(event.checked()),
+            }
             div { class: "side-head",
                 Link { to: Route::Home { query: SearchQuery::default() }, class: "crate-mark",
                     span { class: "crate-logo", aria_hidden: "true", "dd" }
@@ -24,19 +33,16 @@ pub fn Sidebar(#[props(into, default)] meta: String, children: Element) -> Eleme
                         span { class: "crate-meta", "{meta}" }
                     }
                 }
-                button {
-                    r#type: "button",
-                    class: "side-toggle",
-                    aria_expanded: "{open}",
-                    aria_controls: "side-nav",
-                    onclick: move |_| open.toggle(),
-                    if open() { "Close" } else { "Menu" }
+                label { r#for: "side-toggle", class: "side-toggle",
+                    span { class: "side-toggle-closed", "Menu" }
+                    span { class: "side-toggle-open", "Close" }
                 }
             }
             nav {
                 id: "side-nav",
                 aria_label: "Site",
-                class: if open() { "side-nav is-open" } else { "side-nav" },
+                class: "side-nav",
+                onclick: move |_| open.set(false),
                 {children}
                 SideGroup { title: "More",
                     li { Link { to: Route::About {}, class: "side-link side-code text-mod", "about" } }

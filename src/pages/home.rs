@@ -66,16 +66,26 @@ pub fn Component(query: String) -> Element {
 
         Sidebar { meta: format!("{} posts", all.len()),
             SideGroup { title: "Sections",
-                li { a { href: "#latest", class: "side-link", "Latest" } }
-                li { a { href: "#modules", class: "side-link", "Modules" } }
-                li { a { href: "#posts", class: "side-link", "Posts" } }
-                li { a { href: "#authors", class: "side-link", "Authors" } }
+                li {
+                    a { href: "#latest", class: "side-link", "Latest" }
+                }
+                li {
+                    a { href: "#modules", class: "side-link", "Modules" }
+                }
+                li {
+                    a { href: "#posts", class: "side-link", "Posts" }
+                }
+                li {
+                    a { href: "#authors", class: "side-link", "Authors" }
+                }
             }
             SideGroup { title: "Modules",
                 for topic in TOPICS.iter() {
                     li {
                         Link {
-                            to: Route::Home { query: SearchQuery(topic.name.to_string()) },
+                            to: Route::Home {
+                                query: SearchQuery(topic.name.to_string()),
+                            },
                             class: "side-link side-code text-mod",
                             "{topic.name}"
                         }
@@ -111,7 +121,11 @@ pub fn Component(query: String) -> Element {
             }
             p { class: "doc-lead",
                 "{description} Written by "
-                AuthorLink { ident: "DanielBoros", href: None, class: "ident text-author" }
+                AuthorLink {
+                    ident: "DanielBoros",
+                    href: None,
+                    class: "ident text-author",
+                }
                 " and "
                 AuthorLink {
                     ident: "DanielZelei",
@@ -121,7 +135,7 @@ pub fn Component(query: String) -> Element {
                 "."
             }
 
-            if let Some(latest) = all.first().cloned() {
+            if let Some(latest) = all.first().cloned().filter(|_| !searching) {
                 section { aria_labelledby: "latest",
                     SectionHeading { id: "latest", title: "Latest" }
                     article { class: "latest",
@@ -131,34 +145,56 @@ pub fn Component(query: String) -> Element {
                             if let Some(topic) = latest.topic.clone() {
                                 span {
                                     "in "
-                                    Link { to: Route::Home { query: SearchQuery(topic.clone()) }, class: "ident text-mod", "{topic}" }
+                                    Link {
+                                        to: Route::Home {
+                                            query: SearchQuery(topic.clone()),
+                                        },
+                                        class: "ident text-mod",
+                                        "{topic}"
+                                    }
                                 }
                             }
                         }
                         h3 { class: "latest-title",
-                            Link { to: Route::Post { slug: latest.slug.clone().unwrap_or_default() }, "{latest.title}" }
+                            Link {
+                                to: Route::Post {
+                                    slug: latest.slug.clone().unwrap_or_default(),
+                                },
+                                "{latest.title}"
+                            }
                         }
-                        p { class: "doc-text", style: "margin-top: 10px; max-width: 40em", "{latest.summary}" }
+                        p {
+                            class: "doc-text",
+                            style: "margin-top: 10px; max-width: 40em",
+                            "{latest.summary}"
+                        }
                         if let Some(html) = snippet {
-                            div { class: "latest-code", dangerous_inner_html: "{html}" }
+                            div {
+                                class: "latest-code",
+                                dangerous_inner_html: "{html}",
+                            }
                         }
                     }
                 }
             }
 
-            section { aria_labelledby: "modules",
-                SectionHeading { id: "modules", title: "Modules" }
-                dl { class: "item-table",
-                    for topic in TOPICS.iter() {
-                        div { class: "item-row",
-                            dt {
-                                Link {
-                                    to: Route::Home { query: SearchQuery(topic.name.to_string()) },
-                                    class: "ident text-mod",
-                                    "{topic.name}"
+            if !searching {
+                section { aria_labelledby: "modules",
+                    SectionHeading { id: "modules", title: "Modules" }
+                    dl { class: "item-table",
+                        for topic in TOPICS.iter() {
+                            div { class: "item-row",
+                                dt {
+                                    Link {
+                                        to: Route::Home {
+                                            query: SearchQuery(topic.name.to_string()),
+                                        },
+                                        class: "ident text-mod",
+                                        "{topic.name}"
+                                    }
                                 }
+                                dd { "{topic.description}" }
                             }
-                            dd { "{topic.description}" }
                         }
                     }
                 }
@@ -166,10 +202,16 @@ pub fn Component(query: String) -> Element {
 
             section { aria_labelledby: "posts",
                 SectionHeading { id: "posts", title: "Posts" }
-                div { class: "list-status",
+                div { class: "list-status", role: "status",
                     if searching {
                         p { "{matching.len()} of {all.len()} posts match “{query.trim()}”" }
-                        Link { to: Route::Home { query: SearchQuery::default() }, class: "button-quiet", "Clear filter" }
+                        Link {
+                            to: Route::Home {
+                                query: SearchQuery::default(),
+                            },
+                            class: "button-quiet",
+                            "Clear filter"
+                        }
                     } else {
                         p { "{all.len()} posts, newest first" }
                     }
@@ -200,7 +242,13 @@ pub fn Component(query: String) -> Element {
                 dl { class: "item-table",
                     for author in AUTHORS.iter() {
                         div { class: "item-row",
-                            dt { AuthorLink { ident: author.ident, href: author.href, class: "ident text-author" } }
+                            dt {
+                                AuthorLink {
+                                    ident: author.ident,
+                                    href: author.href,
+                                    class: "ident text-author",
+                                }
+                            }
                             dd { "{author.note}" }
                         }
                     }
@@ -215,7 +263,13 @@ fn AuthorLink(ident: &'static str, href: Option<&'static str>, class: &'static s
     rsx! {
         match href {
             Some(href) => rsx! {
-                a { href, rel: "noopener noreferrer", target: "_blank", class, "{ident}" }
+                a {
+                    href,
+                    rel: "noopener noreferrer",
+                    target: "_blank",
+                    class,
+                    "{ident}"
+                }
             },
             None => rsx! {
                 Link { to: Route::About {}, class, "{ident}" }
