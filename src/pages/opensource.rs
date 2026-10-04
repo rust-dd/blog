@@ -2,7 +2,12 @@ use std::collections::BTreeMap;
 
 use dioxus::prelude::*;
 
-use crate::{seo, ssr::api::select_repo_stars};
+use crate::{
+    app::Route,
+    components::shell::{SectionHeading, SideGroup, Sidebar},
+    seo,
+    ssr::api::select_repo_stars,
+};
 
 pub(crate) struct OssProject {
     pub(crate) name: &'static str,
@@ -16,65 +21,65 @@ pub(crate) struct OssProject {
 
 pub(crate) const PROJECTS: &[OssProject] = &[
     OssProject {
-        name: "tako",
-        description: "Tako is a lightweight and minimalistic web framework built on Tokio and Hyper written in Rust.",
-        url: "https://github.com/rust-dd/tako",
-        github_repo: "rust-dd/tako",
-        stars: 146,
-        language: "Rust",
-        topics: &["async", "hyper", "rust", "tokio", "webframework"],
-    },
-    OssProject {
         name: "stochastic-rs",
-        description: "A Rust library designed for high-performance simulation and analysis of stochastic processes and models in quantitative finance.",
+        description: "High-performance quantitative finance in Rust and Python: 130+ stochastic processes, option pricing, calibration, fixed income, risk and copulas, with SIMD and GPU acceleration.",
         url: "https://github.com/rust-dd/stochastic-rs",
         github_repo: "rust-dd/stochastic-rs",
-        stars: 141,
+        stars: 190,
         language: "Rust",
-        topics: &["quant", "finance", "stochastic", "simulation", "statistics"],
+        topics: &["quant", "stochastic-processes", "option-pricing", "rough-volatility", "cuda"],
+    },
+    OssProject {
+        name: "tako",
+        description: "Multi-transport Rust web framework: HTTP/1.1, HTTP/2, HTTP/3, WebSocket, SSE, gRPC, TCP/UDP and Unix sockets behind one router, on Tokio or Compio.",
+        url: "https://github.com/rust-dd/tako",
+        github_repo: "rust-dd/tako",
+        stars: 164,
+        language: "Rust",
+        topics: &["async", "http3", "grpc", "websocket", "io-uring"],
+    },
+    OssProject {
+        name: "rsql",
+        description: "Fast PostgreSQL client built with Rust, Tauri and React for querying data, running EXPLAIN and exploring large result sets.",
+        url: "https://github.com/rust-dd/rsql",
+        github_repo: "rust-dd/rsql",
+        stars: 76,
+        language: "TypeScript",
+        topics: &["postgresql", "tauri", "react"],
     },
     OssProject {
         name: "rust-axum-async-graphql-postgres-redis-starter",
-        description: "Starter template using Rust with Axum, Async-GraphQL, PostgreSQL, and Redis for building high-performance web APIs.",
+        description: "Starter template using Rust with Axum, Async-GraphQL, PostgreSQL and Redis for building high-performance web APIs.",
         url: "https://github.com/rust-dd/rust-axum-async-graphql-postgres-redis-starter",
         github_repo: "rust-dd/rust-axum-async-graphql-postgres-redis-starter",
-        stars: 42,
+        stars: 45,
         language: "Rust",
         topics: &["axum", "graphql", "postgres", "redis"],
     },
     OssProject {
-        name: "rsql",
-        description: "Fast PostgreSQL client built with Rust, Tauri, and React for querying data, running EXPLAIN, and exploring large result sets.",
-        url: "https://rsql.rust-dd.com/#demo",
-        github_repo: "rust-dd/rust-sql",
-        stars: 37,
-        language: "TypeScript",
-        topics: &["postgresql", "rust", "tauri", "react"],
-    },
-    OssProject {
         name: "embedded-dht-rs",
-        description: "A Rust library that provides full support for DHT11, DHT22, and DHT20 (AHT20) temperature and humidity sensors.",
+        description: "A Rust library with full support for DHT11, DHT22 and DHT20 (AHT20) temperature and humidity sensors.",
         url: "https://github.com/rust-dd/embedded-dht-rs",
         github_repo: "rust-dd/embedded-dht-rs",
-        stars: 34,
+        stars: 39,
         language: "Rust",
-        topics: &["dht11", "dht22", "esp32", "embedded"],
+        topics: &["dht11", "dht22", "aht20", "esp32", "embedded"],
     },
     OssProject {
         name: "aoc-2024",
-        description: "Solving the Advent of Code 2024 puzzles using the Rust programming language.",
+        description: "Advent of Code 2024 puzzles, solved in Rust.",
         url: "https://github.com/rust-dd/aoc-2024",
         github_repo: "rust-dd/aoc-2024",
         stars: 24,
         language: "Rust",
-        topics: &["advent-of-code", "rust"],
+        topics: &["advent-of-code"],
     },
     OssProject {
         name: "iTransformer",
         description: "An iTransformer implementation in Rust for time-series forecasting.",
         url: "https://github.com/rust-dd/iTransformer",
         github_repo: "rust-dd/iTransformer",
-        stars: 18,
+        stars: 22,
         language: "Rust",
         topics: &["ai", "transformers", "mathematics"],
     },
@@ -83,7 +88,7 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "Blog engine written in Rust, powered by Dioxus and SurrealDB.",
         url: "https://github.com/rust-dd/blog",
         github_repo: "rust-dd/blog",
-        stars: 16,
+        stars: 18,
         language: "Rust",
         topics: &["blog", "dioxus", "surrealdb"],
     },
@@ -92,13 +97,13 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "Google Calendar CLI written in Rust.",
         url: "https://github.com/rust-dd/google-calendar-cli",
         github_repo: "rust-dd/google-calendar-cli",
-        stars: 13,
+        stars: 16,
         language: "Rust",
-        topics: &["cli", "google-calendar", "rust"],
+        topics: &["cli", "google-calendar"],
     },
     OssProject {
         name: "probability-benchmark",
-        description: "Scientific computing benchmark: Rust vs Zig vs C.",
+        description: "Scientific computing benchmark: Rust vs Zig vs C on Ornstein–Uhlenbeck processes.",
         url: "https://github.com/rust-dd/probability-benchmark",
         github_repo: "rust-dd/probability-benchmark",
         stars: 11,
@@ -110,190 +115,186 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "An interactive Rust tutorial in the browser.",
         url: "https://github.com/rust-dd/tryrust.org",
         github_repo: "rust-dd/tryrust.org",
-        stars: 8,
+        stars: 10,
         language: "Rust",
         topics: &["axum", "leptos", "tutorial"],
     },
     OssProject {
+        name: "react-native-qdrant-edge",
+        description: "Embedded vector search for React Native: the Qdrant engine running in-process on iOS and Android.",
+        url: "https://github.com/rust-dd/react-native-qdrant-edge",
+        github_repo: "rust-dd/react-native-qdrant-edge",
+        stars: 10,
+        language: "TypeScript",
+        topics: &["qdrant", "react-native", "vector-search"],
+    },
+    OssProject {
         name: "async-safe-defer",
-        description: "Minimal async- and sync-capable defer crate for Rust.",
+        description: "Minimal async- and sync-capable defer crate.",
         url: "https://github.com/rust-dd/async-safe-defer",
         github_repo: "rust-dd/async-safe-defer",
-        stars: 7,
+        stars: 9,
         language: "Rust",
         topics: &["async", "defer", "embedded"],
     },
     OssProject {
-        name: "react-native-qdrant-edge",
-        description: "Embedded vector search for React Native powered by Qdrant Edge, running fully offline on-device.",
-        url: "https://github.com/rust-dd/react-native-qdrant-edge",
-        github_repo: "rust-dd/react-native-qdrant-edge",
-        stars: 0,
-        language: "TypeScript",
-        topics: &["react-native", "qdrant", "vector-search", "embedded"],
-    },
-    OssProject {
         name: "react-native-scc",
-        description: "Rust-powered, ultra-fast persistent key-value storage for React Native and Expo — a lock-free hash map behind Nitro Modules, built as a drop-in MMKV alternative.",
+        description: "Rust-powered persistent key-value storage for React Native and Expo via Nitro Modules: a lock-free hash map built as a drop-in MMKV alternative.",
         url: "https://github.com/rust-dd/react-native-scc",
         github_repo: "rust-dd/react-native-scc",
+        stars: 4,
+        language: "Rust",
+        topics: &["react-native", "nitro-modules", "key-value-store"],
+    },
+    OssProject {
+        name: "async-rs",
+        description: "A minimal, educational async runtime in Rust with a lightweight executor and task system.",
+        url: "https://github.com/rust-dd/async-rs",
+        github_repo: "rust-dd/async-rs",
+        stars: 3,
+        language: "Rust",
+        topics: &["async", "runtime"],
+    },
+    OssProject {
+        name: "xor-neural-network",
+        description: "A minimal neural network that learns XOR from scratch with only the standard library and rand.",
+        url: "https://github.com/rust-dd/xor-neural-network",
+        github_repo: "rust-dd/xor-neural-network",
         stars: 2,
         language: "Rust",
-        topics: &["react-native", "rust", "nitro-modules", "key-value-store", "mmkv-alternative"],
+        topics: &["neural-network", "machine-learning"],
     },
     OssProject {
         name: "ito",
-        description: "Terminal UI to browse, configure, and plot every stochastic process in stochastic-rs — Monte-Carlo paths on the CPU, in f64.",
+        description: "Terminal UI to browse, configure and plot every stochastic process in stochastic-rs: Monte-Carlo paths on the CPU, in f64.",
         url: "https://github.com/rust-dd/ito",
         github_repo: "rust-dd/ito",
         stars: 2,
         language: "Rust",
-        topics: &["rust", "tui", "stochastic", "quant"],
+        topics: &["tui", "stochastic-processes", "quant"],
+    },
+    OssProject {
+        name: "candding",
+        description: "Pure candle embeddings for Rust: dense, sparse, multi-vector and reranking models with no ONNX runtime, each checked against its reference implementation.",
+        url: "https://github.com/rust-dd/candding",
+        github_repo: "rust-dd/candding",
+        stars: 0,
+        language: "Rust",
+        topics: &["candle", "embeddings", "machine-learning"],
+    },
+    OssProject {
+        name: "react-state-rs",
+        description: "Minimal state management for React applications, built with Rust and compiled to WebAssembly.",
+        url: "https://github.com/rust-dd/react-state-rs",
+        github_repo: "rust-dd/react-state-rs",
+        stars: 0,
+        language: "Rust",
+        topics: &["wasm", "react"],
+    },
+    OssProject {
+        name: "impl-new-derive",
+        description: "A derive macro that generates struct constructors: public fields from arguments, private fields from their defaults, generic or not.",
+        url: "https://github.com/rust-dd/impl-new-derive",
+        github_repo: "rust-dd/impl-new-derive",
+        stars: 0,
+        language: "Rust",
+        topics: &["macro", "derive"],
     },
 ];
 
 #[component]
 pub fn Component() -> Element {
     let stars = use_server_future(select_repo_stars)?;
+    let repo_stars = stars.read().as_ref().and_then(|result| result.as_ref().ok()).cloned();
 
-    let mut languages: Vec<&str> = PROJECTS.iter().map(|p| p.language).collect();
-    languages.sort();
-    languages.dedup();
+    let mut sorted: Vec<&OssProject> = PROJECTS.iter().collect();
+    sorted.sort_by(|a, b| {
+        project_stars(b, repo_stars.as_ref())
+            .cmp(&project_stars(a, repo_stars.as_ref()))
+            .then_with(|| a.name.cmp(b.name))
+    });
+    let total_stars: u32 = PROJECTS
+        .iter()
+        .map(|project| project_stars(project, repo_stars.as_ref()))
+        .sum();
+    let mut languages: BTreeMap<&str, usize> = BTreeMap::new();
+    for project in PROJECTS.iter() {
+        *languages.entry(project.language).or_insert(0) += 1;
+    }
 
     rsx! {
         seo::PageMeta {
             title: seo::page_title("Open-Source Rust Crates and Tools"),
-            description: "Open-source Rust from Rust-DD: the Tako web framework, stochastic-rs for quant finance, embedded sensor drivers, CLI tools and starter templates.",
+            description: "Open-source Rust from Rust-DD: stochastic-rs for quant finance, the Tako web framework, candding embeddings, embedded sensor drivers, CLI tools and starter templates.",
             path: "/opensource",
         }
-
-        crate::components::shell::Sidebar {}
+        Sidebar {
+            SideGroup { title: "Sections",
+                li { a { href: "#crates", class: "side-link", "Crates" } }
+            }
+            SideGroup { title: "Languages",
+                for (language, count) in languages.iter() {
+                    li { span { class: "side-link", "{language} ({count})" } }
+                }
+            }
+        }
         main { id: "main", class: "shell-main",
-            match stars.read().as_ref() {
-                Some(result) => {
-                    let repo_stars = result.as_ref().ok();
-                    let total_stars: u32 = PROJECTS
-                        .iter()
-                        .map(|project| project_stars(project, repo_stars))
-                        .sum();
-
-                    let mut sorted_projects: Vec<&OssProject> = PROJECTS.iter().collect();
-                    sorted_projects.sort_by(|a, b| {
-                        project_stars(b, repo_stars)
-                            .cmp(&project_stars(a, repo_stars))
-                            .then_with(|| a.name.cmp(b.name))
-                    });
-
-                    rsx! {
-                        div { class: "w-full font-mono",
-                            section { class: "animate-rise py-4",
-                                p { class: "text-xs text-faint", "// open source" }
-                                h1 { class: "mt-2 text-3xl font-semibold leading-tight text-fg sm:text-4xl md:text-5xl",
-                                    "Open Source"
-                                }
-                                p { class: "mt-3 max-w-2xl text-sm leading-relaxed text-muted",
-                                    "Libraries, frameworks, and tools we build and maintain in the open."
-                                }
-                            }
-
-                            div { class: "mt-4 border-y border-dashed border-border py-3 text-xs text-muted",
-                                div { class: "flex flex-wrap gap-x-4 gap-y-1",
-                                    span {
-                                        "repos: "
-                                        span { class: "text-fg", "{PROJECTS.len()}" }
-                                    }
-                                    span { class: "hidden sm:inline", "|" }
-                                    span {
-                                        "stars: "
-                                        span { class: "text-fg", "{total_stars}" }
-                                    }
-                                    span { class: "hidden sm:inline", "|" }
-                                    span {
-                                        "org: "
-                                        a {
-                                            href: "https://github.com/rust-dd",
-                                            target: "_blank",
-                                            rel: "noopener noreferrer",
-                                            class: "text-muted transition-colors duration-200 hover:text-accent",
-                                            "rust-dd"
-                                        }
-                                    }
-                                }
-                            }
-
-                            div { class: "mt-4 text-xs text-muted",
-                                span { class: "text-faint", "use " }
-                                span { class: "text-muted", "lang" }
-                                span { class: "text-faint", "::" }
-                                span { class: "text-faint", "{{" }
-                                span { class: "text-fg",
-                                    {languages.join(", ")}
-                                }
-                                span { class: "text-faint", "}};" }
-                            }
-
-                            section { class: "mt-6 grid gap-4 md:gap-5 lg:grid-cols-2",
-                                for (index, project) in sorted_projects.into_iter().enumerate() {
+            p { class: "doc-path",
+                Link { to: Route::Home { q: String::new() }, class: "text-mod", "rust_dd" }
+                "::"
+                span { class: "text-mod", "open_source" }
+            }
+            div { class: "doc-title",
+                h1 { class: "doc-h1",
+                    "Module "
+                    span { class: "text-mod", "open_source" }
+                }
+                a {
+                    href: "https://github.com/rust-dd",
+                    rel: "noopener noreferrer",
+                    target: "_blank",
+                    class: "doc-source",
+                    "GitHub"
+                }
+            }
+            p { class: "doc-lead",
+                "Libraries, frameworks and tools we build and maintain in the open: {PROJECTS.len()} repositories and {total_stars} stars."
+            }
+            SectionHeading { id: "crates", title: "Crates" }
+            div { class: "table-scroll",
+                table { class: "data-table",
+                    thead {
+                        tr {
+                            th { scope: "col", "Crate" }
+                            th { scope: "col", "What it does" }
+                            th { scope: "col", "Language" }
+                            th { scope: "col", class: "num", "Stars" }
+                        }
+                    }
+                    tbody {
+                        for project in sorted {
+                            tr {
+                                td {
                                     a {
                                         href: "{project.url}",
-                                        target: "_blank",
                                         rel: "noopener noreferrer",
-                                        class: "group rounded-lg border border-border bg-surface p-4 transition-colors duration-200 hover:border-accent sm:p-5",
-                                        div { class: "flex items-start justify-between gap-4",
-                                            div { class: "flex min-w-0 items-start gap-3",
-                                                div { class: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded border border-border bg-surface-2 text-muted",
-                                                    svg {
-                                                        width: "1em",
-                                                        height: "1em",
-                                                        view_box: "0 0 24 24",
-                                                        fill: "currentColor",
-                                                        path { d: "M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z" }
-                                                    }
-                                                }
-                                                div { class: "min-w-0",
-                                                    p { class: "text-xs text-faint",
-                                                        "{project.language} · "
-                                                        span { class: "inline-flex items-center gap-0.5",
-                                                        svg {
-                                                            width: "12",
-                                                            height: "12",
-                                                            view_box: "0 0 24 24",
-                                                            fill: "currentColor",
-                                                            class: "text-amber-400",
-                                                            path { d: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" }
-                                                        }
-                                                        "{project_stars(project, repo_stars)}"
-                                                    }
-                                                }
-                                            }
-                                            }
-                                            span { class: "text-xs text-faint", "#{index + 1}" }
-                                        }
-
-                                        h2 { class: "mt-3 text-lg font-semibold leading-tight text-fg",
-                                            "{project.name}"
-                                        }
-                                        p { class: "mt-2 text-sm leading-relaxed text-muted",
-                                            "{project.description}"
-                                        }
-
-                                        if !project.topics.is_empty() {
-                                            p { class: "mt-3 text-xs text-faint",
-                                                {project.topics.iter().map(|t| format!("#{t}")).collect::<Vec<_>>().join(" ")}
-                                            }
-                                        }
-
-                                        div { class: "mt-3 inline-flex items-center gap-1 text-xs text-muted transition-colors duration-200 group-hover:text-accent",
-                                            "open project"
-                                            span { ">" }
-                                        }
+                                        target: "_blank",
+                                        class: "ident text-mod",
+                                        "{project.name}"
                                     }
                                 }
+                                td {
+                                    "{project.description}"
+                                    if !project.topics.is_empty() {
+                                        p { class: "item-tags", {project.topics.join(" · ")} }
+                                    }
+                                }
+                                td { class: "text-muted font-sans", "{project.language}" }
+                                td { class: "num", "{project_stars(project, repo_stars.as_ref())}" }
                             }
                         }
                     }
                 }
-                None => rsx! {},
             }
         }
     }

@@ -466,7 +466,19 @@ fn Timeline(entries: &'static [Entry]) -> Element {
 
 #[cfg(test)]
 mod tests {
-    use super::{CV_PATH, PORTRAIT_PATH};
+    use super::{CV_PATH, MAINTAINED, PORTRAIT_PATH};
+    use crate::pages::opensource::PROJECTS;
+
+    #[test]
+    fn maintained_crates_are_listed_as_open_source() {
+        let missing: Vec<&str> = MAINTAINED
+            .iter()
+            .copied()
+            .filter(|name| !PROJECTS.iter().any(|project| project.name == *name))
+            .collect();
+
+        assert!(missing.is_empty(), "missing from the open source list: {missing:?}");
+    }
 
     #[test]
     fn linked_files_are_published() {
