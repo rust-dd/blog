@@ -1,3 +1,6 @@
 target
 node_modules
 .git
+*.env
+.env.*
+.claude

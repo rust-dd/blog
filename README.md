@@ -66,9 +66,11 @@ python3 scripts/configure_admin.py
 
 Set the generated `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` in Railway's service variables. Set `ADMIN_ORIGIN=https://rust-dd.com` (the default). Changing either credential revokes all existing sessions. Without valid credentials, admin access stays disabled.
 
+To keep a retrievable copy of the password, save it as a normal, unsealed `ADMIN_PASSWORD` variable in the production `blog` service. You can reveal it later on Railway's Variables tab. Authentication uses `ADMIN_PASSWORD_HASH`; the plaintext copy is never read by the app or sent to the browser.
+
 For local development, set `ADMIN_ORIGIN=http://127.0.0.1:8080` to match your dev server URL. HTTPS and secure cookies are required for all other hosts. Keep credentials out of git; local `*.env` files are ignored. `ADMIN_TRUST_PROXY=true` enables per-client throttling behind a trusted reverse proxy; enable it only when the app cannot be reached directly and the proxy appends the real client IP to `X-Forwarded-For`.
 
-Apply the schema before deploying the admin: `post.first_published_at` is an optional datetime used to preserve the original publication date when an article is unpublished and republished. Use the existing surrealkit workflow (`sync --dry-run --no-prune`, then `sync --no-prune` and `apply`). Existing published articles retain their date.
+Apply the schema before deploying the admin: `post.first_published_at` is an optional datetime used to preserve the original publication date when an article is unpublished and republished. With production connection credentials configured, review `surrealkit sync --dry-run --no-prune`, then run `surrealkit sync --no-prune --fail-fast`. Sync applies the changed definitions directly. Existing published articles retain their date.
 
 Admin pages and APIs require a valid session, use `no-store`, and are excluded from indexing. Public post routes and APIs expose published posts only. Preview HTML runs in a sandboxed iframe with scripts disabled.
 
