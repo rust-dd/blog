@@ -3,75 +3,74 @@ name = "blog"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-dioxus = { version = "0.7", features = ["fullstack", "router"] }
-axum = { version = "0.8", optional = true, features = ["macros"] }
-tokio = { version = "1", optional = true, features = ["rt-multi-thread", "macros", "sync", "time"] }
-tower = { version = "0.5.1", optional = true }
-tower-http = { version = "0.6.2", features = [
-    "fs",
-    "trace",
-    "cors",
-    "compression-br",
-    "compression-deflate",
-    "compression-zstd",
-    "compression-gzip",
-], optional = true }
-thiserror = "1"
-tracing = { version = "0.1", optional = true }
-http = "1"
-# The full client is server-only; shared types (RecordId, SurrealValue) come from
-# surrealdb-types so the wasm build doesn't pull the client engines (whose reqwest
-# 0.13 wasm-streams clashes with dioxus' reqwest 0.12 copy at LTO link time).
-surrealdb = { version = "3", features = ["protocol-http"], optional = true }
-surrealdb-types = "3"
+[workspace]
+members = ["."]
+resolver = "2"
+
+[workspace.dependencies]
+argon2 = { version = "0.5" }
+axum = { version = "0.8", features = ["macros"] }
+base64 = { version = "0.22" }
 chrono = "0.4.38"
+dioxus = { version = "0.7", features = ["fullstack", "router"] }
+dotenvy = "0.15.7"
+getrandom = { version = "0.3.4", features = ["wasm_js"] }
+getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
+hmac = { version = "0.12" }
+http = "1"
+katex = { version = "0.4.6", default-features = false, features = ["duktape"] }
+pulldown-cmark = { version = "0.12.0" }
+regex = { version = "1.10.6" }
+reqwest = { version = "0.12.28", default-features = false, features = ["json", "rustls-tls"] }
+rss = { version = "2.0.9" }
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1"
-dotenvy = "0.15.7"
-syntect = { version = "5.2.0", optional = true, default-features = false, features = [
-    "default-fancy",
-    "html",
-    "parsing",
-    "plist-load",
-    "regex-fancy",
-    "yaml-load",
-] }
-regex = { version = "1.10.6", optional = true }
-pulldown-cmark = { version = "0.12.0", optional = true }
-rss = { version = "2.0.9", optional = true }
-tracing-subscriber = { version = "0.3.18", optional = true }
-katex = { version = "0.4.6", optional = true, default-features = false, features = ["duktape"] }
-reqwest = { version = "0.12.28", default-features = false, optional = true, features = ["json", "rustls-tls"] }
-getrandom = { version = "0.3.4", features = ["wasm_js"] }
-# surrealdb-types → geo → rand 0.8 pulls getrandom 0.2, which needs "js" on wasm
-getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
-# Must match the wasm-bindgen CLI the Dioxus CLI uses to process the wasm (dx
-# downloads the CLI version found in Cargo.lock, so keep this an exact pin). A
-# mismatch leaves __wbindgen_placeholder__ imports / schema-version errors so the
-# module never instantiates and the client never hydrates. 0.2.108 is the exact
-# version surrealdb 3.x's wasm-bindgen-futures dependency requires.
+sha2 = { version = "0.10" }
+surrealdb = { version = "3", features = ["protocol-http"] }
+surrealdb-types = "3"
+syntect = { version = "5.2.0", default-features = false, features = ["default-fancy", "html", "parsing", "plist-load", "regex-fancy", "yaml-load"] }
+thiserror = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tower = { version = "0.5.1" }
+tower-http = { version = "0.6.2", features = ["fs", "trace", "cors", "compression-br", "compression-deflate", "compression-zstd", "compression-gzip"] }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3.18" }
 wasm-bindgen = "=0.2.108"
+
+[dependencies]
+argon2 = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+base64 = { workspace = true, optional = true }
+chrono = { workspace = true }
+dioxus = { workspace = true }
+dotenvy = { workspace = true }
+getrandom = { workspace = true }
+getrandom_02 = { workspace = true }
+hmac = { workspace = true, optional = true }
+http = { workspace = true }
+katex = { workspace = true, optional = true }
+pulldown-cmark = { workspace = true, optional = true }
+regex = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+rss = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true, optional = true }
+surrealdb = { workspace = true, optional = true }
+surrealdb-types = { workspace = true }
+syntect = { workspace = true, optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, optional = true }
+tower = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true }
+tracing = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true }
 
 [features]
 default = []
 web = ["dioxus/web"]
-server = [
-    "dioxus/server",
-    "dep:surrealdb",
-    "dep:axum",
-    "dep:tokio",
-    "dep:tower",
-    "dep:tower-http",
-    "dep:tracing",
-    "dep:syntect",
-    "dep:regex",
-    "dep:pulldown-cmark",
-    "dep:rss",
-    "dep:tracing-subscriber",
-    "dep:katex",
-    "dep:reqwest",
-]
+server = ["dioxus/server", "dep:surrealdb", "dep:axum", "dep:tokio", "dep:tower", "dep:tower-http", "dep:tracing", "dep:syntect", "dep:regex", "dep:pulldown-cmark", "dep:rss", "dep:tracing-subscriber", "dep:katex", "dep:reqwest", "dep:argon2", "dep:base64", "dep:hmac", "dep:sha2"]
 
 [profile.wasm-release]
 inherits = "release"
@@ -79,3 +78,7 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+[[example]]
+name = "admin_credentials"
+required-features = ["server"]

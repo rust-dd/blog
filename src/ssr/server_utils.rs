@@ -72,7 +72,6 @@ pub async fn generate_rss(db: &Surreal<Client>) -> Result<String> {
     Ok(channel.to_string())
 }
 
-
 pub async fn sitemap_handler() -> Response<String> {
     use surrealdb_types::SurrealValue;
 
@@ -150,7 +149,10 @@ fn push_sitemap_url(sitemap: &mut String, loc: &str, lastmod: Option<&str>) {
 }
 
 pub async fn robots_handler() -> Response<String> {
-    let robots = format!("User-agent: *\nAllow: /\n\nSitemap: {}\n", absolute_url("/sitemap.xml"));
+    let robots = format!(
+        "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/admin/\n\nSitemap: {}\n",
+        absolute_url("/sitemap.xml")
+    );
     Response::builder()
         .header("Content-Type", "text/plain; charset=utf-8")
         .body(robots)

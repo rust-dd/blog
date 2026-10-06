@@ -499,12 +499,15 @@ dependencies = [
 name = "blog"
 version = "0.1.0"
 dependencies = [
+ "argon2",
  "axum",
+ "base64",
  "chrono",
  "dioxus",
  "dotenvy",
  "getrandom 0.2.15",
  "getrandom 0.3.4",
+ "hmac",
  "http",
  "katex",
  "pulldown-cmark",
@@ -513,6 +516,7 @@ dependencies = [
  "rss",
  "serde",
  "serde_json",
+ "sha2",
  "surrealdb",
  "surrealdb-types",
  "syntect",

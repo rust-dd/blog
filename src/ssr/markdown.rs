@@ -34,10 +34,14 @@ pub async fn render_markdown(markdown: String) -> Result<RenderedMarkdown> {
 
         fn process_math_event<'a>(&'a self, event: Event<'a>) -> Event<'a> {
             match event {
-                Event::InlineMath(math_exp) => Event::InlineHtml(CowStr::from(katex::render(&math_exp).unwrap())),
-                Event::DisplayMath(math_exp) => Event::Html(CowStr::from(
-                    katex::render_with_opts(&math_exp, &self.display_style_opts).unwrap(),
-                )),
+                Event::InlineMath(math_exp) => match katex::render(&math_exp) {
+                    Ok(html) => Event::InlineHtml(CowStr::from(html)),
+                    Err(_) => Event::Text(math_exp),
+                },
+                Event::DisplayMath(math_exp) => match katex::render_with_opts(&math_exp, &self.display_style_opts) {
+                    Ok(html) => Event::Html(CowStr::from(html)),
+                    Err(_) => Event::Text(math_exp),
+                },
                 _ => event,
             }
         }
@@ -316,6 +320,13 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn incomplete_math_does_not_crash_the_editor_preview() {
+        let rendered = render_markdown("$\\frac{$\n\n$$\\notacommand$$".into()).await.unwrap();
+        assert!(rendered.html.contains("frac"));
+        assert!(rendered.html.contains("notacommand"));
+    }
+
+    #[tokio::test]
     async fn images_keep_their_alt_text_and_load_lazily() {
         let html = process_markdown(
             "![ESP32 \"pinout\"](https://cdn.example/pinout.png)\n\n![Flow](https://cdn.example/flow)".into(),
@@ -331,7 +342,9 @@ mod tests {
     async fn posts_with_h1_sections_are_shifted_below_the_page_title() {
         let html = process_markdown("# Intro\n\n## Details\n\ntext".into()).await.unwrap();
 
-        assert!(html.contains(r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##));
+        assert!(html.contains(
+            r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##
+        ));
         assert!(html.contains(r##"<h3 id="details"><a class="doc-anchor" href="#details" aria-label="Link to this section"></a>Details</h3>"##));
         assert!(!html.contains("<h1>"));
     }
@@ -359,7 +372,9 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(rendered.html.contains(r##"<h2 id="setup"><a class="doc-anchor" href="#setup" aria-label="Link to this section"></a>Setup</h2>"##));
+        assert!(rendered.html.contains(
+            r##"<h2 id="setup"><a class="doc-anchor" href="#setup" aria-label="Link to this section"></a>Setup</h2>"##
+        ));
         assert!(rendered.html.contains(r##"<h3 id="details"><a class="doc-anchor" href="#details" aria-label="Link to this section"></a>Details</h3>"##));
         assert!(rendered.html.contains(r##"<h2 id="setup-2"><a class="doc-anchor" href="#setup-2" aria-label="Link to this section"></a>Setup</h2>"##));
         let ids: Vec<&str> = rendered.sections.iter().map(|section| section.id.as_str()).collect();
@@ -379,7 +394,9 @@ mod tests {
     async fn shifted_h1_sections_are_listed() {
         let rendered = render_markdown("# Intro\n\n## Details".into()).await.unwrap();
 
-        assert!(rendered.html.contains(r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##));
+        assert!(rendered.html.contains(
+            r##"<h2 id="intro"><a class="doc-anchor" href="#intro" aria-label="Link to this section"></a>Intro</h2>"##
+        ));
         assert_eq!(rendered.sections.len(), 1);
         assert_eq!(rendered.sections[0].title, "Intro");
     }

@@ -121,6 +121,24 @@ pub async fn select_repo_stars() -> Result<BTreeMap<String, u32>> {
 pub(crate) const POST_FIELDS: &str = "*, author.*, <string>created_at AS created_at, <string>updated_at AS updated_at, <option<string>>content_updated_at AS content_updated_at";
 
 #[cfg(feature = "server")]
+pub(crate) async fn load_published_post(
+    db: &surrealdb::Surreal<surrealdb::engine::remote::http::Client>,
+    slug: String,
+) -> Result<Option<Post>> {
+    let mut query = db
+        .query(format!(
+            "SELECT {POST_FIELDS} FROM post WHERE slug = $slug AND is_published = true;"
+        ))
+        .bind(("slug", slug))
+        .await?;
+    let mut post = query.take::<Vec<Post>>(0)?.into_iter().next();
+    if let Some(post) = post.as_mut() {
+        hide_author_email(post);
+    }
+    Ok(post)
+}
+
+#[cfg(feature = "server")]
 pub(crate) async fn published_posts() -> Result<Vec<Post>> {
     use crate::ssr::app_state::db;
 
@@ -216,7 +234,7 @@ pub async fn select_tags() -> Result<BTreeMap<String, usize>> {
         let mut query = db
             .query(
                 "
-        LET $tags = SELECT tags FROM post;
+        LET $tags = SELECT tags FROM post WHERE is_published = true;
         array::flatten($tags.map(|$t| $t.tags));
         ",
             )
@@ -246,11 +264,7 @@ pub async fn select_post(slug: String) -> Result<Option<PostPage>> {
 
         let db = db().await;
         let db = db.get().await;
-        let mut query = db
-            .query(format!("SELECT {POST_FIELDS} FROM post WHERE slug = $slug"))
-            .bind(("slug", slug))
-            .await?;
-        let Some(mut post) = query.take::<Vec<Post>>(0)?.into_iter().next() else {
+        let Some(mut post) = load_published_post(&db, slug).await? else {
             return Ok(None);
         };
         hide_author_email(&mut post);
@@ -316,7 +330,7 @@ pub async fn increment_views(id: String) -> Result<()> {
 
         let db = db().await;
         let db = db.get().await;
-        db.query("UPDATE $post SET total_views = total_views + 1;")
+        db.query("UPDATE $post SET total_views = total_views + 1 WHERE is_published = true;")
             .bind(("post", RecordId::new("post", id)))
             .await?;
 

@@ -6,13 +6,21 @@ use crate::{
         loader,
         shell::{self, CONTENT_ID},
     },
-    pages::{about, home, opensource, post, projects},
+    pages::{about, admin, home, opensource, post, projects},
     search::SearchQuery,
     seo,
 };
 
 #[derive(Routable, Clone, PartialEq, Debug)]
 pub enum Route {
+    #[layout(AdminLayout)]
+    #[route("/admin")]
+    Admin {},
+    #[route("/admin/new")]
+    AdminNew {},
+    #[route("/admin/edit/:id")]
+    AdminEdit { id: String },
+    #[end_layout]
     #[layout(Layout)]
     #[route("/?:..query")]
     Home { query: SearchQuery },
@@ -56,9 +64,22 @@ pub fn App() -> Element {
         document::Script {
             "document.addEventListener('keydown',function(e){{var t=e.target;if(e.metaKey||e.ctrlKey||e.altKey||(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)))return;if(e.key==='s'||e.key==='S'||e.key==='/'){{var i=document.getElementById('search');if(i){{e.preventDefault();i.focus();}}}}}});"
         }
+        document::Script {
+            src: asset!("/assets/admin-navigation.js")
+        }
 
         div { class: "min-h-screen bg-bg text-fg font-sans",
             Router::<Route> {}
+        }
+        dialog { id: "admin-unsaved-dialog", class: "admin-confirm-dialog",
+            aria_labelledby: "admin-unsaved-title", aria_describedby: "admin-unsaved-description",
+            div { class: "admin-eyebrow", "BEFORE YOU GO" }
+            h2 { id: "admin-unsaved-title", "Keep your latest words?" }
+            p { id: "admin-unsaved-description", "You have changes that haven’t been saved. Stay here to keep writing, or leave without saving them." }
+            div { class: "admin-modal-actions",
+                button { id: "admin-unsaved-stay", class: "admin-button", autofocus: true, "Stay here" }
+                button { id: "admin-unsaved-leave", class: "admin-danger-button", "Leave without saving" }
+            }
         }
     }
 }
@@ -76,6 +97,37 @@ fn Layout() -> Element {
                 Outlet::<Route> {}
             }
             shell::Footer {}
+        }
+    }
+}
+
+#[component]
+fn AdminLayout() -> Element {
+    rsx! {
+        document::Meta { name: "robots", content: "noindex, nofollow" }
+        document::Title { "Admin · Rust-DD" }
+        SuspenseBoundary {
+            fallback: |_| rsx! { div { class: "admin-loading", "Opening your writing desk…" } },
+            admin::Gate {}
+        }
+    }
+}
+
+#[component]
+fn Admin() -> Element {
+    rsx! { admin::List {} }
+}
+
+#[component]
+fn AdminNew() -> Element {
+    rsx! { admin::editor::Editor { id: None } }
+}
+
+#[component]
+fn AdminEdit(id: String) -> Element {
+    rsx! {
+        for id in [id] {
+            admin::editor::Editor { key: "{id}", id: Some(id) }
         }
     }
 }

@@ -200,9 +200,17 @@ mod tests {
         })
         .await
         .unwrap();
-        root.query("DEFINE NAMESPACE IF NOT EXISTS test").await.unwrap().check().unwrap();
+        root.query("DEFINE NAMESPACE IF NOT EXISTS test")
+            .await
+            .unwrap()
+            .check()
+            .unwrap();
         root.use_ns("test").use_db("test").await.unwrap();
-        root.query("DEFINE DATABASE IF NOT EXISTS test").await.unwrap().check().unwrap();
+        root.query("DEFINE DATABASE IF NOT EXISTS test")
+            .await
+            .unwrap()
+            .check()
+            .unwrap();
         root.query(
             "DEFINE USER IF NOT EXISTS blog_svc ON DATABASE PASSWORD 'pw' \
              ROLES EDITOR DURATION FOR TOKEN 1y, FOR SESSION NONE",

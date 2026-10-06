@@ -12,6 +12,7 @@ DEFINE FIELD OVERWRITE author ON post TYPE record<author> ASSERT $value != NONE;
 DEFINE FIELD OVERWRITE read_time ON post TYPE option<int>;
 DEFINE FIELD OVERWRITE total_views ON post TYPE int DEFAULT 0;
 DEFINE FIELD OVERWRITE created_at ON post TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE first_published_at ON post TYPE option<datetime>;
 DEFINE FIELD OVERWRITE updated_at ON post TYPE datetime VALUE time::now();
 -- updated_at also moves on every view count; this one only moves when the text changes.
 DEFINE FIELD OVERWRITE content_updated_at ON post TYPE option<datetime>;

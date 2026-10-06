@@ -34,6 +34,7 @@ async fn main() {
                 .layer(TraceLayer::new_for_http())
                 .layer(axum::middleware::from_fn(redirect_www)),
         )
+        .layer(axum::middleware::from_fn(blog::ssr::admin::middleware::protect))
         .layer(
             CompressionLayer::new()
                 .quality(CompressionLevel::Default)
@@ -51,7 +52,12 @@ async fn main() {
     let addr = dioxus::cli_config::fullstack_address_or_localhost();
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     tracing::info!("listening on http://{}", addr);
-    axum::serve(listener, app.into_make_service()).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+    )
+    .await
+    .unwrap();
 }
 
 #[cfg(not(feature = "server"))]
