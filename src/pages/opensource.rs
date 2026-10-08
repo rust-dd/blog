@@ -26,7 +26,7 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "High-performance quantitative finance in Rust and Python: 130+ stochastic processes, option pricing, calibration, fixed income, risk and copulas, with SIMD and GPU acceleration.",
         url: "https://github.com/rust-dd/stochastic-rs",
         github_repo: "rust-dd/stochastic-rs",
-        stars: 190,
+        stars: 193,
         language: "Rust",
         topics: &["quant", "stochastic-processes", "option-pricing", "rough-volatility", "cuda"],
     },
@@ -35,7 +35,7 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "Multi-transport Rust web framework: HTTP/1.1, HTTP/2, HTTP/3, WebSocket, SSE, gRPC, TCP/UDP and Unix sockets behind one router, on Tokio or Compio.",
         url: "https://github.com/rust-dd/tako",
         github_repo: "rust-dd/tako",
-        stars: 164,
+        stars: 162,
         language: "Rust",
         topics: &["async", "http3", "grpc", "websocket", "io-uring"],
     },
@@ -179,9 +179,27 @@ pub(crate) const PROJECTS: &[OssProject] = &[
         description: "Pure candle embeddings for Rust: dense, sparse, multi-vector and reranking models with no ONNX runtime, each checked against its reference implementation.",
         url: "https://github.com/rust-dd/candding",
         github_repo: "rust-dd/candding",
-        stars: 0,
+        stars: 1,
         language: "Rust",
         topics: &["candle", "embeddings", "machine-learning"],
+    },
+    OssProject {
+        name: "amnezia-rs",
+        description: "Rust and Bevy restoration of Amnézia, the Hungarian RPG Maker 2000 game: original maps, event scripts, dialogue and turn-based combat without the RPG Maker runtime.",
+        url: "https://github.com/rust-dd/amnezia-rs",
+        github_repo: "rust-dd/amnezia-rs",
+        stars: 0,
+        language: "Rust",
+        topics: &["bevy", "rpg-maker-2000", "game-restoration"],
+    },
+    OssProject {
+        name: "metal-oxide",
+        description: "Rust GPU compute compiler and runtime for Apple Silicon: compile Rust kernels to Metal Shading Language and launch them with typed host bindings on classic Metal or Metal 4.",
+        url: "https://github.com/rust-dd/metal-oxide",
+        github_repo: "rust-dd/metal-oxide",
+        stars: 0,
+        language: "Rust",
+        topics: &["metal", "gpu-compute", "apple-silicon"],
     },
     OssProject {
         name: "react-state-rs",
@@ -226,7 +244,7 @@ pub fn Component() -> Element {
     rsx! {
         seo::PageMeta {
             title: seo::page_title("Open-Source Rust Crates and Tools"),
-            description: "Open-source Rust from Rust-DD: stochastic-rs for quant finance, the Tako web framework, candding embeddings, embedded sensor drivers, CLI tools and starter templates.",
+            description: "Open-source Rust from Rust-DD: stochastic-rs, Tako, candding, the Amnézia game restoration, metal-oxide GPU kernels, sensor drivers and CLI tools.",
             path: "/opensource",
         }
         Sidebar {
