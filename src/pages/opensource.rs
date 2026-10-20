@@ -4,7 +4,11 @@ use dioxus::prelude::*;
 
 use crate::{
     app::Route,
-    components::shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
+    components::{
+        project_card::ProjectCard,
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
+    },
+    projects::{AMNEZIA, FEATURED},
     search::SearchQuery,
     seo,
     ssr::api::select_repo_stars,
@@ -249,7 +253,15 @@ pub fn Component() -> Element {
         }
         Sidebar {
             SideGroup { title: "Sections",
-                li { a { href: "#crates", class: "side-link", "Crates" } }
+                li { a { href: "#featured", class: "side-link", "Featured projects" } }
+                li { a { href: "#game-restoration", class: "side-link", "Game restoration" } }
+                li { a { href: "#crates", class: "side-link", "All repositories" } }
+            }
+            SideGroup { title: "Featured",
+                for project in FEATURED {
+                    li { a { href: "#{project.name}", class: "side-link side-code text-mod", "{project.name}" } }
+                }
+                li { a { href: "#amnezia-rs", class: "side-link side-code text-mod", "amnezia-rs" } }
             }
             SideGroup { title: "Languages",
                 for (language, count) in languages.iter() {
@@ -277,14 +289,46 @@ pub fn Component() -> Element {
                 }
             }
             p { class: "doc-lead",
-                "Libraries, frameworks and tools we build and maintain in the open: {PROJECTS.len()} repositories and {total_stars} stars."
+                "Libraries, frameworks and tools we build in the open. Explore the projects, read the code and make them your own."
             }
-            SectionHeading { id: "crates", title: "Crates" }
+            nav { class: "project-index", aria_label: "Open-source sections",
+                a { href: "#featured", span { "{FEATURED.len():02}" } " featured projects" }
+                a { href: "#crates", span { "{PROJECTS.len()}" } " repositories" }
+                span { class: "project-index-note", "{total_stars} GitHub stars" }
+            }
+            section { aria_labelledby: "featured",
+                SectionHeading { id: "featured", title: "Featured projects" }
+                p { class: "section-intro", "Start here: our core work across finance, infrastructure, hardware and mobile." }
+                div { class: "project-grid",
+                    for (index, project) in FEATURED.iter().enumerate() {
+                        ProjectCard {
+                            project,
+                            number: index + 1,
+                            stars: PROJECTS.iter()
+                                .find(|repo| repo.name == project.name)
+                                .map(|repo| project_stars(repo, repo_stars.as_ref())),
+                        }
+                    }
+                }
+            }
+            section { aria_labelledby: "game-restoration",
+                SectionHeading { id: "game-restoration", title: "Game restoration" }
+                div { class: "project-grid project-grid-wide",
+                    ProjectCard {
+                        project: &AMNEZIA,
+                        stars: PROJECTS.iter()
+                            .find(|repo| repo.name == AMNEZIA.name)
+                            .map(|repo| project_stars(repo, repo_stars.as_ref())),
+                    }
+                }
+            }
+            SectionHeading { id: "crates", title: "All repositories" }
+            p { class: "section-intro", "The complete index, including smaller libraries and experiments. Sorted by GitHub stars." }
             div { class: "table-scroll",
                 table { class: "data-table",
                     thead {
                         tr {
-                            th { scope: "col", "Crate" }
+                            th { scope: "col", "Repository" }
                             th { scope: "col", "What it does" }
                             th { scope: "col", "Language" }
                             th { scope: "col", class: "num", "Stars" }

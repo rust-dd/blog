@@ -2,99 +2,42 @@ use dioxus::prelude::*;
 
 use crate::{
     app::Route,
-    components::shell::{SideGroup, Sidebar, CONTENT_ID},
+    components::{
+        project_card::ProjectCard,
+        shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
+    },
+    projects::{EXPERIMENTS, FEATURED, PAUSED, PRODUCTS},
     search::SearchQuery,
     seo,
 };
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct Project {
-    pub name: &'static str,
-    pub kind: &'static str,
-    pub description: &'static str,
-    pub url: &'static str,
-}
-
-pub const PROJECTS: &[Project] = &[
-    Project {
-        name: "stochastic-rs",
-        kind: "library and docs",
-        description: "Open-source quantitative finance for Rust and Python: 132 stochastic processes, option pricing, Heston and SABR calibration, volatility surfaces and fixed income.",
-        url: "https://stochastic.rust-dd.com",
-    },
-    Project {
-        name: "tako",
-        kind: "web framework",
-        description: "Multi-transport Rust web framework: HTTP/1.1, HTTP/2, HTTP/3, WebTransport, WebSocket, SSE, gRPC, TCP, UDP and Unix sockets behind one router.",
-        url: "https://tako.rust-dd.com",
-    },
-    Project {
-        name: "candding",
-        kind: "library",
-        description: "Dense, sparse, multi-vector and reranking models in Rust on candle, with no ONNX runtime, each checked against its reference implementation.",
-        url: "https://candding.rust-dd.com",
-    },
-    Project {
-        name: "rsql",
-        kind: "database client",
-        description: "Fast PostgreSQL client built with Rust, Tauri and React. Query data, inspect schema, run EXPLAIN and stay responsive on large result sets.",
-        url: "https://rsql.rust-dd.com",
-    },
-    Project {
-        name: "stochasticlab",
-        kind: "platform",
-        description: "Quantitative tools built on stochastic calculus: portfolio optimization, volatility modeling, option pricing and risk analysis.",
-        url: "https://stochasticlab.cloud",
-    },
-    Project {
-        name: "shrtn.ink",
-        kind: "service",
-        description: "Free URL shortener with QR codes, click analytics, a REST API, an MCP server and webhooks.",
-        url: "https://shrtn.ink",
-    },
-    Project {
-        name: "tryrust.org",
-        kind: "education",
-        description: "Interactive Rust tutorial and playground that runs directly in the browser.",
-        url: "https://tryrust.org",
-    },
-    Project {
-        name: "doom.rust-dd",
-        kind: "experiment",
-        description: "DOOM in the browser, rebuilt with Rust and Bevy on Freedoom.",
-        url: "https://doom.rust-dd.com",
-    },
-    Project {
-        name: "react-native-scc",
-        kind: "library",
-        description: "Rust-powered persistent key-value storage for React Native and Expo, built as a drop-in MMKV alternative.",
-        url: "https://github.com/rust-dd/react-native-scc",
-    },
-    Project {
-        name: "react-native-qdrant-edge",
-        kind: "library",
-        description: "Embedded vector search for React Native: the Qdrant engine running in-process on iOS and Android.",
-        url: "https://github.com/rust-dd/react-native-qdrant-edge",
-    },
-    Project {
-        name: "ito",
-        kind: "terminal app",
-        description: "Terminal UI to browse, configure and plot every stochastic process in stochastic-rs.",
-        url: "https://github.com/rust-dd/ito",
-    },
-];
 
 #[component]
 pub fn Component() -> Element {
     rsx! {
         seo::PageMeta {
-            title: seo::page_title("Rust Apps and Developer Tools"),
-            description: "Apps, sites and tools we build with Rust: stochastic-rs, the Tako web framework, candding embeddings, the rsql PostgreSQL client and the tryrust.org playground.",
+            title: seo::page_title("Rust Projects, Apps and Developer Tools"),
+            description: "Explore Rust-DD projects: stochastic-rs, Tako, embedded-dht-rs, rsql, candding, metal-oxide, React Native libraries, TurboEncode and the Amnézia game restoration.",
             path: "/projects",
         }
         Sidebar {
-            SideGroup { title: "Projects",
-                for project in PROJECTS.iter() {
+            SideGroup { title: "Sections",
+                li { a { href: "#featured", class: "side-link", "Featured projects" } }
+                li { a { href: "#products", class: "side-link", "Products & tools" } }
+                li { a { href: "#experiments", class: "side-link", "Games & experiments" } }
+                li { a { href: "#paused", class: "side-link", "On pause" } }
+            }
+            SideGroup { title: "Featured",
+                for project in FEATURED {
+                    li { a { href: "#{project.name}", class: "side-link side-code text-mod", "{project.name}" } }
+                }
+            }
+            SideGroup { title: "Products & tools",
+                for project in PRODUCTS {
+                    li { a { href: "#{project.name}", class: "side-link side-code text-mod", "{project.name}" } }
+                }
+            }
+            SideGroup { title: "Games & experiments",
+                for project in EXPERIMENTS {
                     li { a { href: "#{project.name}", class: "side-link side-code text-mod", "{project.name}" } }
                 }
             }
@@ -110,22 +53,49 @@ pub fn Component() -> Element {
                     "Module "
                     span { class: "text-mod", "projects" }
                 }
+                Link { to: Route::OpenSource {}, class: "doc-source", "Open-source index →" }
             }
-            p { class: "doc-lead", "Live tools, libraries with their own sites, experiments and product work from Rust-DD." }
-            dl { class: "item-table", style: "margin-top: 24px",
-                for project in PROJECTS.iter() {
-                    div { id: "{project.name}", class: "item-row",
-                        dt {
-                            a {
-                                href: "{project.url}",
-                                rel: "noopener noreferrer",
-                                target: "_blank",
-                                class: "ident text-mod",
-                                "{project.name}"
-                            }
-                            span { class: "item-kind", "{project.kind}" }
-                        }
-                        dd { "{project.description}" }
+            p { class: "doc-lead",
+                "From quantitative finance and GPU computing to mobile libraries and playable games. Explore what we build with Rust."
+            }
+            nav { class: "project-index", aria_label: "Project sections",
+                a { href: "#featured", span { "{FEATURED.len():02}" } " featured projects" }
+                a { href: "#products", span { "{PRODUCTS.len():02}" } " products & tools" }
+                a { href: "#experiments", span { "{EXPERIMENTS.len():02}" } " games & experiments" }
+            }
+
+            section { aria_labelledby: "featured",
+                SectionHeading { id: "featured", title: "Featured projects" }
+                p { class: "section-intro", "Our core libraries, frameworks and developer tools." }
+                div { class: "project-grid",
+                    for (index, project) in FEATURED.iter().enumerate() {
+                        ProjectCard { project, number: index + 1 }
+                    }
+                }
+            }
+            section { aria_labelledby: "products",
+                SectionHeading { id: "products", title: "Products & tools" }
+                p { class: "section-intro", "Tools to open, use and explore in your browser." }
+                div { class: "project-grid",
+                    for project in PRODUCTS {
+                        ProjectCard { project }
+                    }
+                }
+            }
+            section { aria_labelledby: "experiments",
+                SectionHeading { id: "experiments", title: "Games & experiments" }
+                p { class: "section-intro", "Game restorations, browser experiments and tools for exploring ideas." }
+                div { class: "project-grid",
+                    for project in EXPERIMENTS {
+                        ProjectCard { project }
+                    }
+                }
+            }
+            section { aria_labelledby: "paused",
+                SectionHeading { id: "paused", title: "On pause" }
+                div { class: "project-grid project-grid-wide",
+                    for project in PAUSED {
+                        ProjectCard { project, paused: true }
                     }
                 }
             }
