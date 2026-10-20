@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 use crate::{
     app::Route,
     components::{
-        project_card::ProjectCard,
+        project_entry::ProjectEntry,
         shell::{SectionHeading, SideGroup, Sidebar, CONTENT_ID},
     },
     projects::{AMNEZIA, FEATURED},
@@ -289,21 +289,17 @@ pub fn Component() -> Element {
                 }
             }
             p { class: "doc-lead",
-                "Libraries, frameworks and tools we build in the open. Explore the projects, read the code and make them your own."
+                "Open-source libraries, frameworks and tools maintained by Rust-DD."
             }
-            nav { class: "project-index", aria_label: "Open-source sections",
-                a { href: "#featured", span { "{FEATURED.len():02}" } " featured projects" }
-                a { href: "#crates", span { "{PROJECTS.len()}" } " repositories" }
-                span { class: "project-index-note", "{total_stars} GitHub stars" }
+            p { class: "section-intro",
+                "{PROJECTS.len()} repositories · {total_stars} GitHub stars"
             }
             section { aria_labelledby: "featured",
                 SectionHeading { id: "featured", title: "Featured projects" }
-                p { class: "section-intro", "Start here: our core work across finance, infrastructure, hardware and mobile." }
-                div { class: "project-grid",
-                    for (index, project) in FEATURED.iter().enumerate() {
-                        ProjectCard {
+                div { class: "project-list project-list-featured",
+                    for project in FEATURED {
+                        ProjectEntry {
                             project,
-                            number: index + 1,
                             stars: PROJECTS.iter()
                                 .find(|repo| repo.name == project.name)
                                 .map(|repo| project_stars(repo, repo_stars.as_ref())),
@@ -313,8 +309,8 @@ pub fn Component() -> Element {
             }
             section { aria_labelledby: "game-restoration",
                 SectionHeading { id: "game-restoration", title: "Game restoration" }
-                div { class: "project-grid project-grid-wide",
-                    ProjectCard {
+                div { class: "project-list project-list-featured",
+                    ProjectEntry {
                         project: &AMNEZIA,
                         stars: PROJECTS.iter()
                             .find(|repo| repo.name == AMNEZIA.name)
